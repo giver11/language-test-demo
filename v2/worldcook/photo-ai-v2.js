@@ -1,4 +1,4 @@
-/* WorldCook Vision v6 — fast saved-photo and live-camera recognition with selectable localized candidates. */
+/* WorldCook Vision v7 — saved-photo, video-frame and live-camera recognition with selectable localized candidates. */
 (function(){
 const legacyAnalyze=window.analyzePhoto;
 let objectDetectorPromise=null,classifierPromise=null,activeDetector="";
@@ -54,6 +54,54 @@ async function loadModels(){
  }
  return classifierPromise;
 }
+let selectedMediaUrl="";
+function isVideo(){return !!photoFile&&String(photoFile.type||"").startsWith("video/")}
+function setMediaStatus(){
+ const names={
+  en:["🖼️ Choose photo or video","Photo or video selected. Ready to analyze."],
+  ko:["🖼️ 사진·동영상 선택","사진 또는 동영상이 선택되었습니다. 분석할 수 있습니다."],
+  es:["🖼️ Elegir foto o vídeo","Foto o vídeo seleccionado. Listo para analizar."],
+  ja:["🖼️ 写真・動画を選択","写真または動画を選択しました。解析できます。"],
+  zh:["🖼️ 选择照片或视频","已选择照片或视频，可以开始分析。"]
+ };
+ const x=names[lang()]||names.en,b=$("#choosePhoto");if(b)b.textContent=x[0];return x[1];
+}
+window.previewPhoto=function(e){
+ const file=e&&e.target&&e.target.files&&e.target.files[0];if(!file)return;
+ if(!file.type.startsWith("image/")&&!file.type.startsWith("video/")){setStatus("Unsupported file type.");return}
+ photoFile=file;if(selectedMediaUrl)URL.revokeObjectURL(selectedMediaUrl);selectedMediaUrl=URL.createObjectURL(file);
+ const img=$("#photoPreview"),video=$("#videoPreview");
+ if(isVideo()){
+  img.classList.add("hidden");img.removeAttribute("src");video.src=selectedMediaUrl;video.classList.remove("hidden");video.load();
+ }else{
+  video.pause();video.classList.add("hidden");video.removeAttribute("src");img.src=selectedMediaUrl;img.classList.remove("hidden");
+ }
+ $("#photoEmpty").classList.add("hidden");$("#scanButton").disabled=false;setStatus(setMediaStatus());detected=[];renderCandidates();
+};
+function waitForVideo(video){
+ if(video.readyState>=1&&Number.isFinite(video.duration))return Promise.resolve();
+ return Promise.race([
+  new Promise((ok,no)=>{video.addEventListener("loadedmetadata",ok,{once:true});video.addEventListener("error",()=>no(new Error("Video decode failed")),{once:true})}),
+  new Promise((_,no)=>setTimeout(()=>no(new Error("Video decode timeout")),10000))
+ ]);
+}
+function seekVideo(video,time){
+ return Promise.race([
+  new Promise(ok=>{video.addEventListener("seeked",ok,{once:true});video.currentTime=Math.min(Math.max(0,time),Math.max(0,video.duration-.05))}),
+  new Promise((_,no)=>setTimeout(()=>no(new Error("Video seek timeout")),5000))
+ ]);
+}
+async function mediaFrames(){
+ if(!isVideo()){const img=$("#photoPreview");await waitForImage(img);return [img]}
+ const video=$("#videoPreview");await waitForVideo(video);
+ const duration=Number.isFinite(video.duration)?video.duration:0,points=duration>1?[duration*.15,duration*.5,duration*.85]:[0],frames=[];
+ for(const point of points){
+  await seekVideo(video,point);const canvas=document.createElement("canvas"),max=640,scale=Math.min(1,max/(video.videoWidth||max));
+  canvas.width=Math.max(1,Math.round((video.videoWidth||640)*scale));canvas.height=Math.max(1,Math.round((video.videoHeight||360)*scale));
+  canvas.getContext("2d").drawImage(video,0,0,canvas.width,canvas.height);frames.push(canvas);
+ }
+ return frames;
+}
 function waitForImage(img){
  if(img.complete&&img.naturalWidth)return Promise.resolve();
  return Promise.race([
@@ -90,22 +138,19 @@ window.confirmCandidates=function(){
 };
 window.analyzePhoto=async function(){
  if(!photoFile)return;
- const btn=$("#scanButton"),p=PUI[lang()],t=ui(),img=$("#photoPreview");
- btn.disabled=true;setStatus(t.load);
+ const btn=$("#scanButton"),p=PUI[lang()],t=ui();btn.disabled=true;setStatus(t.load);
  try{
-  await waitForImage(img);
-  const model=await withTimeout(loadModels(),22000);
-  setStatus(t.detect);
-  await new Promise(ok=>requestAnimationFrame(ok));
-  const predictions=await withTimeout(model.classify(img,30),12000),best={};
-  for(const x of predictions){const n=mapLabel(x.className);if(n)best[n]=Math.max(best[n]||0,+x.probability||0)}
+  const model=await withTimeout(loadModels(),22000),frames=await mediaFrames(),best={};setStatus(t.detect);
+  for(const frame of frames){
+   await new Promise(ok=>requestAnimationFrame(ok));
+   const predictions=await withTimeout(model.classify(frame,30),12000);
+   for(const x of predictions){const n=mapLabel(x.className);if(n)best[n]=Math.max(best[n]||0,+x.probability||0)}
+  }
   detected=Object.entries(best).map(([n,score])=>({n,score})).sort((a,b)=>b.score-a.score).slice(0,12);
   if(!detected.length){detected=[{n:"",score:0}];renderCandidates();setStatus(t.low)}
-  else{renderCandidates();setStatus(detected.length+" "+p.found+" · "+t.source+" ("+activeDetector+")")}
- }catch(err){
-  console.warn("WorldCook Vision v6",err);classifierPromise=null;
-  detected=[{n:"",score:0}];renderCandidates();setStatus(t.low);
- }finally{btn.disabled=false}
+  else{renderCandidates();setStatus(detected.length+" "+p.found+" · "+t.source+" ("+activeDetector+(isVideo()?", 3 frames":"")+")")}
+ }catch(err){console.warn("WorldCook Vision v7",err);classifierPromise=null;detected=[{n:"",score:0}];renderCandidates();setStatus(t.low)}
+ finally{btn.disabled=false}
 };
 function installCameraControls(){
  if($("#retakePhoto"))return;
@@ -120,6 +165,6 @@ function installCameraControls(){
  }
  syncCameraLabels();
 }
-installCameraControls();
-$("#lang").addEventListener("change",()=>{syncCameraLabels();if(detected.length)renderCandidates()});
+installCameraControls();setMediaStatus();
+$("#lang").addEventListener("change",()=>{syncCameraLabels();setMediaStatus();if(detected.length)renderCandidates()});
 })();
