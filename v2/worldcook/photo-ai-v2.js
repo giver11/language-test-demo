@@ -6,11 +6,11 @@ const TARGETS=[
 ["tomato","a fresh tomato"],["cucumber","a cucumber"],["zucchini","a zucchini"],["mushroom","mushrooms"],["bell pepper","a bell pepper"],["bell pepper","a chili pepper"],["lemon","a lemon"],["lime","a lime"],["pineapple","a pineapple"],["strawberry","strawberries"],["blueberry","blueberries"],["grape","grapes"],["watermelon","a watermelon"],["egg","an egg"],["egg","an egg carton"],["chicken","raw chicken"],["beef","raw beef"],["beef","a steak"],["pork","raw pork"],["sausage","sausages"],["fish","a whole fish"],["fish","a fish fillet"],["fish","salmon"],["fish","tuna"],["cheese","cheese"],["yogurt","a yogurt cup"],["milk","a milk carton"],["bread","bread"],["rice","a bag of rice"],["potato","potatoes"],["sweet potato","sweet potatoes"],["corn","corn"],["cabbage","a cabbage"],["cauliflower","a cauliflower"],["lettuce","lettuce"],["spinach","spinach"],["avocado","an avocado"],["banana","bananas"],["apple","apples"],["orange","oranges"],["broccoli","broccoli"],["carrot","carrots"],["onion","onions"],["garlic","garlic"],["ginger","ginger root"],["beans","beans"],["chickpeas","chickpeas"],["lentils","lentils"],["tofu","tofu"],["pasta","dry pasta"],["rice noodles","noodles"],["eggplant","an eggplant"],["coconut milk","a coconut milk can"],["basil","basil leaves"],["herbs","fresh herbs"],["cabbage","kimchi"],["black beans","black beans"],["tortilla","tortillas"],["orange","an orange"],["milk","a bottle of milk"],["cheese","a cheese package"],["chicken","a chicken package"],["beef","a beef package"],["fish","a fish package"]
 ];
 const TEXT={
-en:{download:"Loading high-accuracy ingredient detector… First use may download about 100–160 MB.",gpu:"Running OWLv2 open-vocabulary detection with WebGPU…",cpu:"Running OWL-ViT ingredient detection…",fallback:"High-accuracy model was unavailable. Switching to compatibility scan…",model:"High-accuracy on-device scan"},
-ko:{download:"고정밀 재료 탐지 모델을 불러오는 중입니다. 최초 1회 약 100~160MB를 내려받을 수 있습니다.",gpu:"WebGPU로 OWLv2 다중 재료 탐지를 실행 중입니다…",cpu:"OWL-ViT 다중 재료 탐지를 실행 중입니다…",fallback:"고정밀 모델을 사용할 수 없어 호환 분석으로 전환합니다…",model:"기기 내 고정밀 분석"},
-es:{download:"Cargando el detector de ingredientes de alta precisión… La primera vez puede descargar 100–160 MB.",gpu:"Ejecutando detección OWLv2 con WebGPU…",cpu:"Ejecutando detección de ingredientes OWL-ViT…",fallback:"El modelo de alta precisión no está disponible. Cambiando al análisis compatible…",model:"Análisis local de alta precisión"},
-ja:{download:"高精度の食材検出モデルを読み込み中です。初回は約100〜160MBをダウンロードする場合があります。",gpu:"WebGPUでOWLv2の複数食材検出を実行中…",cpu:"OWL-ViTで複数食材を検出中…",fallback:"高精度モデルを利用できないため互換スキャンに切り替えます…",model:"端末内高精度スキャン"},
-zh:{download:"正在加载高精度食材检测模型，首次使用可能下载约100–160MB。",gpu:"正在使用 WebGPU 运行 OWLv2 多食材检测…",cpu:"正在运行 OWL-ViT 多食材检测…",fallback:"高精度模型不可用，正在切换至兼容扫描…",model:"设备端高精度扫描"}
+en:{download:"Loading high-accuracy ingredient detector… First use may download about 100–200 MB.",gpu:"Running OWLv2 open-vocabulary detection with WebGPU…",cpu:"Running OWL-ViT ingredient detection…",fallback:"High-accuracy model was unavailable. Switching to compatibility scan…",model:"High-accuracy on-device scan"},
+ko:{download:"고정밀 재료 탐지 모델을 불러오는 중입니다. 최초 1회 약 100~200MB를 내려받을 수 있습니다.",gpu:"WebGPU로 OWLv2 다중 재료 탐지를 실행 중입니다…",cpu:"OWL-ViT 다중 재료 탐지를 실행 중입니다…",fallback:"고정밀 모델을 사용할 수 없어 호환 분석으로 전환합니다…",model:"기기 내 고정밀 분석"},
+es:{download:"Cargando el detector de ingredientes de alta precisión… La primera vez puede descargar 100–200 MB.",gpu:"Ejecutando detección OWLv2 con WebGPU…",cpu:"Ejecutando detección de ingredientes OWL-ViT…",fallback:"El modelo de alta precisión no está disponible. Cambiando al análisis compatible…",model:"Análisis local de alta precisión"},
+ja:{download:"高精度の食材検出モデルを読み込み中です。初回は約100〜200MBをダウンロードする場合があります。",gpu:"WebGPUでOWLv2の複数食材検出を実行中…",cpu:"OWL-ViTで複数食材を検出中…",fallback:"高精度モデルを利用できないため互換スキャンに切り替えます…",model:"端末内高精度スキャン"},
+zh:{download:"正在加载高精度食材检测模型，首次使用可能下载约100–200MB。",gpu:"正在使用 WebGPU 运行 OWLv2 多食材检测…",cpu:"正在运行 OWL-ViT 多食材检测…",fallback:"高精度模型不可用，正在切换至兼容扫描…",model:"设备端高精度扫描"}
 };
 function status(s){$("#scanStatus").textContent=s}
 function dedupe(items){
@@ -22,7 +22,7 @@ async function loadDetector(){
  if(detectorPromise)return detectorPromise;
  detectorPromise=(async()=>{
   const t=TEXT[lang()]||TEXT.en;status(t.download);
-  const hf=await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1");
+  const hf=await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/+esm");
   const hasGPU=!!navigator.gpu;
   const strong=(navigator.deviceMemory||4)>=4;
   const high=hasGPU&&strong;
