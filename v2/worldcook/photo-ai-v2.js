@@ -154,7 +154,7 @@ window.analyzePhoto=async function(){
 };
 function installCameraControls(){
  if($("#retakePhoto"))return;
- const input=document.createElement("input");input.type="file";input.id="directCamera";input.accept="image/*";input.capture="environment";input.className="hidden";input.onchange=previewPhoto;document.body.appendChild(input);
+ const input=document.createElement("input");input.type="file";input.id="directCamera";input.accept="image/*";input.capture="environment";input.className="hidden";input.onchange=e=>window.previewPhoto(e);document.body.appendChild(input);
  const b=document.createElement("button");b.id="retakePhoto";b.className="tab";b.type="button";b.onclick=openLiveCamera;
  const actions=$("#scanButton")&&$("#scanButton").parentElement;if(actions)actions.appendChild(b);
  const tools=$("#candidateTools");if(tools){
