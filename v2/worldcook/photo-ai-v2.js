@@ -1,63 +1,102 @@
-/* WorldCook Vision v2 — private on-device open-vocabulary ingredient detection. */
+/* WorldCook Vision v3 — two-stage on-device fridge/ingredient recognition. */
 (function(){
-const previousAnalyze=window.analyzePhoto;
-let detectorPromise=null,activeModel="";
-const TARGETS=[
-["tomato","a fresh tomato"],["cucumber","a cucumber"],["zucchini","a zucchini"],["mushroom","mushrooms"],["bell pepper","a bell pepper"],["bell pepper","a chili pepper"],["lemon","a lemon"],["lime","a lime"],["pineapple","a pineapple"],["strawberry","strawberries"],["blueberry","blueberries"],["grape","grapes"],["watermelon","a watermelon"],["egg","an egg"],["egg","an egg carton"],["chicken","raw chicken"],["beef","raw beef"],["beef","a steak"],["pork","raw pork"],["sausage","sausages"],["fish","a whole fish"],["fish","a fish fillet"],["fish","salmon"],["fish","tuna"],["cheese","cheese"],["yogurt","a yogurt cup"],["milk","a milk carton"],["bread","bread"],["rice","a bag of rice"],["potato","potatoes"],["sweet potato","sweet potatoes"],["corn","corn"],["cabbage","a cabbage"],["cauliflower","a cauliflower"],["lettuce","lettuce"],["spinach","spinach"],["avocado","an avocado"],["banana","bananas"],["apple","apples"],["orange","oranges"],["broccoli","broccoli"],["carrot","carrots"],["onion","onions"],["garlic","garlic"],["ginger","ginger root"],["beans","beans"],["chickpeas","chickpeas"],["lentils","lentils"],["tofu","tofu"],["pasta","dry pasta"],["rice noodles","noodles"],["eggplant","an eggplant"],["coconut milk","a coconut milk can"],["basil","basil leaves"],["herbs","fresh herbs"],["cabbage","kimchi"],["black beans","black beans"],["tortilla","tortillas"],["orange","an orange"],["milk","a bottle of milk"],["cheese","a cheese package"],["chicken","a chicken package"],["beef","a beef package"],["fish","a fish package"]
+const legacyAnalyze=window.analyzePhoto;
+let objectDetectorPromise=null,classifierPromise=null,activeDetector="";
+const ITEMS=[
+["tomato","a tomato"],["cucumber","a cucumber"],["zucchini","a zucchini"],["mushroom","mushrooms"],["bell pepper","a bell pepper"],["lemon","a lemon"],["lime","a lime"],["pineapple","a pineapple"],["strawberry","strawberries"],["blueberry","blueberries"],["grape","grapes"],["watermelon","a watermelon"],["egg","eggs"],["chicken","raw chicken"],["beef","raw beef"],["pork","raw pork"],["sausage","sausages"],["fish","fresh fish"],["cheese","cheese"],["yogurt","yogurt"],["milk","milk"],["bread","bread"],["rice","rice"],["potato","potatoes"],["sweet potato","sweet potatoes"],["corn","corn"],["cabbage","a cabbage"],["cauliflower","a cauliflower"],["lettuce","lettuce"],["spinach","spinach"],["avocado","an avocado"],["banana","bananas"],["apple","apples"],["orange","oranges"],["broccoli","broccoli"],["carrot","carrots"],["onion","onions"],["garlic","garlic"],["ginger","ginger"],["beans","beans"],["chickpeas","chickpeas"],["lentils","lentils"],["tofu","tofu"],["pasta","pasta"],["rice noodles","noodles"],["eggplant","an eggplant"],["basil","basil"],["herbs","fresh herbs"],["black beans","black beans"],["tortilla","tortillas"],["coconut milk","coconut milk"],["ground beef","ground beef"],["kimchi","kimchi"]
+];
+const PACKAGES=[
+["egg","an egg carton"],["milk","a milk carton"],["milk","a milk bottle"],["yogurt","a yogurt cup"],["cheese","a cheese package"],["chicken","a chicken package"],["beef","a beef package"],["fish","a fish package"],["rice","a bag of rice"],["pasta","a pasta package"],["tofu","a tofu package"]
 ];
 const TEXT={
-en:{download:"Loading high-accuracy ingredient detector… First use may download about 100–200 MB.",gpu:"Running OWLv2 open-vocabulary detection with WebGPU…",cpu:"Running OWL-ViT ingredient detection…",fallback:"High-accuracy model was unavailable. Switching to compatibility scan…",model:"High-accuracy on-device scan"},
-ko:{download:"고정밀 재료 탐지 모델을 불러오는 중입니다. 최초 1회 약 100~200MB를 내려받을 수 있습니다.",gpu:"WebGPU로 OWLv2 다중 재료 탐지를 실행 중입니다…",cpu:"OWL-ViT 다중 재료 탐지를 실행 중입니다…",fallback:"고정밀 모델을 사용할 수 없어 호환 분석으로 전환합니다…",model:"기기 내 고정밀 분석"},
-es:{download:"Cargando el detector de ingredientes de alta precisión… La primera vez puede descargar 100–200 MB.",gpu:"Ejecutando detección OWLv2 con WebGPU…",cpu:"Ejecutando detección de ingredientes OWL-ViT…",fallback:"El modelo de alta precisión no está disponible. Cambiando al análisis compatible…",model:"Análisis local de alta precisión"},
-ja:{download:"高精度の食材検出モデルを読み込み中です。初回は約100〜200MBをダウンロードする場合があります。",gpu:"WebGPUでOWLv2の複数食材検出を実行中…",cpu:"OWL-ViTで複数食材を検出中…",fallback:"高精度モデルを利用できないため互換スキャンに切り替えます…",model:"端末内高精度スキャン"},
-zh:{download:"正在加载高精度食材检测模型，首次使用可能下载约100–200MB。",gpu:"正在使用 WebGPU 运行 OWLv2 多食材检测…",cpu:"正在运行 OWL-ViT 多食材检测…",fallback:"高精度模型不可用，正在切换至兼容扫描…",model:"设备端高精度扫描"}
+en:{load:"Loading dual AI models… First use can download 180–300 MB.",detect:"Finding separate ingredients and checking each photo area…",fallback:"High-accuracy scan unavailable. Running compatibility scan…",retake:"📸 Retake photo",source:"dual on-device scan",low:"No result was reliable enough. Retake a close, bright photo or add ingredients manually."},
+ko:{load:"이중 AI 모델을 불러오는 중입니다. 최초 1회 180~300MB를 내려받을 수 있습니다.",detect:"재료 위치를 찾고 사진 구역별로 다시 확인하는 중입니다…",fallback:"고정밀 분석을 사용할 수 없어 호환 분석을 실행합니다…",retake:"📸 사진 다시 찍기",source:"기기 내 이중 분석",low:"신뢰할 만한 결과가 없습니다. 재료를 가까이에서 밝게 다시 찍거나 직접 추가하세요."},
+es:{load:"Cargando dos modelos de IA… La primera vez puede descargar 180–300 MB.",detect:"Buscando ingredientes y verificando cada zona de la foto…",fallback:"El análisis de alta precisión no está disponible. Ejecutando el modo compatible…",retake:"📸 Repetir foto",source:"análisis doble local",low:"No hubo resultados suficientemente fiables. Toma otra foto cercana y luminosa o añade los ingredientes manualmente."},
+ja:{load:"2つのAIモデルを読み込み中です。初回は180〜300MBをダウンロードする場合があります。",detect:"食材の位置を検出し、写真の各領域を再確認中です…",fallback:"高精度分析を利用できないため互換スキャンを実行します…",retake:"📸 写真を撮り直す",source:"端末内2段階分析",low:"信頼できる結果がありません。食材を明るい場所で近くから撮り直すか、手動で追加してください。"},
+zh:{load:"正在加载双重 AI 模型，首次使用可能下载180–300MB。",detect:"正在定位食材并复核照片的各个区域…",fallback:"高精度分析不可用，正在运行兼容扫描…",retake:"📸 重新拍摄",source:"设备端双重分析",low:"没有足够可靠的结果。请在明亮环境中近距离重拍，或手动添加食材。"}
 };
-function status(s){$("#scanStatus").textContent=s}
-function dedupe(items){
- const best={};
- for(const x of items){if(!best[x.n]||x.score>best[x.n].score)best[x.n]=x}
- return Object.values(best).sort((a,b)=>b.score-a.score).slice(0,20);
+const labels=[...ITEMS,...PACKAGES].map(x=>x[1]);
+const keyByLabel=new Map([...ITEMS,...PACKAGES].map(x=>[x[1],x[0]]));
+function ui(){return TEXT[lang()]||TEXT.en}
+function setStatus(s){$("#scanStatus").textContent=s}
+function reverseIngredient(value){
+ const raw=value.trim(),low=raw.toLocaleLowerCase();
+ const dict=window.INGREDIENT_I18N[lang()]||{};
+ for(const [key,name] of Object.entries(dict))if(String(name).toLocaleLowerCase()===low)return key;
+ for(const [key,label] of ITEMS)if(key===low||label===low)return key;
+ return raw.toLowerCase();
 }
-async function loadDetector(){
- if(detectorPromise)return detectorPromise;
- detectorPromise=(async()=>{
-  const t=TEXT[lang()]||TEXT.en;status(t.download);
+function cropInputs(img){
+ const out=[img.src],w=img.naturalWidth,h=img.naturalHeight;
+ if(!w||!h)return out;
+ for(let row=0;row<2;row++)for(let col=0;col<2;col++){
+  const c=document.createElement("canvas"),ctx=c.getContext("2d"),sw=w/2,sh=h/2;
+  c.width=384;c.height=384;ctx.drawImage(img,col*sw,row*sh,sw,sh,0,0,384,384);
+  out.push(c.toDataURL("image/jpeg",.9));
+ }
+ return out;
+}
+async function loadModels(){
+ if(!objectDetectorPromise){
   const hf=await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/+esm");
-  const hasGPU=!!navigator.gpu;
-  const strong=(navigator.deviceMemory||4)>=4;
-  const high=hasGPU&&strong;
-  activeModel=high?"OWLv2 WebGPU q4":"OWL-ViT WASM q8";
-  const model=high?"onnx-community/owlv2-base-patch16-ensemble-ONNX":"Xenova/owlvit-base-patch32";
-  const options={dtype:high?"q4":"q8"};
-  if(high)options.device="webgpu";
-  options.progress_callback=x=>{if(x&&x.status==="progress"&&Number.isFinite(x.progress))status(t.download+" "+Math.round(x.progress)+"%")};
-  try{return await hf.pipeline("zero-shot-object-detection",model,options)}
-  catch(e){
-   if(high){activeModel="OWL-ViT WASM q8";return await hf.pipeline("zero-shot-object-detection","Xenova/owlvit-base-patch32",{dtype:"q8"})}
-   throw e;
-  }
- })();
- return detectorPromise;
+  const useGPU=!!navigator.gpu&&(navigator.deviceMemory||4)>=4;
+  activeDetector=useGPU?"OWLv2 WebGPU":"OWL-ViT";
+  objectDetectorPromise=hf.pipeline("zero-shot-object-detection",useGPU?"onnx-community/owlv2-base-patch16-ensemble-ONNX":"Xenova/owlvit-base-patch32",useGPU?{device:"webgpu",dtype:"q4"}:{dtype:"q8"}).catch(async e=>{
+   activeDetector="OWL-ViT";
+   return hf.pipeline("zero-shot-object-detection","Xenova/owlvit-base-patch32",{dtype:"q8"});
+  });
+  classifierPromise=hf.pipeline("zero-shot-image-classification","Xenova/clip-vit-base-patch16",{dtype:"q8"});
+ }
+ return Promise.all([objectDetectorPromise,classifierPromise]);
 }
+function mergeEvidence(det,cls){
+ const score={};
+ for(const x of det){const n=keyByLabel.get(x.label)||mapLabel(x.label);if(n)score[n]={n,det:Math.max(score[n]?.det||0,+x.score||0),cls:score[n]?.cls||0}}
+ for(const x of cls){const n=keyByLabel.get(x.label)||mapLabel(x.label);if(n)score[n]={n,det:score[n]?.det||0,cls:Math.max(score[n]?.cls||0,+x.score||0)}}
+ return Object.values(score).map(x=>{
+  const agreed=x.det>=.045&&x.cls>=.10;
+  const confidence=agreed?Math.min(.99,.52+x.det+x.cls*.8):Math.max(x.det,x.cls*.72);
+  return {n:x.n,score:confidence,evidence:agreed?"detector+classifier":x.det>=x.cls*.72?"detector":"classifier"};
+ }).filter(x=>x.score>=.12).sort((a,b)=>b.score-a.score).slice(0,20);
+}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+window.renderCandidates=function(){
+ const p=PUI[lang()];
+ $("#candidates").innerHTML=detected.map((x,i)=>{
+  const display=x.n?ingredientName(x.n):"";
+  return '<div class="candidate"><input type="checkbox" '+(x.n&&x.score>=.18?"checked":"")+' aria-label="Include candidate"><input type="text" value="'+esc(display)+'" placeholder="'+esc(p.candidate)+'" oninput="detected['+i+'].n=window.wcReverseIngredient(this.value)"><span class="small">'+(x.score?Math.round(x.score*100)+"%":p.edit)+'</span><button class="trash" onclick="removeCandidate('+i+')">✕</button></div>';
+ }).join("");
+ $("#candidateTools").classList.toggle("hidden",!detected.length);
+};
+window.wcReverseIngredient=reverseIngredient;
+window.confirmCandidates=function(){
+ const rows=$$("#candidates .candidate"),names=[];
+ rows.forEach((r,i)=>{if(r.querySelector('input[type="checkbox"]').checked){const n=detected[i]&&detected[i].n;if(n)names.push(n)}});
+ [...new Set(names)].forEach(n=>{pantry=pantry.filter(x=>x.n!==n);pantry.unshift({n,q:1,u:"piece"})});
+ save();render();$("#scanStatus").textContent=names.length+" "+PUI[lang()].confirmed;detected=[];renderCandidates();setTimeout(()=>setView("explore"),700);
+};
 window.analyzePhoto=async function(){
  if(!photoFile)return;
- const btn=$("#scanButton"),p=PUI[lang()],t=TEXT[lang()]||TEXT.en;
- btn.disabled=true;
+ const btn=$("#scanButton"),p=PUI[lang()],t=ui();btn.disabled=true;setStatus(t.load);
  try{
-  const detector=await loadDetector();
-  status(activeModel.startsWith("OWLv2")?t.gpu:t.cpu);
-  const labels=TARGETS.map(x=>x[1]);
-  const keyByLabel=new Map(TARGETS.map(x=>[x[1],x[0]]));
-  const output=await detector($("#photoPreview").src,labels,{top_k:60,threshold:.045});
-  const items=(output||[]).map(o=>({n:keyByLabel.get(o.label)||mapLabel(o.label),score:Number(o.score)||0,box:o.box})).filter(x=>x.n);
-  detected=dedupe(items);
-  if(!detected.length)detected=[{n:"",score:0}];
-  renderCandidates();
-  status(detected[0].n?detected.length+" "+p.found+" · "+t.model+" ("+activeModel+")":p.notFound);
+  const [detector,classifier]=await loadModels();setStatus(t.detect);
+  const img=$("#photoPreview");
+  const detection=await detector(img.src,labels,{top_k:80,threshold:.04});
+  const crops=cropInputs(img),checks=[];
+  for(const src of crops){const r=await classifier(src,ITEMS.map(x=>x[1]),{top_k:4});checks.push(...r.filter(x=>x.score>=.08))}
+  detected=mergeEvidence(detection,checks);
+  if(!detected.length){detected=[{n:"",score:0}];renderCandidates();setStatus(t.low)}
+  else{renderCandidates();setStatus(detected.length+" "+p.found+" · "+t.source+" ("+activeDetector+" + CLIP)")}
  }catch(err){
-  console.warn("WorldCook Vision v2 fallback",err);
-  detectorPromise=null;status(t.fallback);btn.disabled=false;
-  return previousAnalyze();
+  console.warn("WorldCook Vision v3 fallback",err);objectDetectorPromise=null;classifierPromise=null;setStatus(t.fallback);btn.disabled=false;return legacyAnalyze();
  }finally{btn.disabled=false}
 };
+function installCameraButton(){
+ if($("#retakePhoto"))return;
+ const input=document.createElement("input");input.type="file";input.id="directCamera";input.accept="image/*";input.capture="environment";input.className="hidden";input.onchange=previewPhoto;document.body.appendChild(input);
+ const b=document.createElement("button");b.id="retakePhoto";b.className="tab";b.type="button";b.onclick=()=>input.click();
+ const actions=$("#scanButton")&&$("#scanButton").parentElement;if(actions){actions.appendChild(b);b.textContent=ui().retake}
+}
+installCameraButton();
+$("#lang").addEventListener("change",()=>{const b=$("#retakePhoto");if(b)b.textContent=ui().retake;if(detected.length)renderCandidates()});
 })();
