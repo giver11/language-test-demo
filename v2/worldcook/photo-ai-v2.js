@@ -1,9 +1,9 @@
-/* WorldCook Vision v7 — saved-photo, video-frame and live-camera recognition with selectable localized candidates. */
+/* WorldCook Vision v8 — saved-photo, video-frame and live-camera recognition with selectable localized candidates. */
 (function(){
 const legacyAnalyze=window.analyzePhoto;
 let objectDetectorPromise=null,classifierPromise=null,activeDetector="";
 const ITEMS=[
-["tomato","a tomato"],["cucumber","a cucumber"],["zucchini","a zucchini"],["mushroom","mushrooms"],["bell pepper","a bell pepper"],["lemon","a lemon"],["lime","a lime"],["pineapple","a pineapple"],["strawberry","strawberries"],["blueberry","blueberries"],["grape","grapes"],["watermelon","a watermelon"],["egg","eggs"],["chicken","raw chicken"],["beef","raw beef"],["pork","raw pork"],["sausage","sausages"],["fish","fresh fish"],["cheese","cheese"],["yogurt","yogurt"],["milk","milk"],["bread","bread"],["rice","rice"],["potato","potatoes"],["sweet potato","sweet potatoes"],["corn","corn"],["cabbage","a cabbage"],["cauliflower","a cauliflower"],["lettuce","lettuce"],["spinach","spinach"],["avocado","an avocado"],["banana","bananas"],["apple","apples"],["orange","oranges"],["broccoli","broccoli"],["carrot","carrots"],["onion","onions"],["garlic","garlic"],["ginger","ginger"],["beans","beans"],["chickpeas","chickpeas"],["lentils","lentils"],["tofu","tofu"],["pasta","pasta"],["rice noodles","noodles"],["eggplant","an eggplant"],["basil","basil"],["herbs","fresh herbs"],["black beans","black beans"],["tortilla","tortillas"],["coconut milk","coconut milk"],["ground beef","ground beef"],["kimchi","kimchi"]
+["tomato","a tomato"],["cucumber","a cucumber"],["zucchini","a zucchini"],["mushroom","mushrooms"],["bell pepper","a bell pepper"],["lemon","a lemon"],["lime","a lime"],["pineapple","a pineapple"],["strawberry","strawberries"],["blueberry","blueberries"],["grape","grapes"],["watermelon","a watermelon"],["egg","eggs"],["chicken","raw chicken"],["beef","raw beef"],["pork","raw pork"],["sausage","sausages"],["fish","fresh fish"],["cheese","cheese"],["yogurt","yogurt"],["milk","milk"],["bread","bread"],["rice","rice"],["potato","potatoes"],["sweet potato","sweet potatoes"],["corn","corn"],["cabbage","a cabbage"],["cauliflower","a cauliflower"],["lettuce","lettuce"],["spinach","spinach"],["avocado","an avocado"],["banana","bananas"],["apple","apples"],["orange","oranges"],["broccoli","broccoli"],["carrot","carrots"],["onion","onions"],["garlic","garlic"],["ginger","ginger"],["beans","beans"],["chickpeas","chickpeas"],["lentils","lentils"],["tofu","tofu"],["pasta","pasta"],["rice noodles","noodles"],["eggplant","an eggplant"],["basil","basil"],["herbs","fresh herbs"],["black beans","black beans"],["tortilla","tortillas"],["coconut milk","coconut milk"],["ground beef","ground beef"],["kimchi","kimchi"],["coffee","coffee"],["tea","tea"],["pomegranate","a pomegranate"],["pumpkin","a pumpkin"],["artichoke","an artichoke"],["burger","a burger"],["pizza","pizza"],["burrito","a burrito"],["soup","soup"],["pie","a savory pie"],["ice cream","ice cream"],["dessert","dessert"],["prepared food","prepared food"],["mixed ingredients","mixed ingredients"]
 ];
 const PACKAGES=[
 ["egg","an egg carton"],["milk","a milk carton"],["milk","a milk bottle"],["yogurt","a yogurt cup"],["cheese","a cheese package"],["chicken","a chicken package"],["beef","a beef package"],["fish","a fish package"],["rice","a bag of rice"],["pasta","a pasta package"],["tofu","a tofu package"]
@@ -16,10 +16,10 @@ ja:{load:"食材検出モデルを読み込み中です。初回のみ少し時�
 zh:{load:"正在加载食材检测模型，首次使用可能需要一点时间。",detect:"正在识别照片中的食材…",fallback:"高精度分析不可用，正在运行兼容扫描…",retake:"📸 重新拍摄",source:"设备端快速分析",low:"没有足够可靠的结果。请在明亮环境中近距离重拍，或手动添加食材。"}
 };
 const SCAN_I18N={
-ko:{cucumber:"오이",pineapple:"파인애플",strawberry:"딸기",blueberry:"블루베리",grape:"포도",watermelon:"수박",pork:"돼지고기","sweet potato":"고구마",corn:"옥수수",cauliflower:"콜리플라워",lettuce:"상추",avocado:"아보카도",banana:"바나나",apple:"사과",broccoli:"브로콜리",tofu:"두부",kimchi:"김치"},
-es:{cucumber:"pepino",pineapple:"piña",strawberry:"fresa",blueberry:"arándano",grape:"uva",watermelon:"sandía",pork:"cerdo","sweet potato":"batata",corn:"maíz",cauliflower:"coliflor",lettuce:"lechuga",avocado:"aguacate",banana:"plátano",apple:"manzana",broccoli:"brócoli",tofu:"tofu",kimchi:"kimchi"},
-ja:{cucumber:"きゅうり",pineapple:"パイナップル",strawberry:"いちご",blueberry:"ブルーベリー",grape:"ぶどう",watermelon:"すいか",pork:"豚肉","sweet potato":"さつまいも",corn:"とうもろこし",cauliflower:"カリフラワー",lettuce:"レタス",avocado:"アボカド",banana:"バナナ",apple:"りんご",broccoli:"ブロッコリー",tofu:"豆腐",kimchi:"キムチ"},
-zh:{cucumber:"黄瓜",pineapple:"菠萝",strawberry:"草莓",blueberry:"蓝莓",grape:"葡萄",watermelon:"西瓜",pork:"猪肉","sweet potato":"红薯",corn:"玉米",cauliflower:"花椰菜",lettuce:"生菜",avocado:"牛油果",banana:"香蕉",apple:"苹果",broccoli:"西兰花",tofu:"豆腐",kimchi:"泡菜"}
+ko:{cucumber:"오이",pineapple:"파인애플",strawberry:"딸기",blueberry:"블루베리",grape:"포도",watermelon:"수박",pork:"돼지고기","sweet potato":"고구마",corn:"옥수수",cauliflower:"콜리플라워",lettuce:"상추",avocado:"아보카도",banana:"바나나",apple:"사과",broccoli:"브로콜리",tofu:"두부",kimchi:"김치",coffee:"커피",tea:"차",pomegranate:"석류",pumpkin:"호박",artichoke:"아티초크",burger:"버거",pizza:"피자",burrito:"부리토",soup:"수프",pie:"파이","ice cream":"아이스크림",dessert:"디저트","prepared food":"조리된 음식","mixed ingredients":"혼합 재료"},
+es:{cucumber:"pepino",pineapple:"piña",strawberry:"fresa",blueberry:"arándano",grape:"uva",watermelon:"sandía",pork:"cerdo","sweet potato":"batata",corn:"maíz",cauliflower:"coliflor",lettuce:"lechuga",avocado:"aguacate",banana:"plátano",apple:"manzana",broccoli:"brócoli",tofu:"tofu",kimchi:"kimchi",coffee:"café",tea:"té",pomegranate:"granada",pumpkin:"calabaza",artichoke:"alcachofa",burger:"hamburguesa",pizza:"pizza",burrito:"burrito",soup:"sopa",pie:"pastel salado","ice cream":"helado",dessert:"postre","prepared food":"comida preparada","mixed ingredients":"ingredientes mezclados"},
+ja:{cucumber:"きゅうり",pineapple:"パイナップル",strawberry:"いちご",blueberry:"ブルーベリー",grape:"ぶどう",watermelon:"すいか",pork:"豚肉","sweet potato":"さつまいも",corn:"とうもろこし",cauliflower:"カリフラワー",lettuce:"レタス",avocado:"アボカド",banana:"バナナ",apple:"りんご",broccoli:"ブロッコリー",tofu:"豆腐",kimchi:"キムチ",coffee:"コーヒー",tea:"お茶",pomegranate:"ざくろ",pumpkin:"かぼちゃ",artichoke:"アーティチョーク",burger:"ハンバーガー",pizza:"ピザ",burrito:"ブリトー",soup:"スープ",pie:"パイ","ice cream":"アイスクリーム",dessert:"デザート","prepared food":"調理済み料理","mixed ingredients":"混合食材"},
+zh:{cucumber:"黄瓜",pineapple:"菠萝",strawberry:"草莓",blueberry:"蓝莓",grape:"葡萄",watermelon:"西瓜",pork:"猪肉","sweet potato":"红薯",corn:"玉米",cauliflower:"花椰菜",lettuce:"生菜",avocado:"牛油果",banana:"香蕉",apple:"苹果",broccoli:"西兰花",tofu:"豆腐",kimchi:"泡菜",coffee:"咖啡",tea:"茶",pomegranate:"石榴",pumpkin:"南瓜",artichoke:"朝鲜蓟",burger:"汉堡",pizza:"披萨",burrito:"墨西哥卷饼",soup:"汤",pie:"咸派","ice cream":"冰淇淋",dessert:"甜点","prepared food":"熟食","mixed ingredients":"混合食材"}
 };
 for(const l of Object.keys(SCAN_I18N))Object.assign(window.INGREDIENT_I18N[l],SCAN_I18N[l]);
 const labels=[...ITEMS,...PACKAGES].map(x=>x[1]);
@@ -110,6 +110,15 @@ function waitForImage(img){
  ]);
 }
 function withTimeout(p,ms){return Promise.race([p,new Promise((_,no)=>setTimeout(()=>no(new Error("Analysis timeout")),ms))])}
+async function loadObjectDetector(){
+ if(!objectDetectorPromise){
+  objectDetectorPromise=(async()=>{
+   await loadScript("https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js");
+   return cocoSsd.load({base:"lite_mobilenet_v2"});
+  })();
+ }
+ return objectDetectorPromise;
+}
 function mergeEvidence(det,cls){
  const score={};
  for(const x of det){const n=keyByLabel.get(x.label)||mapLabel(x.label);if(n)score[n]={n,det:Math.max(score[n]?.det||0,+x.score||0),cls:score[n]?.cls||0}}
@@ -145,6 +154,14 @@ window.analyzePhoto=async function(){
    await new Promise(ok=>requestAnimationFrame(ok));
    const predictions=await withTimeout(model.classify(frame,30),12000);
    for(const x of predictions){const n=mapLabel(x.className);if(n)best[n]=Math.max(best[n]||0,+x.probability||0)}
+  }
+  if(Object.keys(best).length<2){
+   try{
+    setStatus(t.detect);
+    const detector=await withTimeout(loadObjectDetector(),18000),objects=await withTimeout(detector.detect(frames[0],30,.32),10000);
+    for(const x of objects){const n=mapLabel(x.class);if(n)best[n]=Math.max(best[n]||0,+x.score||0)}
+    if(objects.length)activeDetector="MobileNet + Lite object detector";
+   }catch(extraError){console.warn("Optional detector skipped",extraError);objectDetectorPromise=null}
   }
   detected=Object.entries(best).map(([n,score])=>({n,score})).sort((a,b)=>b.score-a.score).slice(0,12);
   if(!detected.length){detected=[{n:"",score:0}];renderCandidates();setStatus(t.low)}
