@@ -1,4 +1,4 @@
-/* WorldCook Vision v3 — two-stage on-device fridge/ingredient recognition. */
+/* WorldCook Vision v4 — live camera, selectable localized candidates, dual on-device recognition. */
 (function(){
 const legacyAnalyze=window.analyzePhoto;
 let objectDetectorPromise=null,classifierPromise=null,activeDetector="";
@@ -98,12 +98,63 @@ window.analyzePhoto=async function(){
   console.warn("WorldCook Vision v3 fallback",err);objectDetectorPromise=null;classifierPromise=null;setStatus(t.fallback);btn.disabled=false;return legacyAnalyze();
  }finally{btn.disabled=false}
 };
-function installCameraButton(){
+const CAMERA_TEXT={
+en:{open:"📷 Open camera",capture:"Take photo",cancel:"Close",select:"Select all",clear:"Clear all",again:"Analyze again",choose:"Select only ingredients actually visible in the photo."},
+ko:{open:"📷 카메라 열기",capture:"촬영",cancel:"닫기",select:"전체 선택",clear:"전체 해제",again:"다시 분석",choose:"사진에 실제로 보이는 재료만 선택하세요."},
+es:{open:"📷 Abrir cámara",capture:"Tomar foto",cancel:"Cerrar",select:"Seleccionar todo",clear:"Deseleccionar todo",again:"Analizar de nuevo",choose:"Selecciona solo los ingredientes que realmente aparecen en la foto."},
+ja:{open:"📷 カメラを開く",capture:"撮影",cancel:"閉じる",select:"すべて選択",clear:"すべて解除",again:"再解析",choose:"写真に実際に写っている食材だけを選択してください。"},
+zh:{open:"📷 打开相机",capture:"拍照",cancel:"关闭",select:"全选",clear:"全部取消",again:"重新分析",choose:"请只选择照片中实际出现的食材。"}
+};
+let cameraStream=null;
+function cameraText(){return CAMERA_TEXT[lang()]||CAMERA_TEXT.en}
+function stopCamera(){if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null}}
+function closeCamera(){stopCamera();const o=$("#wcCameraOverlay");if(o)o.remove()}
+function nativeCamera(){const input=$("#directCamera");if(input){input.value="";input.click()}}
+async function openLiveCamera(){
+ closeCamera();
+ const c=cameraText(),overlay=document.createElement("div");
+ overlay.id="wcCameraOverlay";overlay.setAttribute("role","dialog");overlay.setAttribute("aria-modal","true");
+ overlay.style.cssText="position:fixed;inset:0;z-index:90;background:#071b12ee;display:grid;place-items:center;padding:16px";
+ overlay.innerHTML='<div style="width:min(700px,100%);background:#fff;border-radius:20px;padding:14px"><video id="wcCameraVideo" autoplay playsinline muted style="width:100%;max-height:70vh;object-fit:cover;border-radius:15px;background:#111"></video><div style="display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap"><button id="wcCapture" class="primary" type="button">'+esc(c.capture)+'</button><button id="wcCameraClose" class="tab" type="button">'+esc(c.cancel)+'</button></div></div>';
+ document.body.appendChild(overlay);
+ $("#wcCameraClose").onclick=closeCamera;overlay.onclick=e=>{if(e.target===overlay)closeCamera()};
+ try{
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error("Camera API unavailable");
+  cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}},audio:false});
+  const video=$("#wcCameraVideo");video.srcObject=cameraStream;await video.play();
+  $("#wcCapture").onclick=captureLivePhoto;
+ }catch(err){console.warn("Live camera fallback",err);closeCamera();nativeCamera()}
+}
+function captureLivePhoto(){
+ const video=$("#wcCameraVideo");if(!video||!video.videoWidth)return;
+ const canvas=document.createElement("canvas");canvas.width=video.videoWidth;canvas.height=video.videoHeight;
+ canvas.getContext("2d").drawImage(video,0,0,canvas.width,canvas.height);
+ canvas.toBlob(blob=>{
+  if(!blob)return;
+  photoFile=new File([blob],"worldcook-camera-"+Date.now()+".jpg",{type:"image/jpeg"});
+  const preview=$("#photoPreview");preview.src=URL.createObjectURL(photoFile);preview.classList.remove("hidden");
+  $("#photoEmpty").classList.add("hidden");$("#scanButton").disabled=false;setStatus(PUI[lang()].ready);detected=[];renderCandidates();closeCamera();
+ },"image/jpeg",.92);
+}
+window.wcSelectAllCandidates=function(flag){$$("#candidates .candidate input[type=\"checkbox\"]").forEach(x=>x.checked=flag)};
+window.wcAnalyzeAgain=function(){window.analyzePhoto()};
+function syncCameraLabels(){
+ const c=cameraText(),open=$("#retakePhoto"),hint=$("#wcCandidateHint"),all=$("#wcSelectAll"),clear=$("#wcClearAll"),again=$("#wcAnalyzeAgain");
+ if(open)open.textContent=c.open;if(hint)hint.textContent=c.choose;if(all)all.textContent=c.select;if(clear)clear.textContent=c.clear;if(again)again.textContent=c.again;
+}
+function installCameraControls(){
  if($("#retakePhoto"))return;
  const input=document.createElement("input");input.type="file";input.id="directCamera";input.accept="image/*";input.capture="environment";input.className="hidden";input.onchange=previewPhoto;document.body.appendChild(input);
- const b=document.createElement("button");b.id="retakePhoto";b.className="tab";b.type="button";b.onclick=()=>input.click();
- const actions=$("#scanButton")&&$("#scanButton").parentElement;if(actions){actions.appendChild(b);b.textContent=ui().retake}
+ const b=document.createElement("button");b.id="retakePhoto";b.className="tab";b.type="button";b.onclick=openLiveCamera;
+ const actions=$("#scanButton")&&$("#scanButton").parentElement;if(actions)actions.appendChild(b);
+ const tools=$("#candidateTools");if(tools){
+  const hint=document.createElement("p");hint.id="wcCandidateHint";hint.className="small";tools.prepend(hint);
+  const row=document.createElement("div");row.className="scanActions";row.style.cssText="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0";
+  row.innerHTML='<button id="wcSelectAll" class="tab" type="button" onclick="wcSelectAllCandidates(true)"></button><button id="wcClearAll" class="tab" type="button" onclick="wcSelectAllCandidates(false)"></button><button id="wcAnalyzeAgain" class="tab" type="button" onclick="wcAnalyzeAgain()"></button>';
+  const candidates=$("#candidates");tools.insertBefore(row,candidates||tools.firstChild);
+ }
+ syncCameraLabels();
 }
-installCameraButton();
-$("#lang").addEventListener("change",()=>{const b=$("#retakePhoto");if(b)b.textContent=ui().retake;if(detected.length)renderCandidates()});
+installCameraControls();
+$("#lang").addEventListener("change",()=>{syncCameraLabels();if(detected.length)renderCandidates()});
 })();
