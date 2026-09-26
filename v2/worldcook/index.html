@@ -1,5 +1,5 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>WorldCook AI</title><meta name="description" content="Cook world recipes from ingredients you already have"><link rel="stylesheet" href="./style.css"></head><body>
-<header class="top"><div class="logo">🍳</div><div class="brand">WorldCook <span style="color:var(--g)">AI</span></div><span class="beta">WORKING BETA</span><select id="lang" class="lang" aria-label="Language"><option value="en">English</option><option value="ko">한국어</option><option value="es">Español</option><option value="ja">日本語</option><option value="zh">中文</option></select></header>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Cookora</title><meta name="description" content="Cookora turns the ingredients you already have into recipes, guided cooking, pantry memory, and smarter shopping."><link rel="stylesheet" href="./style.css"></head><body>
+<header class="top"><div class="logo">🍳</div><div class="brand">Cookora</div><span class="beta">WORKING BETA</span><select id="lang" class="lang" aria-label="Language"><option value="en">English</option><option value="ko">한국어</option><option value="es">Español</option><option value="ja">日本語</option><option value="zh">中文</option></select></header>
 <main class="wrap"><section class="hero"><div><div class="eyebrow">PANTRY → WORLD CUISINE → COOKING MODE</div><h1 id="headline">What can I cook right now?</h1><div id="subtitle" class="sub">Add what you have. We’ll find dishes across the world.</div><div class="search"><input id="search" placeholder="Search dishes or countries"><button class="primary" onclick="setView('pantry')">＋ <span id="addLabel">Add ingredient</span></button></div></div><aside class="score"><div>PANTRY MATCH</div><b id="readyCount">0</b><div id="readyText">dishes ready without shopping</div><div class="chips" id="heroChips"></div></aside></section>
 <nav class="tabs"><button class="tab active" data-view="explore" onclick="setView('explore')">🌍 <span data-i="explore">Explore</span></button><button class="tab" data-view="pantry" onclick="setView('pantry')">🧺 <span data-i="pantry">My pantry</span></button><button class="tab" data-view="saved" onclick="setView('saved')">♥ <span data-i="saved">Saved</span></button><button class="tab" data-view="passport" onclick="setView('passport')">🗺 <span data-i="passport">Passport</span></button></nav>
 <section id="explore"><div class="filters"><button class="filter active" data-filter="all">All</button><button class="filter" data-filter="0">Ready now</button><button class="filter" data-filter="1">Missing 1</button><button class="filter" data-filter="2">Missing 2</button><button class="filter" data-filter="zero">Zero waste</button></div><div id="cards" class="grid"></div></section>
@@ -19,6 +19,7 @@
 <script src="./nutrition-v1.js"></script>
 <script src="./app-a.js"></script>
 <script src="./app-b.js"></script>
-<script src="./photo-ai-v2.js?v=9.0.0"></script>\n<script src="./shopping-v1.js"></script>
+<script src="./photo-ai-v2.js?v=9.0.0"></script>
+<script src="./shopping-v1.js"></script>
 <script src="./app-c.js"></script>
 </body></html>
