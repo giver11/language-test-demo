@@ -47,7 +47,7 @@ function initConversationUI(){
   q("#conversationInput").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();sendConversationText()}};
   q("#conversationMic").onclick=startConversationMic;
  }
- if(!convSession)startConversation(false);else renderConversation();
+ if(!convSession)startConversation(false);else renderConversation();updateAIQuota();
 }
 function startConversation(reset){
  let cfg=convCfg(),mode=q("#conversationMode")?.value||cfg.modes[0][0],saved=!reset?convLoad():[];
@@ -87,11 +87,30 @@ async function requestAIConversation(userText){
  }
  return {reply:guidedReply(userText),guided:true};
 }
+function aiUsageToday(){
+ let day=new Date().toISOString().slice(0,10),key=K+"ai-usage",v;
+ try{v=JSON.parse(localStorage[key]||"{}")}catch(e){v={}}
+ if(v.day!==day)v={day,count:0};
+ return {key,v};
+}
+function aiTurnsRemaining(){
+ let e=entitlement();if(e.tier==="premium"||e.tier==="ai")return Infinity;
+ let u=aiUsageToday();return Math.max(0,5-(u.v.count||0));
+}
+function consumeAITurn(){
+ let e=entitlement();if(e.tier==="premium"||e.tier==="ai")return;
+ let u=aiUsageToday();u.v.count=(u.v.count||0)+1;localStorage[u.key]=JSON.stringify(u.v);
+}
+function updateAIQuota(){
+ let el=q("#conversationStatus");if(!el)return;let n=aiTurnsRemaining();
+ if(n!==Infinity&&!el.textContent)el.textContent="무료 AI 대화 오늘 "+n+"회 남음";
+}
 async function submitConversation(text){
  text=String(text||"").trim();if(!text||!convSession)return;
+ if(aiTurnsRemaining()<=0){q("#conversationStatus").innerHTML="오늘의 무료 AI 대화 5회를 모두 사용했습니다. <b>Premium/AI 플랜에서는 제한이 해제됩니다.</b>";return;}
  convSession.history.push({role:"user",text});convSession.turns++;renderConversation();q("#conversationStatus").textContent="AI가 답변을 준비하고 있습니다…";
  try{
-  let result=await requestAIConversation(text);convSession.history.push({role:"assistant",text:result.reply});convSave(convSession.history);renderConversation();speakText(result.reply);
+  let result=await requestAIConversation(text);consumeAITurn();convSession.history.push({role:"assistant",text:result.reply});convSave(convSession.history);renderConversation();speakText(result.reply);
   q("#conversationStatus").textContent=result.guided?"서버 AI 연결 전: 안전한 연습 대화 모드입니다. Work에서 AI Gateway를 연결하면 자유 대화로 전환됩니다.":"AI 실시간 대화";
   state.xp+=5;state.done++;save();render();conversationFeedback(text,result);
  }catch(e){q("#conversationStatus").textContent="AI 연결이 일시적으로 불안정합니다. 다시 시도해 주세요."}
