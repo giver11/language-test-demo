@@ -1,5 +1,5 @@
 (function(){
-const U={en:["Shopping list","Missing ingredients","Open retailer search","WorldCook does not place or pay for orders. Review and pay on the retailer site."],ko:["장바구니","부족한 재료","판매처에서 검색","WorldCook은 주문이나 결제를 대신하지 않습니다. 판매처에서 직접 확인하고 결제하세요."],es:["Lista de compra","Ingredientes que faltan","Buscar en tienda","WorldCook no realiza ni paga pedidos. Revisa y paga en la tienda."],ja:["買い物リスト","不足している食材","販売店で検索","WorldCookは注文や決済を行いません。販売店で確認し、ご自身で決済してください。"],zh:["购物清单","缺少的食材","前往零售商搜索","WorldCook不会代替下单或付款，请在零售商网站自行确认并付款。"]};
+const U={en:["Shopping list","Missing ingredients","Open retailer search","Cookora does not place or pay for orders. Review and pay on the retailer site."],ko:["장바구니","부족한 재료","판매처에서 검색","Cookora은 주문이나 결제를 대신하지 않습니다. 판매처에서 직접 확인하고 결제하세요."],es:["Lista de compra","Ingredientes que faltan","Buscar en tienda","Cookora no realiza ni paga pedidos. Revisa y paga en la tienda."],ja:["買い物リスト","不足している食材","販売店で検索","Cookoraは注文や決済を行いません。販売店で確認し、ご自身で決済してください。"],zh:["购物清单","缺少的食材","前往零售商搜索","Cookora不会代替下单或付款，请在零售商网站自行确认并付款。"]};
 function ui(){return U[lang()]||U.en}
 function missingFor(r){let h=new Set(pantry.map(x=>x.n));return (r.x||[]).filter(x=>!h.has(x))}
 function retailerSearch(q){
