@@ -1,4 +1,4 @@
-/* WorldCook Nutrition v1 — estimates from the app's per-serving ingredient measures. */
+/* Cookora Nutrition v1 — estimates from the app's per-serving ingredient measures. */
 (function(){
 const KCAL={almonds:69,basil:1,"bay leaf":2,beans:127,beef:250,"bell pepper":25,"black beans":132,bread:159,cabbage:30,carrot:29,cheese:140,chicken:215,chickpeas:164,"coconut milk":230,cornmeal:253,cumin:8,"curry powder":10,egg:72,eggplant:38,fish:170,flour:364,garlic:4,ginger:6,"ground beef":300,herbs:3,lamb:350,lemon:9,lentils:282,lime:10,milk:73,mushroom:18,"olive oil":119,onion:32,orange:31,pasta:320,potato:139,rice:288,"rice noodles":320,salt:0,sausage:300,"soy sauce":9,spinach:14,sugar:16,tahini:89,tomato:22,tortilla:240,vinegar:3,water:0,yogurt:61,zucchini:20};
 const UI={
