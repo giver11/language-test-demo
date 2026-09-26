@@ -17,3 +17,97 @@ function speechScore(a,b){if(!a||!b)return 0;let char=Math.max(0,1-editDistance(
 function editDistance(a,b){let p=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let n=[i];for(let j=1;j<=b.length;j++)n[j]=Math.min(n[j-1]+1,p[j]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=n}return p[b.length]}
 function showReview(){let arr=[...new Set(state.wrong)].slice(-8);q('#reviewList').innerHTML=arr.length?arr.map(x=>`<div class="review-item"><span>${x}</span><button class="btn soft fix">복습 완료</button></div>`).join(''):'<div class="card">아직 오답이 없습니다. 실전 문제와 발음 진단을 먼저 완료하세요.</div>';qa('.fix').forEach((b,i)=>b.onclick=()=>{state.wrong=state.wrong.filter(x=>x!==arr[i]);state.xp+=5;save();showReview();render()})}showSentence();
 function initLevels(){if(!C.levels)return;let keys=Object.keys(C.levels),saved=localStorage[K+'level']||keys[0],profile=JSON.parse(localStorage[K+'profile']||'{}'),host=q('#levelBar');host.innerHTML='<div class="card" style="padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><b>학습 급수</b><select id="levelSelect" aria-label="학습 급수 선택" style="padding:10px 14px;border:1px solid #dfe4ee;border-radius:12px;background:#fff;font-weight:700">'+keys.map(k=>'<option value="'+k+'">'+C.levels[k].label+'</option>').join('')+'</select><span id="levelDesc" style="color:#748097;flex:1"></span><b>하루 학습</b><select id="minutesSelect" aria-label="하루 학습시간 선택" style="padding:10px 14px;border:1px solid #dfe4ee;border-radius:12px;background:#fff;font-weight:700"><option value="10">10분</option><option value="20">20분</option><option value="30">30분</option><option value="45">45분</option><option value="60">60분</option></select></div>';q('#levelSelect').value=saved;q('#levelSelect').onchange=e=>setLevel(e.target.value);q('#minutesSelect').value=String(profile.minutes||10);q('#minutesSelect').onchange=e=>{let p=JSON.parse(localStorage[K+'profile']||'{}');p.minutes=e.target.value;localStorage[K+'profile']=JSON.stringify(p);render();status('하루 학습시간을 '+e.target.value+'분으로 변경했습니다.')};setLevel(saved)}function setLevel(k){let d=C.levels[k];if(!d)return;localStorage[K+'level']=k;C.words=d.words;C.sentences=d.sentences;C.questions=d.questions;vocab=0;test=0;sent=0;if(q('#levelDesc'))q('#levelDesc').textContent=d.desc||'';showWord();showQuestion();showSentence();render();q('#heroTitle').textContent=C.name+' '+d.label+' 맞춤 트레이닝'}
+
+/* Shared AI Conversation Engine v1 */
+const CONV={
+ topik:{title:"한국어 AI 상황 회화",modes:[["daily","일상"],["cafe","카페"],["restaurant","식당"],["shopping","쇼핑"],["travel","여행"],["school","학교"],["work","직장"],["hospital","병원"],["free","자유 회화"]],starters:{daily:"안녕하세요! 오늘 하루는 어땠어요?",cafe:"어서 오세요. 무엇을 주문하시겠어요?",restaurant:"안녕하세요. 몇 분이세요?",shopping:"찾으시는 물건이 있으세요?",travel:"이번 여행에서 어디에 가고 싶어요?",school:"오늘 수업에서 무엇을 배웠어요?",work:"오늘 업무에서 가장 중요한 일은 무엇인가요?",hospital:"어디가 불편해서 오셨어요?",free:"요즘 가장 관심 있는 것에 대해 이야기해 볼까요?"}},
+ ielts:{title:"IELTS Speaking + Free Conversation",modes:[["part1","Speaking Part 1"],["part2","Speaking Part 2"],["part3","Speaking Part 3"],["free","Free conversation"]],starters:{part1:"Let's begin with Part 1. Do you work or are you a student?",part2:"Describe a memorable journey you have taken. You should say where you went, who you went with, what happened, and explain why it was memorable.",part3:"Why do you think travel is important for some people?",free:"What would you like to talk about today?"}},
+ hsk:{title:"中文 AI 情景会话",modes:[["daily","日常生活"],["restaurant","餐厅"],["shopping","购物"],["travel","旅行"],["taxi","出租车"],["school","学校"],["work","工作"],["interview","面试"],["free","自由对话"]],starters:{daily:"你好！你今天过得怎么样？",restaurant:"您好，请问您想吃点什么？",shopping:"您好，您想买什么？",travel:"你最想去中国的哪个城市旅行？",taxi:"您好，请问您要去哪里？",school:"你今天在学校学了什么？",work:"你今天工作忙吗？",interview:"请先简单介绍一下你自己。",free:"我们来聊一个你感兴趣的话题吧。"}}
+};
+let convSession=null,convRecognizing=false;
+function convCfg(){return CONV[C.id]||CONV.ielts}
+function convKey(){return K+"conversation"}
+function convLoad(){try{return JSON.parse(localStorage[convKey()]||"[]")}catch(e){return []}}
+function convSave(h){localStorage[convKey()]=JSON.stringify(h.slice(-40))}
+function convEsc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function initConversationUI(){
+ let mode=q("#conversationMode");if(!mode)return;let cfg=convCfg();q("#conversationTitle").textContent=cfg.title;
+ if(!mode.dataset.ready){
+  mode.innerHTML=cfg.modes.map(([v,l])=>'<option value="'+v+'">'+l+'</option>').join("");mode.dataset.ready="1";
+  q("#newConversation").onclick=()=>startConversation(true);
+  q("#conversationSend").onclick=sendConversationText;
+  q("#conversationInput").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();sendConversationText()}};
+  q("#conversationMic").onclick=startConversationMic;
+ }
+ if(!convSession)startConversation(false);else renderConversation();
+}
+function startConversation(reset){
+ let cfg=convCfg(),mode=q("#conversationMode")?.value||cfg.modes[0][0],saved=!reset?convLoad():[];
+ convSession={mode,history:saved.length?saved:[],turns:0};
+ if(!convSession.history.length){convSession.history.push({role:"assistant",text:cfg.starters[mode]||cfg.starters.free});convSave(convSession.history);setTimeout(()=>speakText(convSession.history[0].text),150)}
+ renderConversation();let f=q("#conversationFeedback");if(f)f.classList.add("hide");
+}
+function renderConversation(){
+ let box=q("#conversationLog");if(!box||!convSession)return;
+ box.innerHTML=convSession.history.map(x=>'<div class="review-item" style="justify-content:'+(x.role==="user"?"flex-end":"flex-start")+'"><span style="max-width:82%;padding:10px 12px;border-radius:14px;background:'+(x.role==="user"?"#e9f8f2":"#f3f5f8")+'"><b>'+(x.role==="user"?"You":"AI")+'</b><br>'+convEsc(x.text)+'</span></div>').join("");
+ box.scrollTop=box.scrollHeight;
+}
+function guidedReply(text){
+ let mode=convSession?.mode||"free",lvl=localStorage[K+"level"]||"",low=text.toLowerCase();
+ if(C.id==="topik"){
+  if(mode==="cafe")return low.includes("주세요")?"네, 알겠습니다. 음료는 따뜻하게 드릴까요, 차갑게 드릴까요?":"좋아요. 주문할 때 ‘~ 주세요’를 사용해 보세요. 무엇을 드시겠어요?";
+  if(mode==="hospital")return "그 증상은 언제부터 있었어요? 얼마나 심한지도 말해 보세요.";
+  return "그렇군요. 조금 더 자세히 말해 주세요. 왜 그렇게 생각해요?";
+ }
+ if(C.id==="hsk"){
+  if(mode==="restaurant")return "好的。你还想喝点什么？";
+  if(mode==="shopping")return "可以。你喜欢什么颜色？";
+  return "很好！你为什么这么想？请再说一点。";
+ }
+ if(mode==="part1")return "Why? Can you give me one more detail?";
+ if(mode==="part2")return "Good. Now add more detail about what happened and how you felt.";
+ if(mode==="part3")return "What are the main reasons for that, and can you give an example?";
+ return "That's interesting. Can you tell me more about it?";
+}
+async function requestAIConversation(userText){
+ if(C.aiEndpoint){
+  let controller=new AbortController(),timer=setTimeout(()=>controller.abort(),18000);
+  try{
+   let res=await fetch(C.aiEndpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({app:C.id,mode:convSession.mode,level:localStorage[K+"level"]||null,profile:JSON.parse(localStorage[K+"profile"]||"{}"),history:convSession.history.slice(-10),message:userText}),signal:controller.signal});
+   if(!res.ok)throw new Error("AI gateway "+res.status);let data=await res.json();if(data.reply)return data;
+  }finally{clearTimeout(timer)}
+ }
+ return {reply:guidedReply(userText),guided:true};
+}
+async function submitConversation(text){
+ text=String(text||"").trim();if(!text||!convSession)return;
+ convSession.history.push({role:"user",text});convSession.turns++;renderConversation();q("#conversationStatus").textContent="AI가 답변을 준비하고 있습니다…";
+ try{
+  let result=await requestAIConversation(text);convSession.history.push({role:"assistant",text:result.reply});convSave(convSession.history);renderConversation();speakText(result.reply);
+  q("#conversationStatus").textContent=result.guided?"서버 AI 연결 전: 안전한 연습 대화 모드입니다. Work에서 AI Gateway를 연결하면 자유 대화로 전환됩니다.":"AI 실시간 대화";
+  state.xp+=5;state.done++;save();render();conversationFeedback(text,result);
+ }catch(e){q("#conversationStatus").textContent="AI 연결이 일시적으로 불안정합니다. 다시 시도해 주세요."}
+}
+function sendConversationText(){let i=q("#conversationInput");if(!i)return;let text=i.value;i.value="";submitConversation(text)}
+async function startConversationMic(){
+ if(convRecognizing)return;let SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){q("#conversationStatus").textContent="이 브라우저에서는 음성 인식이 지원되지 않습니다. 텍스트 입력을 이용해 주세요.";return}
+ let r=new SR();r.lang=C.lang;r.interimResults=true;r.continuous=false;convRecognizing=true;q("#conversationMic").disabled=true;q("#conversationStatus").textContent="말씀하세요…";
+ let final="";
+ r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)final+=(final?" ":"")+e.results[i][0].transcript;else q("#conversationStatus").textContent="인식 중: "+e.results[i][0].transcript};
+ r.onerror=e=>q("#conversationStatus").textContent="마이크 오류: "+e.error;
+ r.onend=()=>{convRecognizing=false;q("#conversationMic").disabled=false;if(final)submitConversation(final)};
+ try{r.start()}catch(e){convRecognizing=false;q("#conversationMic").disabled=false}
+}
+function conversationFeedback(userText,result){
+ let box=q("#conversationFeedback");if(!box)return;let target=normalizeSpeech(userText),words=target.split(" ").filter(Boolean),note="";
+ if(C.id==="ielts")note=words.length<6?"답을 한두 문장 더 확장해 보세요. 이유와 예시를 붙이면 Speaking 연습에 더 좋습니다.":"좋습니다. 다음 답변에서도 이유·예시를 붙여 자연스럽게 확장해 보세요.";
+ else if(C.id==="topik")note=userText.length<8?"짧은 답 뒤에 이유나 경험을 한 문장 더 붙여 보세요.":"대화를 계속 이어갈 수 있는 길이입니다. 조사와 연결어를 함께 점검해 보세요.";
+ else note=userText.length<5?"再说一句理由或例子，会更自然。":"很好。继续注意声调和语序。";
+ box.innerHTML="<b>대화 피드백</b><p>"+convEsc(note)+"</p><p class='small'>대화에서 어려웠던 표현은 스마트 복습에 저장할 수 있습니다.</p><button class='btn soft' id='saveConvReview'>복습에 저장</button>";box.classList.remove("hide");
+ q("#saveConvReview").onclick=()=>{state.wrong.push(userText);save();q("#saveConvReview").textContent="저장됨"};
+}
+/* Daily goal / monetization-ready entitlement hooks */
+function entitlement(){try{return JSON.parse(localStorage[K+"entitlement"]||'{"tier":"free"}')}catch(e){return {tier:"free"}}}
+window.canUsePremiumFeature=function(feature){let e=entitlement();return e.tier==="premium"||e.tier==="ai"||feature==="core"};
+window.setEntitlementPreview=function(tier){localStorage[K+"entitlement"]=JSON.stringify({tier});render()};
