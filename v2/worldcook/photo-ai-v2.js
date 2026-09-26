@@ -166,9 +166,23 @@ window.analyzePhoto=async function(){
   detected=Object.entries(best).map(([n,score])=>({n,score})).sort((a,b)=>b.score-a.score).slice(0,12);
   if(!detected.length){detected=[{n:"",score:0}];renderCandidates();setStatus(t.low)}
   else{renderCandidates();setStatus(detected.length+" "+p.found+" · "+t.source+" ("+activeDetector+(isVideo()?", 3 frames":"")+")")}
- }catch(err){console.warn("WorldCook Vision v7",err);classifierPromise=null;detected=[{n:"",score:0}];renderCandidates();setStatus(t.low)}
+ }catch(err){console.warn("WorldCook Vision v9",err);classifierPromise=null;detected=[{n:"",score:0}];renderCandidates();setStatus(t.low)}
  finally{btn.disabled=false}
 };
+function syncCameraLabels(){
+ const l=lang(),p=PUI[l]||PUI.en,t=ui();
+ const b=$("#retakePhoto");if(b)b.textContent=t.retake;
+ const hint=$("#wcCandidateHint");if(hint)hint.textContent={en:"Confidence is an estimate. Review every candidate before saving.",ko:"신뢰도는 추정치입니다. 저장 전 후보를 직접 확인하세요.",es:"La confianza es una estimación. Revisa cada candidato antes de guardar.",ja:"信頼度は推定値です。保存前に候補を確認してください。",zh:"置信度为估算值，保存前请确认每个候选项。"}[l]||"";
+ const all=$("#wcSelectAll");if(all)all.textContent={en:"Select all",ko:"전체 선택",es:"Seleccionar todo",ja:"すべて選択",zh:"全选"}[l]||"Select all";
+ const clear=$("#wcClearAll");if(clear)clear.textContent={en:"Clear",ko:"선택 해제",es:"Quitar selección",ja:"選択解除",zh:"取消选择"}[l]||"Clear";
+ const again=$("#wcAnalyzeAgain");if(again)again.textContent={en:"Analyze again",ko:"다시 분석",es:"Analizar de nuevo",ja:"再解析",zh:"重新分析"}[l]||"Analyze again";
+}
+window.wcSelectAllCandidates=function(on){$("#candidates .candidate input[type='checkbox']").forEach(x=>x.checked=!!on)};
+window.wcAnalyzeAgain=function(){if(photoFile)window.analyzePhoto()};
+function openLiveCamera(){
+ const input=$("#directCamera");
+ if(input){input.value="";input.click();}
+}
 function installCameraControls(){
  if($("#retakePhoto"))return;
  const input=document.createElement("input");input.type="file";input.id="directCamera";input.accept="image/*";input.capture="environment";input.className="hidden";input.onchange=e=>window.previewPhoto(e);document.body.appendChild(input);
