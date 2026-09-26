@@ -1,4 +1,4 @@
-/* WorldCook Vision v8 — saved-photo, video-frame and live-camera recognition with selectable localized candidates. */
+/* Cookora Vision v9 — saved-photo, video-frame and live-camera recognition with selectable localized candidates. */
 (function(){
 const legacyAnalyze=window.analyzePhoto;
 let objectDetectorPromise=null,classifierPromise=null,activeDetector="";
@@ -166,7 +166,7 @@ window.analyzePhoto=async function(){
   detected=Object.entries(best).map(([n,score])=>({n,score})).sort((a,b)=>b.score-a.score).slice(0,12);
   if(!detected.length){detected=[{n:"",score:0}];renderCandidates();setStatus(t.low)}
   else{renderCandidates();setStatus(detected.length+" "+p.found+" · "+t.source+" ("+activeDetector+(isVideo()?", 3 frames":"")+")")}
- }catch(err){console.warn("WorldCook Vision v9",err);classifierPromise=null;detected=[{n:"",score:0}];renderCandidates();setStatus(t.low)}
+ }catch(err){console.warn("Cookora Vision v9",err);classifierPromise=null;detected=[{n:"",score:0}];renderCandidates();setStatus(t.low)}
  finally{btn.disabled=false}
 };
 function syncCameraLabels(){
