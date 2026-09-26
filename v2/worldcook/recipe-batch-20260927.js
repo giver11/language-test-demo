@@ -13,5 +13,5 @@ Object.assign(window.INGREDIENT_I18N.ko,{ackee:"아키",paprika:"파프리카가
 Object.assign(window.INGREDIENT_I18N.es,{ackee:"ackee",paprika:"pimentón"});
 Object.assign(window.INGREDIENT_I18N.ja,{ackee:"アキー",paprika:"パプリカ粉"});
 Object.assign(window.INGREDIENT_I18N.zh,{ackee:"阿基果",paprika:"红椒粉"});
-window.WORLDCOOK_CATALOG=Object.assign(window.WORLDCOOK_CATALOG||{},{version:"2026-09-27",total:110,dailyBatchSize:10,license:"WorldCook original recipe text",lastBatch:"recipe-batch-20260927.js",reviewRequired:true});
+window.WORLDCOOK_CATALOG=Object.assign(window.WORLDCOOK_CATALOG||{},{version:"2026-09-27",total:120,dailyBatchSize:10,license:"WorldCook original recipe text",lastBatch:"recipe-batch-20260927.js",reviewRequired:true});
 })();
