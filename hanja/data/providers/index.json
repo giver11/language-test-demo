@@ -25,32 +25,6 @@
    "pastExamPolicy": "공식: 최근 2회분 기출문제를 자료실에 게재. 무단 전송·복제·배포·2차적 저작물 작성 금지 → 앱에서는 링크로만 연결.",
    "mode": "오프라인 현장시험 + 자기주도형 온라인(연 2회, 8급~3급 객관식)",
    "color": "#2f6db4"
-  },
-  {
-   "id": "jinheung",
-   "name": "한자교육진흥회",
-   "examName": "한자실력급수 자격시험",
-   "short": "진흥회",
-   "operating2026": true,
-   "operatingSource": "공식 2026년 시험일정(제123~126회)",
-   "officialUrl": "https://web.hanja114.org/",
-   "pastExamUrl": "https://web.hanja114.org/common/intro/boardFileList.do",
-   "pastExamPolicy": "공식 자료실에서 제공 여부 확인 필요. 앱에서는 링크로만 연결.",
-   "mode": "오프라인(지필) · 인터넷/방문 접수",
-   "color": "#2f8a5b"
-  },
-  {
-   "id": "korcham",
-   "name": "대한상공회의소",
-   "examName": "상공회의소 한자",
-   "short": "상공회의소",
-   "operating2026": true,
-   "operatingSource": "2026년 상시 자격시험 시작일정 안내(접수 2026-01-01~, 최초 시험 2026-01-05)",
-   "officialUrl": "https://license.korcham.net/",
-   "pastExamUrl": "https://license.korcham.net/co/examguide02.do?cd=0401&mm=53",
-   "pastExamPolicy": "공식: 상시검정 문제는 문제은행식으로 비공개. 학습용 문제모음집·모의문제(2013)는 공식 자료실 링크로만 연결.",
-   "mode": "상시검정 · CBT 객관식",
-   "color": "#8a5a2f"
   }
  ],
  "verifiedAt": "2026-09-28"

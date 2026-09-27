@@ -74,7 +74,7 @@ async def ls(pg):
     return await pg.evaluate("() => JSON.parse(localStorage.getItem('hanjaPass.v1') || 'null')")
 
 async def main():
-    levels = {p: load(f'providers/{p}/levels.json')['levels'] for p in ['eomunhoe', 'daehan', 'jinheung', 'korcham']}
+    levels = {p: load(f'providers/{p}/levels.json')['levels'] for p in ['eomunhoe', 'daehan']}
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         dev = dict(p.devices['iPhone 13'])
@@ -90,20 +90,20 @@ async def main():
         await pg.wait_for_selector('.pick')
         names = await pg.eval_on_selector_all('.pick .t', 'els => els.map(e => e.textContent)')
         title = await pg.inner_text('h1')
-        rec('TEST 1', '앱 실행 → 4개 시험기관 표시', names == ['한국어문회', '대한검정회', '한자교육진흥회', '대한상공회의소'] and '어떤 한자시험을 준비하시나요' in title, str(names))
+        rec('TEST 1', '앱 실행 → 2개 시험기관 표시', names == ['한국어문회', '대한검정회'] and '어떤 한자시험을 준비하시나요' in title, str(names))
         await shot(pg, 't01-onboard')
 
         # ---------------- TEST 2
         ok2, det = True, []
-        for pid in ['eomunhoe', 'daehan', 'jinheung', 'korcham']:
+        for pid in ['eomunhoe', 'daehan']:
             await pg.goto(BASE + '#/onboard?p=' + pid)
             await pg.wait_for_selector('.lv')
             shown = await pg.eval_on_selector_all('.lv b', 'els => els.map(e => e.textContent)')
             expect = [l['name'] for l in levels[pid]]
             ok2 &= shown == expect
             det.append(f"{pid}:{len(shown)}급")
-            if pid == 'korcham':
-                await shot(pg, 't02-levels-korcham')
+            if pid == 'daehan':
+                await shot(pg, 't02-levels-daehan')
         rec('TEST 2', '기관 선택 → 실제 급수 표시', ok2, ', '.join(det))
 
         # 온보딩: 한국어문회 6급, 제115회
@@ -378,12 +378,12 @@ async def main():
         await pg.wait_for_selector('.sched-cards')
         sch = await pg.inner_text('#view')
         await shot(pg, 't12-schedule')
-        ok12 = all(x in sch for x in ['한국어문회', '대한검정회', '한자교육진흥회', '대한상공회의소', '2026.11.21', '2026.11.28', '제126회', '상시 시험', '마지막 확인: 2026-09-28', '공식 시험기관 발표 기준'])
+        ok12 = all(x in sch for x in ['한국어문회', '대한검정회', '2026.11.21', '2026.11.28', '마지막 확인: 2026-09-28', '공식 시험기관 발표 기준']) and not any(x in sch for x in ['한자교육진흥회', '대한상공회의소'])
         # 데이터 파일과 화면 대조
-        for pid in ['eomunhoe', 'daehan', 'jinheung']:
+        for pid in ['eomunhoe', 'daehan']:
             for s in load(f'schedules/{pid}-2026.json')['sessions']:
                 ok12 &= s['examDate'].replace('-', '.') in sch
-        rec('TEST 12', '4개 기관 2026 시험일정', ok12, '어문회 4회·검정회 4회+온라인 2회·진흥회 4회·상공회의소 상시')
+        rec('TEST 12', '2개 기관 2026 시험일정', ok12, '어문회 4회·검정회 4회+온라인 2회 (진흥회·상공회의소 미표시)')
 
         # ---------------- TEST 14 기관 변경 → 기존 진도 유지
         before = (await ls(pg))['byProvider']['eomunhoe']

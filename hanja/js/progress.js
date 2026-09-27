@@ -9,6 +9,7 @@ export async function ctx() {
   const pid = st.current.provider;
   const p = S.prov(pid);
   const provider = await D.provider(pid);
+  if (!provider) return null;
   const lv = await D.levels(pid);
   const level = lv.levels.find((l) => l.id === p.level) || null;
   return { pid, p, provider, levels: lv.levels, levelsFile: lv, level, lid: level && level.id, st };

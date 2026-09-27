@@ -215,14 +215,10 @@
     "words": 60,
     "idioms": 3
    }
-  },
-  "jinheung": {},
-  "korcham": {}
+  }
  },
  "providers": {
   "eomunhoe": 5978,
-  "daehan": 30,
-  "jinheung": 0,
-  "korcham": 0
+  "daehan": 30
  }
 }

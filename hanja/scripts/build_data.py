@@ -277,7 +277,8 @@ def write_sources():
     for pid, srcs in M.SOURCES.items():
         dump("providers/%s/sources.json" % pid, srcs, compact=False)
 write_sources()
-dump("providers/index.json", {"providers": M.PROVIDERS, "verifiedAt": M.VERIFIED_AT}, compact=False)
+ENABLED = M.ENABLED
+dump("providers/index.json", {"providers": [x for x in M.PROVIDERS if x["id"] in ENABLED], "verifiedAt": M.VERIFIED_AT}, compact=False)
 
 # --- 한국어문회
 eom_levels = []
@@ -446,7 +447,7 @@ sched = {
 }
 for pid, s in sched.items():
     dump("schedules/%s-2026.json" % pid, s, compact=False)
-dump("schedules/index.json", {"years": {"2026": ["eomunhoe", "daehan", "jinheung", "korcham"]},
+dump("schedules/index.json", {"years": {"2026": [x for x in ["eomunhoe", "daehan", "jinheung", "korcham"] if x in ENABLED]},
       "note": "연도별 일정은 schedules/{provider}-{year}.json 파일만 추가·수정하면 앱에 반영됩니다."}, compact=False)
 
 # ------------------------------------------------------------------ 9. 문제은행 (한국어문회 · 대한검정회 8급)
@@ -753,3 +754,16 @@ dump("stats.json", {"builtAt": M.VERIFIED_AT, "dictionary": len(dict_chars), "st
                     "providers": {"eomunhoe": len(eom_map), "daehan": len(dh_level_of), "jinheung": 0, "korcham": 0}}, compact=False)
 print(json.dumps({k: v.get("total") for k, v in bank_stats["eomunhoe"].items()}, ensure_ascii=False))
 print("문제 총합:", sum(v.get("total", 0) for p in bank_stats.values() for v in p.values()))
+
+# 비활성 기관 출력물 제거 (조사 메타데이터는 providers_meta.py 에 보존)
+for pid in ("jinheung", "korcham"):
+    if pid in ENABLED:
+        continue
+    shutil.rmtree(os.path.join(DATA, "providers", pid), ignore_errors=True)
+    for f in (os.path.join(DATA, "schedules", pid + "-2026.json"),):
+        if os.path.exists(f):
+            os.remove(f)
+    shutil.rmtree(os.path.join(DATA, "questions", pid), ignore_errors=True)
+    st = json.load(open(os.path.join(DATA, "stats.json"), encoding="utf-8"))
+    st["banks"].pop(pid, None); st["providers"].pop(pid, None)
+    dump("stats.json", st, compact=False)

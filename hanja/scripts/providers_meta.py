@@ -8,6 +8,10 @@ verifiedAt 은 이 세션에서 해당 페이지를 실제로 조회한 날짜(K
 
 VERIFIED_AT = "2026-09-28"
 
+# 앱에서 지원하는 기관 (2026-09-28 결정: 한국어문회·대한검정회만 제공).
+# 한자교육진흥회·대한상공회의소 조사 결과는 아래에 보존 — 공식 배정한자 파일 확보 시 ENABLED 에 추가.
+ENABLED = ["eomunhoe", "daehan"]
+
 # 상태 코드
 OFFICIAL = "official"                 # 공식 사이트에서 직접 확인
 OFFICIAL_FILE = "official-file"       # 공식 배포 파일(xls)을 변환한 공개 데이터셋

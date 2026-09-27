@@ -2,6 +2,7 @@
 import * as S from './store.js';
 import * as P from './progress.js';
 import { $, $$, esc, closeSheet } from './ui.js';
+import * as D from './data.js';
 
 const routes = {
   onboard: () => import('./views/onboard.js'),
@@ -45,7 +46,9 @@ async function render() {
   closeSheet();
   let { name, args, params } = parseHash();
   const st = S.get();
-  const hasCtx = st.current && st.current.provider && S.prov(st.current.provider).level;
+  let hasCtx = st.current && st.current.provider && S.prov(st.current.provider).level;
+  // 지원이 종료된 기관이 선택돼 있던 경우(기록은 보존) → 기관 다시 선택
+  if (hasCtx && !(await D.provider(st.current.provider))) hasCtx = false;
   if (!name) name = hasCtx ? 'home' : 'onboard';
   if (NEEDS_CTX.has(name) && !hasCtx) name = 'onboard';
   if (!routes[name]) name = hasCtx ? 'home' : 'onboard';

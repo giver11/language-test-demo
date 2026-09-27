@@ -64,7 +64,7 @@ export default async function (view, { ctx: c }) {
       <a href="#/review"><i>復</i><b>Smart Review</b><span>헷갈린·틀린 한자 복습</span></a>
       <a href="#/mock"><i>試</i><b>모의시험</b><span>공식 형식 기준</span></a>
       <a href="#/wrong"><i>誤</i><b>오답노트</b><span>틀린 문제 다시 풀기</span></a>
-      <a href="#/schedule"><i>曆</i><b>2026 시험일정</b><span>4개 기관 공식 일정</span></a>
+      <a href="#/schedule"><i>曆</i><b>2026 시험일정</b><span>어문회·검정회 공식 일정</span></a>
       <a href="#/compare"><i>比</i><b>기관 비교</b><span>배정한자 차이 계산</span></a>
       <a href="#/search"><i>索</i><b>한자 검색</b><span>한자·음·뜻·한자어</span></a>
     </div>`;
