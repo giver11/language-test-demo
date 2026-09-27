@@ -55,9 +55,11 @@ function startConversation(reset){
  if(!convSession.history.length){convSession.history.push({role:"assistant",text:cfg.starters[mode]||cfg.starters.free});convSave(convSession.history);setTimeout(()=>speakText(convSession.history[0].text),150)}
  renderConversation();let f=q("#conversationFeedback");if(f)f.classList.add("hide");
 }
+/* Keep AI line breaks and put the 💡 feedback on its own highlighted line. */
+function convBody(x){let t=String(x.text||'');if(x.role==="user")return convEsc(t);return t.replace(/[ \t]*💡/g,'\n💡').replace(/\n{3,}/g,'\n\n').trim().split('\n').map(l=>l.trim().startsWith('💡')?'<span style="display:block;margin-top:8px;padding:8px 10px;border-radius:10px;background:#fff7e0;color:#6b4e00;white-space:normal">'+convEsc(l.trim())+'</span>':convEsc(l)).join('\n').replace(/\n+(?=<span style="display:block)/g,'')}
 function renderConversation(){
  let box=q("#conversationLog");if(!box||!convSession)return;
- box.innerHTML=convSession.history.map(x=>'<div class="review-item" style="justify-content:'+(x.role==="user"?"flex-end":"flex-start")+'"><span style="max-width:82%;padding:10px 12px;border-radius:14px;background:'+(x.role==="user"?"#e9f8f2":"#f3f5f8")+'"><b>'+(x.role==="user"?"You":"AI")+'</b><br>'+convEsc(x.text)+'</span></div>').join("");
+ box.innerHTML=convSession.history.map(x=>'<div class="review-item" style="justify-content:'+(x.role==="user"?"flex-end":"flex-start")+'"><span style="max-width:82%;padding:10px 12px;border-radius:14px;white-space:pre-line;background:'+(x.role==="user"?"#e9f8f2":"#f3f5f8")+'"><b>'+(x.role==="user"?"You":"AI")+'</b>\n'+convBody(x)+'</span></div>').join("");
  box.scrollTop=box.scrollHeight;
 }
 function guidedReply(text){
