@@ -27,7 +27,7 @@ export default async function (view, { ctx: c }) {
       <div class="stat"><div class="v">${sum.bestMock == null ? '-' : sum.bestMock + '%'}</div><div class="k">모의시험 최고점</div></div>
     </div>
     <h3>최근 14일 학습</h3>
-    <div class="card flat"><div style="display:grid;grid-template-columns:repeat(14,1fr);gap:4px">${last14.map((x) => `<div title="${x}" style="aspect-ratio:1;border-radius:5px;background:${days.has(x) ? 'var(--ok)' : '#ebe6db'}"></div>`).join('')}</div>
+    <div class="card flat"><div style="display:grid;grid-template-columns:repeat(14,1fr);gap:4px">${last14.map((x) => `<div title="${x}" style="height:18px;border-radius:5px;background:${days.has(x) ? 'var(--ok)' : '#ebe6db'}"></div>`).join('')}</div>
       <div class="spread tiny" style="margin-top:4px"><span>${last14[0].slice(5)}</span><span>오늘</span></div></div>
     <h3>유형별 정답률</h3>
     <div class="card">${bt.map(([k, v]) => `<div style="margin:8px 0"><div class="spread small"><span>${esc(k)}</span><span>${v.c}/${v.a} · ${Math.round((v.c * 100) / v.a)}%</span></div>${bar((v.c * 100) / v.a, v.c / v.a >= 0.7 ? 'var(--ok)' : 'var(--warn)')}</div>`).join('') || '<div class="empty">아직 푼 문제가 없어요.</div>'}</div>

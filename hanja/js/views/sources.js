@@ -16,7 +16,7 @@ export default async function (view) {
       <div class="small">기출문제: ${esc(p.pastExamPolicy)} <a href="${esc(p.pastExamUrl)}" target="_blank" rel="noopener">공식 기출문제 보기 ↗</a></div>
       <div class="table-wrap" style="margin-top:10px"><table><thead><tr><th>급수</th><th>배정(공식 표기)</th><th>앱 등록</th><th>문항</th><th>시간</th><th>합격기준</th><th>상태</th></tr></thead><tbody>
         ${lv.levels.map((l) => `<tr><td>${esc(l.name)}</td><td>${l.readCount ? l.readCount.toLocaleString() : '확인 필요'}${l.writeCount ? ` / 쓰기 ${l.writeCount.toLocaleString()}` : ''}</td><td>${l.dataCount ? l.dataCount.toLocaleString() : 0}자</td>
-          <td>${l.exam.questionCount ?? '-'}</td><td>${l.exam.timeMin ? l.exam.timeMin + '분' : '-'}</td><td class="small">${esc(l.exam.passRule || '-')}</td><td>${statusBadge(l.hasData ? l.status.hanja : 'missing')}</td></tr>`).join('')}
+          <td>${l.exam.questionCount != null ? l.exam.questionCount : '-'}</td><td>${l.exam.timeMin ? l.exam.timeMin + '분' : '-'}</td><td class="small">${esc(l.exam.passRule || '-')}</td><td>${statusBadge(l.hasData ? l.status.hanja : 'missing')}</td></tr>`).join('')}
       </tbody></table></div>
       <h3>출처</h3><div class="src-list">${src.map((s) => `<div style="margin-bottom:8px">${statusBadge(s.status === 'unreachable' ? 'missing' : s.status === 'image-only' ? 'partial' : s.status)} <a href="${esc(s.sourceUrl)}" target="_blank" rel="noopener">${esc(s.sourceName)}</a> · 확인 ${esc(s.verifiedAt)}${s.note ? `<br><span class="small">${esc(s.note)}</span>` : ''}</div>`).join('')}</div>
     </div>`);

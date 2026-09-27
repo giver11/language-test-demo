@@ -24,6 +24,7 @@ const routes = {
   search: () => import('./views/search.js'),
   favorites: () => import('./views/favorites.js'),
   sources: () => import('./views/sources.js'),
+  diag: () => import('./views/diag.js'),
 };
 const TAB_OF = { home: 'home', hanja: 'hanja', cards: 'hanja', write: 'write', quiz: 'quiz' };
 const NEEDS_CTX = new Set(['home', 'hanja', 'cards', 'write', 'quiz', 'idioms', 'words', 'mock', 'wrong', 'review', 'stats', 'favorites']);
@@ -49,6 +50,16 @@ async function render() {
   let hasCtx = st.current && st.current.provider && S.prov(st.current.provider).level;
   // 지원이 종료된 기관이 선택돼 있던 경우(기록은 보존) → 기관 다시 선택
   if (hasCtx && !(await D.provider(st.current.provider))) hasCtx = false;
+  // 한자 데이터가 없는 급수가 선택돼 있으면(이전 버전에서 선택) 급수를 다시 고르게 함
+  if (hasCtx) {
+    const lv = await D.level(st.current.provider, S.prov(st.current.provider).level);
+    if (!lv || !lv.hasData) {
+      hasCtx = false;
+      if (name !== 'onboard' && !['schedule', 'sources', 'search', 'compare', 'more', 'settings', 'diag'].includes(name)) {
+        name = 'onboard'; params = { p: st.current.provider };
+      }
+    }
+  }
   if (!name) name = hasCtx ? 'home' : 'onboard';
   if (NEEDS_CTX.has(name) && !hasCtx) name = 'onboard';
   if (!routes[name]) name = hasCtx ? 'home' : 'onboard';
@@ -67,12 +78,13 @@ async function render() {
     const r = await mod.default(view, { name, args, params, ctx: c, go });
     if (seq !== navSeq) { if (typeof r === 'function') r(); return; }
     cleanup = typeof r === 'function' ? r : null;
+    window.__hanjaReady = true;
     window.scrollTo(0, 0);
     const nb = P.evalBadges().newly;
     if (nb.length) import('./ui.js').then((u) => u.toast(`🏅 배지 획득: ${nb.map((b) => b.name).join(', ')}`));
   } catch (e) {
     console.error(e);
-    view.innerHTML = `<div class="notice bad">화면을 불러오지 못했습니다: ${esc(e.message)}<br><a href="#/home">홈으로</a></div>`;
+    view.innerHTML = `<div class="notice bad">화면을 불러오지 못했습니다: ${esc(e.message)}<br><a href="javascript:location.reload()">새로고침</a> · <a href="#/diag">진단 화면</a> · <a href="#/home">홈으로</a></div>`;
   }
 }
 

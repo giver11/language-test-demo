@@ -11,7 +11,11 @@ export default async function (view, { params, ctx }) {
   const chars = Object.values(dict);
   view.innerHTML = `
     <h1>한자 검색</h1>
-    <input type="search" data-q placeholder="한자 · 음 · 뜻 · 한자어 · 사자성어 (예: 學, 학, 배우다, 학교)" value="${esc(params.q || '')}" autocomplete="off" enterkeyhint="search">
+    <form data-form class="row" style="flex-wrap:nowrap" action="#" onsubmit="return false">
+      <input type="search" data-q placeholder="한자 · 음 · 뜻 · 한자어 · 사자성어" value="${esc(params.q || '')}" autocomplete="off" autocapitalize="off" enterkeyhint="search" style="flex:1">
+      <button class="btn primary" data-go type="submit" style="flex:0 0 auto">검색</button>
+    </form>
+    <div class="chips" style="margin-top:8px">${['學', '학', '배우다', '학교', '일석이조', '물'].map((x) => `<button class="chip" data-ex="${x}" type="button" style="min-height:36px">${x}</button>`).join('')}</div>
     <p class="tiny">전체 사전 ${chars.length.toLocaleString()}자 · 한자어 ${words.size.toLocaleString()}개 · 사자성어 ${idioms.size}개</p>
     <div data-res></div>`;
   const input = view.querySelector('[data-q]');
@@ -56,8 +60,12 @@ export default async function (view, { params, ctx }) {
     res.querySelectorAll('[data-fw]').forEach((b) => (b.onclick = () => { const on = S.toggleFav('words', b.dataset.fw); b.classList.toggle('on', on); toast(on ? '즐겨찾기에 추가' : '즐겨찾기 해제'); }));
   };
   let t;
-  input.oninput = () => { clearTimeout(t); t = setTimeout(run, 200); };
-  input.onkeydown = (e) => { if (e.key === 'Enter') { clearTimeout(t); run(); history.replaceState(null, '', `#/search?q=${encodeURIComponent(input.value.trim())}`); } };
+  const now = () => { clearTimeout(t); run(); try { history.replaceState(null, '', `#/search?q=${encodeURIComponent(input.value.trim())}`); } catch (e) {} };
+  // 한글 IME 조합 중에도/끝난 뒤에도 검색되도록 input·compositionend·change 모두 처리
+  input.addEventListener('input', () => { clearTimeout(t); t = setTimeout(run, 250); });
+  input.addEventListener('compositionend', () => { clearTimeout(t); t = setTimeout(run, 50); });
+  input.addEventListener('change', now);
+  view.querySelector('[data-form]').addEventListener('submit', (e) => { e.preventDefault(); input.blur(); now(); });
+  view.querySelectorAll('[data-ex]').forEach((b) => (b.onclick = () => { input.value = b.dataset.ex; now(); }));
   run();
-  if (!params.q) input.focus();
 }

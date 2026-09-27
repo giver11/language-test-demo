@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/app.css?v=2026.09.28-3">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23b4432f'/%3E%3Ctext x='32' y='46' font-size='38' text-anchor='middle' fill='white' font-family='serif'%3E漢%3C/text%3E%3C/svg%3E">
 </head>
 <body>
@@ -29,6 +29,36 @@
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="sheet" class="sheet" hidden></div>
-<script type="module" src="js/app.js"></script>
+<div id="fatal" role="alert"></div>
+<script>
+/* 오류가 나면 빈 화면 대신 화면에 원인을 표시 (모바일에서 확인 가능) */
+(function () {
+  var V = '2026.09.28-3';
+  function show(msg) {
+    var f = document.getElementById('fatal');
+    if (!f) return;
+    f.style.display = 'block';
+    f.innerHTML = '앱 오류: ' + String(msg).replace(/[<>&]/g, '') + '<br><a href="#/diag" style="color:#fff;text-decoration:underline">진단 화면 열기</a> · <a href="javascript:location.reload()" style="color:#fff;text-decoration:underline">새로고침</a>';
+  }
+  window.__showFatal = show;
+  window.addEventListener('error', function (e) { if (e && e.message) show(e.message); });
+  window.addEventListener('unhandledrejection', function (e) { show((e.reason && (e.reason.message || e.reason)) || '알 수 없는 오류'); });
+  /* 오래된 캐시가 섞였을 때 자동 갱신: 배포 버전이 다르면 파일을 새로 받아 한 번 다시 연다 */
+  try {
+    fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
+      if (j.v !== V && !sessionStorage.getItem('hp-upd-' + j.v)) {
+        sessionStorage.setItem('hp-upd-' + j.v, '1');
+        Promise.all(j.files.map(function (f) { return fetch(f, { cache: 'reload' }).catch(function () {}); })).then(function () { location.reload(); });
+      }
+    }).catch(function () {});
+  } catch (e) {}
+  setTimeout(function () {
+    var v = document.getElementById('view');
+    if (v && /불러오는 중/.test(v.textContent) && !window.__hanjaReady) show('앱을 불러오지 못했어요. 인터넷 연결을 확인하거나 최신 Chrome·Safari에서 열어 주세요.');
+  }, 12000);
+})();
+</script>
+<script nomodule>document.getElementById('view').innerHTML = '<div class="notice bad">이 브라우저는 너무 오래되어 앱을 실행할 수 없어요. 최신 Chrome 또는 Safari에서 열어 주세요.</div>';</script>
+<script type="module" src="js/app.js?v=2026.09.28-3"></script>
 </body>
 </html>

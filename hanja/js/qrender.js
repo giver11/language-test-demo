@@ -14,7 +14,7 @@ export async function renderQuestion(host, q, opts = {}) {
   wrap.innerHTML = `
     <div class="tag-label">${esc(q.typeLabel)}${q.sourceType === 'original-practice' ? ' · 기출유형 연습' : ''}</div>
     <div class="q-text">${esc(q.question)}</div>
-    ${q.type === 'stroke-order' ? '<div class="q-stroke" style="width:min(62vw,230px);margin:10px auto"></div>' : promptHtml}
+    ${q.type === 'stroke-order' ? '<div class="q-stroke" style="width:230px;max-width:62vw;margin:10px auto"></div>' : promptHtml}
     <div class="q-body"></div>
     <div class="q-explain"></div>`;
   host.appendChild(wrap);

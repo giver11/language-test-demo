@@ -1,10 +1,12 @@
 // 정적 JSON 데이터 로더 (캐시). 모든 시험 정보는 data/ 파일에서만 읽는다 — 코드에 일정·급수를 하드코딩하지 않음.
+// 배포 버전 — 데이터·코드가 섞여 캐시되지 않도록 모든 데이터 요청에 붙임
+export const APP_VERSION = '2026.09.28-3';
 const cache = new Map();
 export const BASE = new URL('../data/', import.meta.url).href;
 
 export async function json(path) {
   if (cache.has(path)) return cache.get(path);
-  const p = fetch(BASE + path).then((r) => {
+  const p = fetch(BASE + path + '?v=' + APP_VERSION).then((r) => {
     if (!r.ok) throw new Error(path + ' ' + r.status);
     return r.json();
   });
@@ -74,7 +76,7 @@ export async function strokes(c) {
   const hex = c.codePointAt(0).toString(16).toUpperCase().padStart(4, '0');
   const d = (await dict())[c];
   if (!d || !d.so) { strokeCache.set(c, Promise.resolve(null)); return null; }  // 획순 데이터 없는 글자는 요청하지 않음
-  const p = fetch(BASE + 'strokes/' + hex + '.json').then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  const p = fetch(BASE + 'strokes/' + hex + '.json?v=' + APP_VERSION).then((r) => (r.ok ? r.json() : null)).catch(() => null);
   strokeCache.set(c, p);
   return p;
 }

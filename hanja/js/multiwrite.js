@@ -91,7 +91,7 @@ export async function multiWrite(host, chars, opts = {}) {
   const showOrder = (i) => {
     const ch = chars[i];
     openSheet(`<div class="spread"><h2 class="mt0">획순 · <span class="hanzi">${esc(ch)}</span></h2><button class="btn sm" data-close type="button">닫기</button></div>
-      <div class="anim" style="width:min(60vw,220px);margin:0 auto"></div><div class="steps-host" style="margin-top:10px"></div>`, async (panel) => {
+      <div class="anim" style="width:220px;max-width:60vw;margin:0 auto"></div><div class="steps-host" style="margin-top:10px"></div>`, async (panel) => {
       const ok = await renderSteps(panel.querySelector('.steps-host'), ch);
       if (!ok) { panel.querySelector('.steps-host').innerHTML = '<div class="notice">이 글자는 공개 획순 데이터가 없어 획순을 표시하지 않습니다.</div>'; return; }
       anim = await animate(panel.querySelector('.anim'), ch);

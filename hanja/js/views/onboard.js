@@ -45,13 +45,18 @@ export default async function (view, { params, go }) {
         <button class="btn ghost sm" data-back type="button">← 기관 선택</button>
         <h1>${esc(prov.name)} 급수 선택</h1>
         <p class="sub">${esc(prov.examName)} · 공식 급수 체계(${lv.levels.length}개 급수)</p>
-        <div class="level-list">${lv.levels.map((l) => `
+        <div class="level-list">${lv.levels.map((l) => l.hasData ? `
           <button class="lv ${state.lid === l.id ? 'sel' : ''}" data-l="${l.id}" type="button">
             <b>${esc(l.name)}</b>
-            <span class="small">${esc(l.category)}${l.readCount ? ` · ${l.readCount.toLocaleString()}자` : ''}</span>
-            ${l.hasData ? statusBadge(l.status.hanja) : statusBadge('missing')}
+            <span class="small">${esc(l.category)} · 한자 ${l.dataCount.toLocaleString()}자 학습 가능</span>
+            ${statusBadge(l.status.hanja)}
+          </button>` : `
+          <button class="lv" type="button" disabled aria-disabled="true" style="opacity:.5;cursor:not-allowed">
+            <b>${esc(l.name)}</b>
+            <span class="small">${esc(l.category)} · 한자 데이터 준비 중</span>
+            ${statusBadge('missing')}
           </button>`).join('')}</div>
-        ${lv.levels.some((l) => !l.hasData) ? `<div class="notice" style="margin-top:14px">‘공식 자료 확인 필요’ 급수는 공식 배정한자 목록을 아직 확보하지 못한 급수예요. 급수·시험형식·일정·D-Day는 사용할 수 있고, 한자 학습·문제는 공식 자료가 들어오면 열려요.</div>` : ''}`;
+        ${lv.levels.some((l) => !l.hasData) ? `<div class="notice" style="margin-top:14px">회색 급수는 공식 배정한자 목록을 아직 확보하지 못해 한자 학습을 할 수 없어요. 가짜 한자를 채우지 않고 선택을 막아 두었어요. (시험일정·시험형식은 더보기 → 시험일정/데이터 출처에서 볼 수 있어요)</div>` : ''}`;
       view.querySelector('[data-back]').onclick = () => { state.step = 0; draw(); };
       view.querySelectorAll('[data-l]').forEach((b) => (b.onclick = () => { state.lid = b.dataset.l; state.step = 2; draw(); }));
       return;

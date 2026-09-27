@@ -43,15 +43,15 @@ export default async function (view, { ctx: c, params }) {
     <div class="spread"><h1 class="mt0" style="margin:0">한자 쓰기</h1><span class="small" data-count></span></div>
     ${scopeNote ? `<div class="notice info">${esc(scopeNote)}</div>` : ''}
     <div class="levels3" style="margin:10px 0">
-      <button class="chip" data-lv="1" type="button">1단계 따라쓰기</button>
-      <button class="chip" data-lv="2" type="button">2단계 희미하게</button>
-      <button class="chip" data-lv="3" type="button">3단계 외워쓰기</button>
+      <button class="chip" data-lv="1" type="button">1단계<br>따라 쓰기</button>
+      <button class="chip" data-lv="2" type="button">2단계<br>희미하게</button>
+      <button class="chip" data-lv="3" type="button">3단계<br>외워 쓰기</button>
     </div>
     <div class="write-wrap">
-      <div class="card target-card" style="width:min(100%,440px)"><div><div class="small" data-lvlabel></div><div class="he" data-he></div></div><div class="hanzi" data-show style="font-size:44px;min-width:50px;text-align:right"></div></div>
+      <div class="card target-card" style="width:100%;max-width:440px"><div><div class="small" data-lvlabel></div><div class="he" data-he></div></div><div class="hanzi" data-show style="font-size:44px;min-width:50px;text-align:right"></div></div>
       <div class="padhost" style="width:100%;display:flex;justify-content:center"></div>
       <div class="feedback" data-fb></div>
-      <div class="btns fill" style="width:min(100%,440px)">
+      <div class="btns fill" style="width:100%;max-width:440px">
         <button class="btn sm" data-act="undo" type="button">↶ 한 획 지우기</button>
         <button class="btn primary" data-act="judge" type="button" style="flex:2">채점하기</button>
       </div>
@@ -63,6 +63,11 @@ export default async function (view, { ctx: c, params }) {
         <button class="btn" data-act="answer" type="button">정답 보기</button>
         <button class="btn" data-act="next" type="button">다음 한자</button>
       </div>
+      <form data-free class="free-form" style="margin-top:4px" onsubmit="return false">
+      <input data-freein type="text" placeholder="자유 쓰기: 한자 입력 (예: 學)" autocomplete="off" >
+      <button class="btn sm" type="submit">이 한자 쓰기</button>
+      <button class="btn sm" data-blank type="button">빈 칸 연습</button>
+    </form>
       <p class="tiny center" style="max-width:440px">판정은 입력한 획의 수·순서·시작/끝 위치·경로를 공개 획순 데이터(Make Me a Hanzi, 중국 표준 필순 기반)와 비교한 결과예요. 한국 교과서 필순과 다른 글자가 있을 수 있어요.</p>
     </div>`;
 
@@ -130,7 +135,7 @@ export default async function (view, { ctx: c, params }) {
     const k = Math.min(pad.strokes.length, data.s.length - 1);
     // 다음에 쓸 획을 잠깐 표시
     const { svg, g } = svgBase();
-    svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none';
+    svg.style.cssText = 'position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;pointer-events:none';
     data.s.forEach((p, i) => { const e = document.createElementNS('http://www.w3.org/2000/svg', 'path'); e.setAttribute('d', p); e.setAttribute('fill', i === k ? 'rgba(210,58,42,.55)' : i < k ? 'rgba(31,42,68,.12)' : 'transparent'); g.appendChild(e); });
     pad.guideLayer.appendChild(svg);
     toast(`${k + 1}번째 획 (총 ${data.s.length}획)`);
@@ -139,7 +144,7 @@ export default async function (view, { ctx: c, params }) {
   view.querySelector('[data-act=order]').onclick = () => {
     const ch = items[idx];
     openSheet(`<div class="spread"><h2 class="mt0">획순 · <span class="hanzi">${esc(ch)}</span></h2><button class="btn sm" data-close type="button">닫기</button></div>
-      <div class="anim" style="width:min(64vw,240px);margin:0 auto"></div>
+      <div class="anim" style="width:240px;max-width:64vw;margin:0 auto"></div>
       <div class="btns" style="justify-content:center;margin:8px 0"><button class="btn sm" data-replay type="button">▶ 다시 보기</button></div>
       <div class="steps-host"></div>`, async (panel) => {
       const ok = await renderSteps(panel.querySelector('.steps-host'), ch);
@@ -150,6 +155,20 @@ export default async function (view, { ctx: c, params }) {
     window.__sheetClose = () => anim && anim.cancel();
   };
 
+  view.querySelector('[data-free]').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const v = view.querySelector('[data-freein]').value;
+    const ch = [...v].find((x) => dict[x]);
+    if (!ch) { toast('사전에 있는 한자를 입력하세요'); return; }
+    items.splice(idx + 1, 0, ch); idx = idx + 1; load();
+  });
+  // 빈 칸 연습: 가이드·판정 없이 자유롭게 쓰기
+  view.querySelector('[data-blank]').onclick = async () => {
+    clearTimeout(autoTimer); medians = null; pad.clear(); await pad.setGuide(null, 'none');
+    view.querySelector('[data-he]').textContent = '자유 연습'; view.querySelector('[data-show]').textContent = '';
+    view.querySelector('[data-lvlabel]').textContent = '가이드 없이 자유롭게 써 보세요 (채점 없음)';
+    setFb('');
+  };
   await load();
   return () => { clearTimeout(autoTimer); if (anim) anim.cancel(); pad.destroy(); };
 }

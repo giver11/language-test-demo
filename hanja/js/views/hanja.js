@@ -84,7 +84,7 @@ export async function openHanjaDetail(ch, c) {
     ${idm ? `<h3>관련 사자성어</h3><div class="row">${idm}</div>` : ''}
     <h3>기관별 급수</h3><div class="table-wrap"><table><tbody>${rows.join('')}</tbody></table></div>
     <h3>획순</h3>
-    <div class="stroke-anim" style="width:min(60vw,220px);margin:0 auto"></div>
+    <div class="stroke-anim" style="width:220px;max-width:60vw;margin:0 auto"></div>
     <div class="btns" style="justify-content:center;margin:8px 0"><button class="btn sm" data-play type="button">▶ 획순 애니메이션</button><a class="btn sm" href="#/write?c=${encodeURIComponent(ch)}">✎ 쓰기 연습</a></div>
     <div class="stroke-steps-host"></div>`, async (panel) => {
     panel.querySelector('[data-fav]').onclick = (e) => { const on = S.toggleFav('hanja', ch); e.target.classList.toggle('on', on); toast(on ? '즐겨찾기에 추가' : '즐겨찾기 해제'); };

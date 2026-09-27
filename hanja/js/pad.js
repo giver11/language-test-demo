@@ -32,8 +32,18 @@ export class WritingPad {
     this.overlay = this.el.querySelector('svg.overlay');
     this._bind();
     this._resize();
-    this._ro = new ResizeObserver(() => this._resize());
-    this._ro.observe(this.el);
+    // ResizeObserver 미지원 브라우저(구형 iOS·인앱 브라우저) 대비: window resize/회전 이벤트로 대체
+    this._onWinResize = () => this._resize();
+    if (window.ResizeObserver) {
+      this._ro = new ResizeObserver(() => this._resize());
+      this._ro.observe(this.el);
+    }
+    window.addEventListener('resize', this._onWinResize);
+    window.addEventListener('orientationchange', this._onWinResize);
+    // 레이아웃 확정 후 한 번 더 크기 계산 (처음에 폭 0으로 측정되는 경우 방지)
+    requestAnimationFrame(() => this._resize());
+    setTimeout(() => this._resize(), 300);
+    document.body.classList.add('writing');
   }
 
   on(ev, fn) { (this.listeners[ev] = this.listeners[ev] || []).push(fn); return this; }
@@ -41,7 +51,8 @@ export class WritingPad {
 
   _resize() {
     const r = this.el.getBoundingClientRect();
-    if (!r.width) return;
+    if (!r.width || !r.height) return;
+    if (this.size === r.width && this.canvas.width === Math.round(r.width * Math.min(window.devicePixelRatio || 1, 3))) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 3);
     this.size = r.width;
     this.canvas.width = Math.round(r.width * dpr);
@@ -52,7 +63,9 @@ export class WritingPad {
 
   _pos(clientX, clientY) {
     const r = this.canvas.getBoundingClientRect();
-    return { x: (clientX - r.left) / r.width, y: (clientY - r.top) / r.height, t: performance.now() };
+    if (!this.size || Math.abs(this.size - r.width) > 1) this._resize();
+    const w = r.width || 1, h = r.height || 1;
+    return { x: Math.max(0, Math.min(1, (clientX - r.left) / w)), y: Math.max(0, Math.min(1, (clientY - r.top) / h)), t: Date.now() };
   }
 
   _bind() {
@@ -171,7 +184,7 @@ export class WritingPad {
     const opacity = mode === 'solid' ? 0.26 : 0.09;
     if (data) {
       const { svg, g } = svgBase();
-      svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
+      svg.style.cssText = 'position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%';
       data.s.forEach((d) => { const p = document.createElementNS(NS, 'path'); p.setAttribute('d', d); p.setAttribute('fill', `rgba(31,42,68,${opacity})`); g.appendChild(p); });
       this.guideLayer.appendChild(svg);
     } else {
@@ -215,5 +228,13 @@ export class WritingPad {
   }
   loadStrokes(arr) { this.strokes = (arr || []).map((s) => s.map((p) => ({ x: p.x, y: p.y, t: p.t || 0 }))); this.redraw(); }
   rawStrokes() { return this.strokes.map((s) => s.map((p) => ({ x: p.x, y: p.y }))); }
-  destroy() { try { this._ro.disconnect(); } catch (_) {} this.el.remove(); }
+  destroy() {
+    try { if (this._ro) this._ro.disconnect(); } catch (_) {}
+    window.removeEventListener('resize', this._onWinResize);
+    window.removeEventListener('orientationchange', this._onWinResize);
+    if (!document.querySelector('.pad canvas:not([data-dead])')) document.body.classList.remove('writing');
+    this.canvas.setAttribute('data-dead', '1');
+    this.el.remove();
+    if (!document.querySelector('.pad')) document.body.classList.remove('writing');
+  }
 }

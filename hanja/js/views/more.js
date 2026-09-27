@@ -12,6 +12,7 @@ export default async function (view) {
     ['#/favorites', '★', '즐겨찾기', '한자·한자어·사자성어'],
     ['#/settings', '設', '설정', '학습시간·기관·시험일'],
     ['#/sources', '源', '데이터 출처', '공식 자료·검증 상태'],
+    ['#/diag', '診', '앱 진단', '데이터 연결·필기 동작 확인'],
   ];
   view.innerHTML = `<h1>더보기</h1><div class="menu-grid">${items.map(([h, i, b, s]) => `<a href="${h}"><i>${i}</i><b>${b}</b><span>${s}</span></a>`).join('')}</div>`;
 }

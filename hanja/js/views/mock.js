@@ -73,7 +73,7 @@ export default async function (view, { ctx: c, args, params }) {
     <h1>모의시험</h1>
     <p class="sub">${esc(c.provider.name)} ${esc(L.name)} · 공식 시험 형식 기준</p>
     <div class="card">
-      <dl class="kv" style="font-size:15px"><dt>문항 수</dt><dd>${ex.questionCount ?? '공식 자료 확인 필요'}문항</dd>
+      <dl class="kv" style="font-size:15px"><dt>문항 수</dt><dd>${ex.questionCount != null ? ex.questionCount : '공식 자료 확인 필요'}문항</dd>
         <dt>시험 시간</dt><dd>${ex.timeMin ? ex.timeMin + '분' : '공식 자료 확인 필요'}</dd>
         <dt>합격 기준</dt><dd>${esc(ex.passRule || '공식 자료 확인 필요')}</dd>
         ${ex.format ? `<dt>방식</dt><dd>${esc(ex.format)}</dd>` : ''}</dl>
