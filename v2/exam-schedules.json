@@ -7,10 +7,10 @@
     "sourceLabel": "교육부·국립국제교육원 공식 시행계획",
     "note": "국외 일정과 접수기간은 현지 시행기관에서 다시 확인하세요.",
     "events": [
-      {"name":"제108회 PBT","date":"2026-10-18","registration":"2026-08-04~2026-08-10","result":"2026-12-10"},
-      {"name":"제15회 IBT","date":"2026-10-24","registration":"2026-08-18~2026-08-24","result":"2026-11-13"},
-      {"name":"제109회 PBT","date":"2026-11-15","registration":"2026-09-01~2026-09-07","result":"2026-12-22"},
-      {"name":"제16회 IBT","date":"2026-11-28","registration":"2026-09-15~2026-09-21","result":"2026-12-18"}
+      {"name":"제108회 PBT","date":"2026-10-18","registration":"2026-08-04~2026-08-10","result":"2026-12-10","type":"TOPIK I·II","format":"PBT","region":"대한민국 국내"},
+      {"name":"제15회 IBT","date":"2026-10-24","registration":"2026-08-18~2026-08-24","result":"2026-11-13","type":"TOPIK I·II","format":"IBT","region":"대한민국 국내"},
+      {"name":"제109회 PBT","date":"2026-11-15","registration":"2026-09-01~2026-09-07","result":"2026-12-22","type":"TOPIK I·II","format":"PBT","region":"대한민국 국내"},
+      {"name":"제16회 IBT","date":"2026-11-28","registration":"2026-09-15~2026-09-21","result":"2026-12-18","type":"TOPIK I·II","format":"IBT","region":"대한민국 국내"}
     ]
   },
   "ielts": {
@@ -27,9 +27,9 @@
     "sourceLabel": "Chinese Test Service 공식 달력",
     "note": "시험장별 시행 방식과 접수 가능 여부는 공식 접수 페이지에서 확인하세요.",
     "events": [
-      {"name":"HSK 10월 시험","date":"2026-10-17","registration":"PBT 2026-09-20 / iBT 2026-10-07","result":"PBT 2026-11-17 / iBT 2026-11-02"},
-      {"name":"HSK 11월 시험","date":"2026-11-07","registration":"PBT 2026-10-11 / iBT 2026-10-28","result":"PBT 2026-12-07 / iBT 2026-11-23"},
-      {"name":"HSK 12월 시험","date":"2026-12-13","registration":"PBT 2026-11-16 / iBT 2026-12-03","result":"PBT 2027-01-15 / iBT 2026-12-28"}
+      {"name":"HSK 10월 시험","date":"2026-10-17","registration":"PBT 2026-09-20 / iBT 2026-10-07","result":"PBT 2026-11-17 / iBT 2026-11-02","type":"HSK 필기","format":"PBT·iBT","region":"시험장별 시행 확인"},
+      {"name":"HSK 11월 시험","date":"2026-11-07","registration":"PBT 2026-10-11 / iBT 2026-10-28","result":"PBT 2026-12-07 / iBT 2026-11-23","type":"HSK 필기","format":"PBT·iBT","region":"시험장별 시행 확인"},
+      {"name":"HSK 12월 시험","date":"2026-12-13","registration":"PBT 2026-11-16 / iBT 2026-12-03","result":"PBT 2027-01-15 / iBT 2026-12-28","type":"HSK 필기","format":"PBT·iBT","region":"시험장별 시행 확인"}
     ]
   }
 }
