@@ -2,6 +2,12 @@ name = "scorestep-ai-gateway"
 main = "worker.js"
 compatibility_date = "2026-09-27"
 
+# Cloudflare Workers AI binding (free daily allocation: 10,000 Neurons/day).
+# On the Workers Free plan, requests fail after the daily allocation instead of being billed.
+[ai]
+binding = "AI"
+
 [vars]
 ALLOWED_ORIGINS = "https://giver11.github.io"
-OPENAI_MODEL = "gpt-5-mini"
+AI_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+AI_MAX_TOKENS = "500"
