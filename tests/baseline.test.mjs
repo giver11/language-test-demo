@@ -27,7 +27,7 @@ console.log('baseline tests passed');
 
 const shell = read('v2/shell.js');
 assert.ok(shell.includes('runtime-config.js?v=217'));
-assert.ok(shell.includes('patch-216.js?v=219'));
+assert.ok(shell.includes('patch-216.js?v=220'));
 const patch = read('v2/patch-216.js');
 assert.ok(patch.includes('AI_GATEWAY_NOT_CONFIGURED'));
 assert.ok(patch.includes('conversation-records'));

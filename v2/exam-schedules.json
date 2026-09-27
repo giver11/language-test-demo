@@ -14,11 +14,15 @@
     ]
   },
   "ielts": {
-    "label": "IELTS 대한민국 시험 일정",
+    "label": "IELTS 대한민국 시험 일정 (컴퓨터 시험)",
     "source": "https://www.britishcouncil.kr/exam/ielts/dates-fees-locations",
     "sourceLabel": "British Council Korea 공식 예약 일정",
-    "note": "컴퓨터 IELTS는 센터별로 수시 운영됩니다. 아래 공식 예약 페이지에서 대구 등 지역별 최신 잔여 좌석을 확인하세요.",
+    "note": "2026년 3월 22일부터 국내 IELTS는 컴퓨터 시험만 시행됩니다. 서울·부산·대구·대전·인천 시험장에서 주 6~7일 운영되며, 날짜별 잔여 좌석은 예약 페이지에서 확인하세요. 성적은 보통 1~2일 안에 발표됩니다.",
     "dynamic": true,
+    "centers": [
+      {"name": "British Council 예약", "url": "https://www.britishcouncil.kr/exam/ielts/dates-fees-locations"},
+      {"name": "IDP IELTS 예약", "url": "https://ieltskorea.org/korea/test-dates"}
+    ],
     "events": []
   },
   "hsk": {
