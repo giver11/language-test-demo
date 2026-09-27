@@ -26,8 +26,8 @@ for (const app of ['topik','hsk']) assert.ok(schedule[app].events.length > 0);
 console.log('baseline tests passed');
 
 const shell = read('v2/shell.js');
-assert.ok(shell.includes('runtime-config.js?v=216'));
-assert.ok(shell.includes('patch-216.js?v=216'));
+assert.ok(shell.includes('runtime-config.js?v=217'));
+assert.ok(shell.includes('patch-216.js?v=217'));
 const patch = read('v2/patch-216.js');
 assert.ok(patch.includes('AI_GATEWAY_NOT_CONFIGURED'));
 assert.ok(patch.includes('conversation-records'));
