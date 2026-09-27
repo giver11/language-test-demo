@@ -194,7 +194,7 @@ function installCameraControls(){
   const hint=document.createElement("p");hint.id="wcCandidateHint";hint.className="small";tools.prepend(hint);
   const row=document.createElement("div");row.className="scanActions";row.style.cssText="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0";
   row.innerHTML='<button id="wcSelectAll" class="tab" type="button" onclick="wcSelectAllCandidates(true)"></button><button id="wcClearAll" class="tab" type="button" onclick="wcSelectAllCandidates(false)"></button><button id="wcAnalyzeAgain" class="tab" type="button" onclick="wcAnalyzeAgain()"></button>';
-  const candidates=$("#candidates");tools.insertBefore(row,candidates||tools.firstChild);
+  const actionRow=tools.querySelector(".scanActions");tools.insertBefore(row,actionRow||tools.firstChild);
  }
  syncCameraLabels();
 }
