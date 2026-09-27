@@ -1,0 +1,44 @@
+[
+ {
+  "provider": "daehan",
+  "sourceName": "대한검정회 2026년도 한자급수자격검정시험 시행일정",
+  "sourceUrl": "https://www.hanja.ne.kr/info/info01.asp",
+  "verifiedAt": "2026-09-28",
+  "year": 2026,
+  "status": "official"
+ },
+ {
+  "provider": "daehan",
+  "sourceName": "대한검정회 자기주도형 온라인 시험 안내",
+  "sourceUrl": "https://www.hanja.ne.kr/info/info01_online.asp",
+  "verifiedAt": "2026-09-28",
+  "year": 2026,
+  "status": "official"
+ },
+ {
+  "provider": "daehan",
+  "sourceName": "대한검정회 등급별 검정과목 출제형식",
+  "sourceUrl": "https://www.hanja.ne.kr/jupsu/info01.asp",
+  "verifiedAt": "2026-09-28",
+  "year": 2026,
+  "status": "partial",
+  "note": "페이지 표가 인코딩 문제로 일부만 판독됨. 급수별 선정한자 수·문항 수는 판독값이며 공식 원문 대조 필요."
+ },
+ {
+  "provider": "daehan",
+  "sourceName": "대한검정회 등급별 선정한자",
+  "sourceUrl": "https://www.hanja.ne.kr/jupsu/jupsu07_01.asp",
+  "verifiedAt": "2026-09-28",
+  "year": 2026,
+  "status": "image-only",
+  "note": "선정한자 목록이 이미지로 게시되어 텍스트 추출 불가. 8급 30자는 나무위키 전사본(2차 자료) 기준이며 공식 대조 필요."
+ },
+ {
+  "provider": "daehan",
+  "sourceName": "나무위키 한자급수자격검정/배정한자 (2차 자료)",
+  "sourceUrl": "https://namu.wiki/w/%ED%95%9C%EC%9E%90%EA%B8%89%EC%88%98%EC%9E%90%EA%B2%A9%EA%B2%80%EC%A0%95/%EB%B0%B0%EC%A0%95%ED%95%9C%EC%9E%90",
+  "verifiedAt": "2026-09-28",
+  "year": 2026,
+  "status": "secondary"
+ }
+]

@@ -1,0 +1,29 @@
+[
+ {
+  "provider": "eomunhoe",
+  "sourceName": "사단법인 한국어문회 공식 홈페이지",
+  "sourceUrl": "https://www.hanja.re.kr/",
+  "verifiedAt": "2026-09-28",
+  "year": 2026,
+  "status": "unreachable",
+  "note": "이 개발 환경에서는 공식 사이트 접속(robots.txt 응답 실패)이 되지 않아 직접 대조하지 못함."
+ },
+ {
+  "provider": "eomunhoe",
+  "sourceName": "한국어문회 학습자료 급수별 배정한자 xls → CSV 변환본 (rycont/hanja-grade-dataset)",
+  "sourceUrl": "https://github.com/rycont/hanja-grade-dataset",
+  "verifiedAt": "2026-09-28",
+  "year": 2026,
+  "status": "official-file",
+  "note": "한국어문회 공식 홈페이지 학습자료의 xls 파일을 CSV로 변환한 공개 데이터셋(커밋 91a1f49, 2024-06-06). 데이터 저작권은 한국어문회에 있음."
+ },
+ {
+  "provider": "eomunhoe",
+  "sourceName": "2026 한국어문회 시행일정 재게시 공지 (신지원에듀 검스타트)",
+  "sourceUrl": "https://gumstart.sinjiwonedu.co.kr/bbs/board.php?bo_table=bs101&wr_id=351",
+  "verifiedAt": "2026-09-28",
+  "year": 2026,
+  "status": "secondary",
+  "note": "한국어문회 공식 일정을 인용한 교재사 공지. 한공사 공지(https://www.hangongsa.com/b/notice-309)와 제112회 2월 28일 일치 교차확인."
+ }
+]

@@ -1,0 +1,80 @@
+{
+ "provider": "daehan",
+ "year": 2026,
+ "examName": "한자급수자격검정",
+ "status": "official",
+ "source": {
+  "provider": "daehan",
+  "sourceName": "대한검정회 2026년도 한자급수자격검정시험 시행일정",
+  "sourceUrl": "https://www.hanja.ne.kr/info/info01.asp",
+  "verifiedAt": "2026-09-28",
+  "year": 2026
+ },
+ "officialUrl": "https://www.hanja.ne.kr/",
+ "sessions": [
+  {
+   "round": "제110회",
+   "levels": "8급~대사범",
+   "applyStart": "2026-01-05",
+   "applyEnd": "2026-01-16",
+   "examDate": "2026-02-28",
+   "resultDate": "2026-03-23",
+   "mode": "현장시험 · 인터넷 접수"
+  },
+  {
+   "round": "제111회",
+   "levels": "8급~대사범",
+   "applyStart": "2026-03-30",
+   "applyEnd": "2026-04-10",
+   "examDate": "2026-05-23",
+   "resultDate": "2026-06-15",
+   "mode": "현장시험 · 인터넷 접수"
+  },
+  {
+   "round": "제112회",
+   "levels": "8급~대사범",
+   "applyStart": "2026-06-29",
+   "applyEnd": "2026-07-10",
+   "examDate": "2026-08-22",
+   "resultDate": "2026-09-14",
+   "mode": "현장시험 · 인터넷 접수"
+  },
+  {
+   "round": "제113회",
+   "levels": "8급~대사범",
+   "applyStart": "2026-10-05",
+   "applyEnd": "2026-10-16",
+   "examDate": "2026-11-28",
+   "resultDate": "2026-12-21",
+   "mode": "현장시험 · 인터넷 접수"
+  },
+  {
+   "round": "제110회(온라인)",
+   "levels": "8급~3급",
+   "applyStart": "2026-01-19",
+   "applyEnd": "2026-01-23",
+   "examDate": "2026-02-07",
+   "resultDate": null,
+   "mode": "자기주도형 온라인 · 객관식",
+   "source": {
+    "sourceName": "대한검정회 자기주도형 온라인 시험 안내",
+    "sourceUrl": "https://www.hanja.ne.kr/info/info01_online.asp"
+   },
+   "resultNote": "공식 자료 확인 필요"
+  },
+  {
+   "round": "제112회(온라인)",
+   "levels": "8급~3급",
+   "applyStart": "2026-07-20",
+   "applyEnd": "2026-07-24",
+   "examDate": "2026-08-08",
+   "resultDate": null,
+   "mode": "자기주도형 온라인 · 객관식",
+   "source": {
+    "sourceName": "대한검정회 자기주도형 온라인 시험 안내",
+    "sourceUrl": "https://www.hanja.ne.kr/info/info01_online.asp"
+   },
+   "resultNote": "공식 자료 확인 필요"
+  }
+ ]
+}

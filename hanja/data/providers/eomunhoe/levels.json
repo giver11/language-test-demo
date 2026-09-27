@@ -1,0 +1,390 @@
+{
+ "provider": "eomunhoe",
+ "levels": [
+  {
+   "id": "8",
+   "name": "8급",
+   "order": 0,
+   "category": "교육급수",
+   "readCount": 50,
+   "writeCount": 0,
+   "newCount": 50,
+   "dataCount": 50,
+   "writeUpto": null,
+   "hasData": true,
+   "exam": {
+    "questionCount": 50,
+    "passCount": 35,
+    "timeMin": 50,
+    "passRule": "50문항 중 35문항 이상(70%)",
+    "mockSupported": true
+   },
+   "notes": [],
+   "status": {
+    "levels": "secondary",
+    "hanja": "official-file",
+    "examFormat": "secondary"
+   }
+  },
+  {
+   "id": "7-2",
+   "name": "7급Ⅱ",
+   "order": 1,
+   "category": "교육급수",
+   "readCount": 100,
+   "writeCount": 0,
+   "newCount": 50,
+   "dataCount": 100,
+   "writeUpto": null,
+   "hasData": true,
+   "exam": {
+    "questionCount": 60,
+    "passCount": 42,
+    "timeMin": 50,
+    "passRule": "60문항 중 42문항 이상(70%)",
+    "mockSupported": true
+   },
+   "notes": [],
+   "status": {
+    "levels": "secondary",
+    "hanja": "official-file",
+    "examFormat": "secondary"
+   }
+  },
+  {
+   "id": "7",
+   "name": "7급",
+   "order": 2,
+   "category": "교육급수",
+   "readCount": 150,
+   "writeCount": 0,
+   "newCount": 50,
+   "dataCount": 150,
+   "writeUpto": null,
+   "hasData": true,
+   "exam": {
+    "questionCount": 70,
+    "passCount": 49,
+    "timeMin": 50,
+    "passRule": "70문항 중 49문항 이상(70%)",
+    "mockSupported": true
+   },
+   "notes": [],
+   "status": {
+    "levels": "secondary",
+    "hanja": "official-file",
+    "examFormat": "secondary"
+   }
+  },
+  {
+   "id": "6-2",
+   "name": "6급Ⅱ",
+   "order": 3,
+   "category": "교육급수",
+   "readCount": 225,
+   "writeCount": 50,
+   "newCount": 75,
+   "dataCount": 225,
+   "writeUpto": "8",
+   "hasData": true,
+   "exam": {
+    "questionCount": 80,
+    "passCount": 56,
+    "timeMin": 50,
+    "passRule": "80문항 중 56문항 이상(70%)",
+    "mockSupported": true
+   },
+   "notes": [],
+   "status": {
+    "levels": "secondary",
+    "hanja": "official-file",
+    "examFormat": "secondary"
+   }
+  },
+  {
+   "id": "6",
+   "name": "6급",
+   "order": 4,
+   "category": "교육급수",
+   "readCount": 300,
+   "writeCount": 150,
+   "newCount": 75,
+   "dataCount": 300,
+   "writeUpto": "7",
+   "hasData": true,
+   "exam": {
+    "questionCount": 90,
+    "passCount": 63,
+    "timeMin": 50,
+    "passRule": "90문항 중 63문항 이상(70%)",
+    "mockSupported": true
+   },
+   "notes": [],
+   "status": {
+    "levels": "secondary",
+    "hanja": "official-file",
+    "examFormat": "secondary"
+   }
+  },
+  {
+   "id": "5-2",
+   "name": "5급Ⅱ",
+   "order": 5,
+   "category": "교육급수",
+   "readCount": 400,
+   "writeCount": 225,
+   "newCount": 100,
+   "dataCount": 400,
+   "writeUpto": "6-2",
+   "hasData": true,
+   "exam": {
+    "questionCount": 100,
+    "passCount": 70,
+    "timeMin": 50,
+    "passRule": "100문항 중 70문항 이상(70%)",
+    "mockSupported": true
+   },
+   "notes": [],
+   "status": {
+    "levels": "secondary",
+    "hanja": "official-file",
+    "examFormat": "secondary"
+   }
+  },
+  {
+   "id": "5",
+   "name": "5급",
+   "order": 6,
+   "category": "교육급수",
+   "readCount": 500,
+   "writeCount": 300,
+   "newCount": 100,
+   "dataCount": 500,
+   "writeUpto": "6",
+   "hasData": true,
+   "exam": {
+    "questionCount": 100,
+    "passCount": 70,
+    "timeMin": 50,
+    "passRule": "100문항 중 70문항 이상(70%)",
+    "mockSupported": true
+   },
+   "notes": [],
+   "status": {
+    "levels": "secondary",
+    "hanja": "official-file",
+    "examFormat": "secondary"
+   }
+  },
+  {
+   "id": "4-2",
+   "name": "4급Ⅱ",
+   "order": 7,
+   "category": "교육급수",
+   "readCount": 750,
+   "writeCount": 400,
+   "newCount": 250,
+   "dataCount": 750,
+   "writeUpto": "5-2",
+   "hasData": true,
+   "exam": {
+    "questionCount": 100,
+    "passCount": 70,
+    "timeMin": 50,
+    "passRule": "100문항 중 70문항 이상(70%)",
+    "mockSupported": true
+   },
+   "notes": [],
+   "status": {
+    "levels": "secondary",
+    "hanja": "official-file",
+    "examFormat": "secondary"
+   }
+  },
+  {
+   "id": "4",
+   "name": "4급",
+   "order": 8,
+   "category": "교육급수",
+   "readCount": 1000,
+   "writeCount": 500,
+   "newCount": 250,
+   "dataCount": 1000,
+   "writeUpto": "5",
+   "hasData": true,
+   "exam": {
+    "questionCount": 100,
+    "passCount": 70,
+    "timeMin": 50,
+    "passRule": "100문항 중 70문항 이상(70%)",
+    "mockSupported": true
+   },
+   "notes": [],
+   "status": {
+    "levels": "secondary",
+    "hanja": "official-file",
+    "examFormat": "secondary"
+   }
+  },
+  {
+   "id": "3-2",
+   "name": "3급Ⅱ",
+   "order": 9,
+   "category": "공인급수",
+   "readCount": 1500,
+   "writeCount": 750,
+   "newCount": 500,
+   "dataCount": 1500,
+   "writeUpto": "4-2",
+   "hasData": true,
+   "exam": {
+    "questionCount": 150,
+    "passCount": 105,
+    "timeMin": 60,
+    "passRule": "150문항 중 105문항 이상(70%)",
+    "mockSupported": true
+   },
+   "notes": [],
+   "status": {
+    "levels": "secondary",
+    "hanja": "official-file",
+    "examFormat": "secondary"
+   }
+  },
+  {
+   "id": "3",
+   "name": "3급",
+   "order": 10,
+   "category": "공인급수",
+   "readCount": 1817,
+   "writeCount": 1000,
+   "newCount": 317,
+   "dataCount": 1817,
+   "writeUpto": "4",
+   "hasData": true,
+   "exam": {
+    "questionCount": 150,
+    "passCount": 105,
+    "timeMin": 60,
+    "passRule": "150문항 중 105문항 이상(70%)",
+    "mockSupported": true
+   },
+   "notes": [],
+   "status": {
+    "levels": "secondary",
+    "hanja": "official-file",
+    "examFormat": "secondary"
+   }
+  },
+  {
+   "id": "2",
+   "name": "2급",
+   "order": 11,
+   "category": "공인급수",
+   "readCount": 2355,
+   "writeCount": 1817,
+   "newCount": 538,
+   "dataCount": 2355,
+   "writeUpto": "3",
+   "hasData": true,
+   "exam": {
+    "questionCount": 150,
+    "passCount": 105,
+    "timeMin": 60,
+    "passRule": "150문항 중 105문항 이상(70%)",
+    "mockSupported": true
+   },
+   "notes": [],
+   "status": {
+    "levels": "secondary",
+    "hanja": "official-file",
+    "examFormat": "secondary"
+   }
+  },
+  {
+   "id": "1",
+   "name": "1급",
+   "order": 12,
+   "category": "공인급수",
+   "readCount": 3500,
+   "writeCount": 2005,
+   "newCount": 1145,
+   "dataCount": 3500,
+   "writeUpto": "3",
+   "hasData": true,
+   "exam": {
+    "questionCount": 200,
+    "passCount": 160,
+    "timeMin": 90,
+    "passRule": "200문항 중 160문항 이상(80%)",
+    "mockSupported": true
+   },
+   "notes": [
+    "공식 쓰기 배정 2005자 중 3급까지(1817자)만 확정 — 나머지 188자 공식 목록 확인 필요"
+   ],
+   "status": {
+    "levels": "secondary",
+    "hanja": "official-file",
+    "examFormat": "secondary"
+   }
+  },
+  {
+   "id": "s2",
+   "name": "특급Ⅱ",
+   "order": 13,
+   "category": "공인급수",
+   "readCount": 4918,
+   "writeCount": 2355,
+   "newCount": 1150,
+   "dataCount": 4650,
+   "writeUpto": "2",
+   "hasData": true,
+   "exam": {
+    "questionCount": 200,
+    "passCount": 160,
+    "timeMin": 100,
+    "passRule": "200문항 중 160문항 이상(80%)",
+    "mockSupported": true
+   },
+   "notes": [
+    "공식 표기 읽기 배정 4918자 ↔ 공식 xls 변환 데이터 누적 4650자 불일치 — 공식 자료 확인 필요"
+   ],
+   "status": {
+    "levels": "secondary",
+    "hanja": "official-file",
+    "examFormat": "secondary"
+   }
+  },
+  {
+   "id": "s",
+   "name": "특급",
+   "order": 14,
+   "category": "공인급수",
+   "readCount": 5978,
+   "writeCount": 3500,
+   "newCount": 1328,
+   "dataCount": 5978,
+   "writeUpto": "1",
+   "hasData": true,
+   "exam": {
+    "questionCount": 200,
+    "passCount": 160,
+    "timeMin": 100,
+    "passRule": "200문항 중 160문항 이상(80%)",
+    "mockSupported": true
+   },
+   "notes": [],
+   "status": {
+    "levels": "secondary",
+    "hanja": "official-file",
+    "examFormat": "secondary"
+   }
+  }
+ ],
+ "writeRule": "한국어문회 쓰기 배정한자 = 하위 급수의 읽기 배정한자 누적(배정 수 일치로 산출). 공식 쓰기 목록 대조 필요.",
+ "sourceRefs": [
+  "https://www.hanja.re.kr/",
+  "https://github.com/rycont/hanja-grade-dataset",
+  "https://gumstart.sinjiwonedu.co.kr/bbs/board.php?bo_table=bs101&wr_id=351"
+ ]
+}

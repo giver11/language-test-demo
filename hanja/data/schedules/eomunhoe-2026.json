@@ -1,0 +1,53 @@
+{
+ "provider": "eomunhoe",
+ "year": 2026,
+ "examName": "전국한자능력검정시험",
+ "status": "secondary",
+ "statusNote": "공식 사이트 직접 접속 불가 — 공식 공지 재게시 자료 2건 교차확인. 접수 전 공식 사이트 확인 필요.",
+ "source": {
+  "provider": "eomunhoe",
+  "sourceName": "2026 한국어문회 시행일정 재게시 공지 (신지원에듀 검스타트)",
+  "sourceUrl": "https://gumstart.sinjiwonedu.co.kr/bbs/board.php?bo_table=bs101&wr_id=351",
+  "verifiedAt": "2026-09-28",
+  "year": 2026
+ },
+ "officialUrl": "https://www.hanja.re.kr/",
+ "sessions": [
+  {
+   "round": "제112회",
+   "levels": "특급~8급",
+   "applyStart": "2026-01-19",
+   "applyEnd": "2026-01-23",
+   "examDate": "2026-02-28",
+   "resultDate": "2026-03-27",
+   "mode": "오프라인 · 인터넷 접수"
+  },
+  {
+   "round": "제113회",
+   "levels": "특급~8급",
+   "applyStart": "2026-04-20",
+   "applyEnd": "2026-04-24",
+   "examDate": "2026-05-23",
+   "resultDate": "2026-06-19",
+   "mode": "오프라인 · 인터넷 접수"
+  },
+  {
+   "round": "제114회",
+   "levels": "특급~8급",
+   "applyStart": "2026-07-13",
+   "applyEnd": "2026-07-17",
+   "examDate": "2026-08-22",
+   "resultDate": "2026-09-18",
+   "mode": "오프라인 · 인터넷 접수"
+  },
+  {
+   "round": "제115회",
+   "levels": "특급~8급",
+   "applyStart": "2026-10-19",
+   "applyEnd": "2026-10-23",
+   "examDate": "2026-11-21",
+   "resultDate": "2026-12-18",
+   "mode": "오프라인 · 인터넷 접수"
+  }
+ ]
+}

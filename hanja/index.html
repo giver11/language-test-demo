@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1f2a44">
+<meta name="description" content="한국어문회·대한검정회·한자교육진흥회·대한상공회의소 한자 자격시험 대비 학습 앱 (무료 MVP)">
+<title>한자패스 · 한자 자격시험 학습</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23b4432f'/%3E%3Ctext x='32' y='46' font-size='38' text-anchor='middle' fill='white' font-family='serif'%3E漢%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+<div id="app-shell">
+  <header id="topbar">
+    <a href="#/home" class="brand"><span class="seal">漢</span><span>한자패스</span></a>
+    <button id="ctxBtn" class="ctx" type="button" aria-label="시험 변경"></button>
+  </header>
+  <main id="view" tabindex="-1"><div class="loading">불러오는 중…</div></main>
+  <nav id="tabbar" aria-label="주요 메뉴">
+    <a href="#/home" data-tab="home"><i>⌂</i><span>홈</span></a>
+    <a href="#/hanja" data-tab="hanja"><i>字</i><span>한자</span></a>
+    <a href="#/write" data-tab="write"><i>✎</i><span>쓰기</span></a>
+    <a href="#/quiz" data-tab="quiz"><i>?</i><span>문제</span></a>
+    <a href="#/more" data-tab="more"><i>≡</i><span>더보기</span></a>
+  </nav>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="sheet" class="sheet" hidden></div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

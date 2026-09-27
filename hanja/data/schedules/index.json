@@ -1,0 +1,11 @@
+{
+ "years": {
+  "2026": [
+   "eomunhoe",
+   "daehan",
+   "jinheung",
+   "korcham"
+  ]
+ },
+ "note": "연도별 일정은 schedules/{provider}-{year}.json 파일만 추가·수정하면 앱에 반영됩니다."
+}
