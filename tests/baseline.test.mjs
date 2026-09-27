@@ -27,14 +27,14 @@ console.log('baseline tests passed');
 
 const shell = read('v2/shell.js');
 assert.ok(shell.includes('runtime-config.js?v=217'));
-assert.ok(shell.includes('patch-216.js?v=217'));
+assert.ok(shell.includes('patch-216.js?v=218'));
 const patch = read('v2/patch-216.js');
 assert.ok(patch.includes('AI_GATEWAY_NOT_CONFIGURED'));
 assert.ok(patch.includes('conversation-records'));
 assert.ok(patch.includes('Asia/Seoul'));
 assert.ok(patch.includes('data-page="schedule"'));
 assert.ok(patch.includes('customExamDate'));
-for (const threshold of ['D-90', 'D-30', 'D-7']) assert.ok(patch.includes(threshold));
+for (const threshold of ['D-90', 'D-30', 'D-7']) assert.ok(read('v2/core.js').includes(threshold));
 for (const app of ['topik','hsk']) for (const event of schedule[app].events) {
   assert.match(event.date, /^2026-\d{2}-\d{2}$/);
   assert.ok(event.type && event.format && event.region);

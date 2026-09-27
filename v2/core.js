@@ -152,7 +152,7 @@ function dailyPlanInfo(){
 }
 function installDailyQuest(){
  let home=q("#home");if(!home||q("#dailyQuest"))return;let d=dailyPlanInfo(),box=document.createElement("div");box.id="dailyQuest";box.className="card";box.style.marginTop="16px";
- let urgency=d.days===null?"시험일을 설정하면 남은 기간에 맞춰 학습 우선순위를 조정합니다.":d.days===0?"시험일입니다. 새 내용보다 오답·말하기 복습을 우선하세요.":d.days<=3?"시험까지 "+d.days+"일 · 오답 50% / 실전 30% / 말하기 20%로 압축 복습합니다.":d.days<=14?"시험까지 "+d.days+"일 · 최근 오답을 우선 출제하고 실전 비중을 높입니다.":"시험까지 "+d.days+"일 · 새 학습 50% / 약점복습 30% / 말하기 20%로 진행합니다.";
+ let urgency=d.days===null?"시험일을 설정하면 남은 기간에 맞춰 학습 우선순위를 조정합니다.":d.days===0?"시험일입니다. 새 내용보다 오답·말하기 복습을 우선하세요.":d.days<=7?"D-7 집중 · 오답 50% / 실전 30% / 말하기 20%로 압축 복습합니다.":d.days<=30?"D-30 실전 · 실전 40% / 약점복습 35% / 말하기 25%로 진행합니다.":d.days<=90?"D-90 강화 · 새 학습 40% / 약점복습 35% / 말하기 25%로 진행합니다.":"기초 구축 · 새 학습 50% / 약점복습 30% / 말하기 20%로 진행합니다.";
  box.innerHTML="<p class='eyebrow'>DAILY QUEST</p><h3>오늘 "+d.minutes+"분 · "+d.activities+"개 활동</h3><p>"+urgency+"</p><p class='small'>현재 스마트 복습 항목 "+d.weak+"개 · 대화/발음/실전문제를 섞어 학습합니다.</p>";
  home.appendChild(box);
 }
