@@ -158,3 +158,26 @@ function installDailyQuest(){
 }
 const oldRender=render;
 render=function(){oldRender();installDailyQuest();let d=dailyPlanInfo(),box=q("#dailyQuest");if(box){box.remove();installDailyQuest()}};
+
+/* Official exam schedule panel. Static verified data is kept as a resilient fallback;
+   deployments can replace exam-schedules.json without rebuilding the application. */
+async function loadExamSchedule(){
+ let cacheKey="v2:exam-schedules",cached=null,data=null;
+ try{cached=JSON.parse(localStorage[cacheKey]||"null")}catch(e){}
+ try{
+  let res=await fetch("../exam-schedules.json",{cache:"no-store"});
+  if(!res.ok)throw new Error("schedule "+res.status);
+  data=await res.json();localStorage[cacheKey]=JSON.stringify(data);
+ }catch(e){data=cached}
+ if(data&&data[C.id])renderExamSchedule(data[C.id],data.verifiedAt);
+}
+function scheduleDays(date){return Math.ceil((new Date(date+"T23:59:59+09:00")-new Date())/86400000)}
+function renderExamSchedule(schedule,verifiedAt){
+ let home=q("#home");if(!home)return;let old=q("#examSchedule");if(old)old.remove();
+ let upcoming=(schedule.events||[]).filter(x=>scheduleDays(x.date)>=0).slice(0,3),box=document.createElement("section");
+ box.id="examSchedule";box.className="card";box.style.marginTop="16px";
+ let rows=upcoming.map(x=>"<div class='review-item'><span><b>"+convEsc(x.name)+"</b><br>시험 "+convEsc(x.date)+" · D-"+scheduleDays(x.date)+"<br><small>접수 "+convEsc(x.registration)+" · 발표 "+convEsc(x.result)+"</small></span><button class='btn soft use-exam-date' data-date='"+convEsc(x.date)+"'>목표일 설정</button></div>").join("");
+ box.innerHTML="<p class='eyebrow'>OFFICIAL EXAM CALENDAR</p><h3>"+convEsc(schedule.label)+"</h3>"+(rows||"<p>고정 날짜 대신 시험센터별 실시간 일정이 제공됩니다.</p>")+"<p class='small'>"+convEsc(schedule.note)+" · 확인일 "+convEsc(verifiedAt)+"</p><a class='btn soft' target='_blank' rel='noopener noreferrer' href='"+convEsc(schedule.source)+"'>"+convEsc(schedule.sourceLabel)+" 확인</a>";
+ home.appendChild(box);qa(".use-exam-date").forEach(b=>b.onclick=()=>{let p=JSON.parse(localStorage[K+"profile"]||"{}");p.date=b.dataset.date;localStorage[K+"profile"]=JSON.stringify(p);render();renderExamSchedule(schedule,verifiedAt)});
+}
+loadExamSchedule();
