@@ -9,5 +9,5 @@ binding = "AI"
 
 [vars]
 ALLOWED_ORIGINS = "https://giver11.github.io"
-AI_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
-AI_MAX_TOKENS = "500"
+AI_MODEL = "@cf/openai/gpt-oss-120b"
+AI_MAX_TOKENS = "800"

@@ -44,6 +44,7 @@ assert.ok(worker.includes('env.AI.run'), 'worker must use the Cloudflare Workers
 assert.ok(!/openai\.com|OPENAI_API_KEY/i.test(worker), 'worker must not call a paid OpenAI API');
 const wrangler = read('api/wrangler.toml');
 assert.match(wrangler, /\[ai\]\s*\nbinding = "AI"/);
-assert.ok(!/OPENAI/i.test(wrangler));
+assert.ok(!/OPENAI_API_KEY|api\.openai\.com/i.test(wrangler), 'no paid OpenAI API key or endpoint');
+assert.match(wrangler, /AI_MODEL = "@cf\//, 'model must be a Cloudflare-hosted Workers AI model');
 assert.ok(patch.includes('priorHistory(userText)'), 'current user turn must be sent once');
 assert.ok(!read('v2/runtime-config.js').includes('sk-'));
