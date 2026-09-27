@@ -27,7 +27,7 @@ console.log('baseline tests passed');
 
 const shell = read('v2/shell.js');
 assert.ok(shell.includes('runtime-config.js?v=217'));
-assert.ok(shell.includes('patch-216.js?v=218'));
+assert.ok(shell.includes('patch-216.js?v=219'));
 const patch = read('v2/patch-216.js');
 assert.ok(patch.includes('AI_GATEWAY_NOT_CONFIGURED'));
 assert.ok(patch.includes('conversation-records'));
@@ -39,5 +39,11 @@ for (const app of ['topik','hsk']) for (const event of schedule[app].events) {
   assert.match(event.date, /^2026-\d{2}-\d{2}$/);
   assert.ok(event.type && event.format && event.region);
 }
-assert.ok(read('api/worker.js').includes('OPENAI_API_KEY'));
+const worker = read('api/worker.js');
+assert.ok(worker.includes('env.AI.run'), 'worker must use the Cloudflare Workers AI binding');
+assert.ok(!/openai\.com|OPENAI_API_KEY/i.test(worker), 'worker must not call a paid OpenAI API');
+const wrangler = read('api/wrangler.toml');
+assert.match(wrangler, /\[ai\]\s*\nbinding = "AI"/);
+assert.ok(!/OPENAI/i.test(wrangler));
+assert.ok(patch.includes('priorHistory(userText)'), 'current user turn must be sent once');
 assert.ok(!read('v2/runtime-config.js').includes('sk-'));
