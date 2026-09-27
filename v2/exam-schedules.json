@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "verifiedAt": "2026-09-27",
+  "verifiedAt": "2026-09-28",
   "topik": {
     "label": "TOPIK 2026 대한민국 일정",
     "source": "https://www.niied.go.kr/convert/preview/1764509391006/index.html",
@@ -29,6 +29,7 @@
     "events": [
       {"name":"HSK 10월 시험","date":"2026-10-17","registration":"PBT 2026-09-20 / iBT 2026-10-07","result":"PBT 2026-11-17 / iBT 2026-11-02","type":"HSK 필기","format":"PBT·iBT","region":"시험장별 시행 확인"},
       {"name":"HSK 11월 시험","date":"2026-11-07","registration":"PBT 2026-10-11 / iBT 2026-10-28","result":"PBT 2026-12-07 / iBT 2026-11-23","type":"HSK 필기","format":"PBT·iBT","region":"시험장별 시행 확인"},
+      {"name":"HSK 7-9급 시험","date":"2026-11-22","registration":"2026-11-08","result":"2026-12-22","type":"HSK 7-9급","format":"iBT(시험장)","region":"시험장별 시행 확인"},
       {"name":"HSK 12월 시험","date":"2026-12-13","registration":"PBT 2026-11-16 / iBT 2026-12-03","result":"PBT 2027-01-15 / iBT 2026-12-28","type":"HSK 필기","format":"PBT·iBT","region":"시험장별 시행 확인"}
     ]
   }
