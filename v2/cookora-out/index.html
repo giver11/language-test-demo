@@ -1,0 +1,22 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Cookora Out</title><meta name="description" content="Cookora Out — Find the right place to eat."><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23e85830'/%3E%3Cpath d='M32 11a15 15 0 0 0-15 15c0 12 15 27 15 27s15-15 15-27a15 15 0 0 0-15-15Zm0 21a6 6 0 1 1 0-12 6 6 0 0 1 0 12Z' fill='white'/%3E%3C/svg%3E"><link rel="stylesheet" href="./style.css"></head><body>
+<header><button class="brand" onclick="showView('discover')"><span>CO</span><b>Cookora Out</b></button><div class="top-actions"><span class="demo">DEMO DATA</span><button id="langButton" onclick="toggleLanguage()">EN</button></div></header>
+<main>
+ <section id="discover" class="view">
+  <div class="hero"><p class="eyebrow">COOKORA · EAT OUT</p><h1 id="headline">오늘 어디서 먹을까요?</h1><p id="tagline">조건을 알려주면 가장 잘 맞는 3곳만 골라드려요.</p></div>
+  <form id="searchForm" class="search-card">
+   <label><span data-t="area">지역</span><select id="city"><option value="daegu">대구</option><option value="seoul">서울</option><option value="newyork">New York City</option></select></label>
+   <label class="wide"><span data-t="want">먹고 싶은 음식·상황</span><input id="query" autocomplete="off" placeholder="예: 아이와 조용히 먹을 한식"></label>
+   <label><span data-t="price">가격</span><select id="price"><option value="4">전체</option><option value="1">₩</option><option value="2">₩₩</option><option value="3">₩₩₩</option></select></label>
+   <label><span data-t="party">동행</span><select id="party"><option value="family">가족</option><option value="date">데이트</option><option value="solo">혼자</option><option value="business">비즈니스</option></select></label>
+   <label><span data-t="mood">분위기</span><select id="mood"><option value="casual">편안함</option><option value="quiet">조용함</option><option value="lively">활기참</option></select></label>
+   <button class="primary wide" type="submit" data-t="find">가장 잘 맞는 3곳 찾기</button>
+  </form>
+  <div class="data-notice"><b data-t="demoTitle">현재 테스트 데이터</b><span data-t="demoBody">아래 식당은 기능 검증용 가상 데이터입니다. 실제 식당·전화·영업정보로 사용하지 마세요.</span></div>
+  <section class="results"><div class="section-title"><div><small data-t="top3">TOP 3 RECOMMENDATIONS</small><h2 data-t="best">지금 가장 잘 맞는 3곳</h2></div><button onclick="useLocation()" data-t="location">내 위치 사용</button></div><div id="cards" class="cards"></div></section>
+ </section>
+ <section id="saved" class="view hidden"><div class="page-head"><small>SAVED</small><h1 data-t="savedTitle">저장한 식당</h1></div><div id="savedCards" class="cards"></div></section>
+ <section id="profile" class="view hidden"><div class="page-head"><small>TASTE GRAPH</small><h1 data-t="tasteTitle">나의 취향</h1></div><div class="profile"><label>Spicy level <input id="spicy" type="range" min="0" max="100"></label><label>Local food <input id="local" type="range" min="0" max="100"></label><label>Waiting tolerance <input id="waiting" type="range" min="0" max="100"></label><label class="check"><input id="child" type="checkbox"> Child friendly</label><button class="primary" onclick="saveTaste()" data-t="saveTaste">취향 저장</button><button class="danger" onclick="deleteAccount()" data-t="deleteData">내 테스트 데이터 삭제</button><p class="muted" data-t="deviceOnly">GitHub 테스트판의 저장값은 이 기기에만 유지됩니다.</p></div></section>
+ </main>
+ <nav><button class="active" data-view="discover" onclick="showView('discover')">⌕<span data-t="discover">찾기</span></button><button data-view="saved" onclick="showView('saved')">♡<span data-t="saved">저장</span></button><button data-view="profile" onclick="showView('profile')">◎<span data-t="taste">취향</span></button></nav>
+ <div id="detail"></div><div id="toast" role="status"></div><script src="./app.js"></script>
+</body></html>

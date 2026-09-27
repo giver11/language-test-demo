@@ -134,7 +134,9 @@ window.renderCandidates=function(){
  const p=PUI[lang()];
  $("#candidates").innerHTML=detected.map((x,i)=>{
   const display=x.n?ingredientName(x.n):"";
-  return '<div class="candidate"><input type="checkbox" '+(x.n&&x.score>=.18?"checked":"")+' aria-label="Include candidate"><input type="text" value="'+esc(display)+'" placeholder="'+esc(p.candidate)+'" oninput="detected['+i+'].n=window.wcReverseIngredient(this.value)"><span class="small">'+(x.score?Math.round(x.score*100)+"%":p.edit)+'</span><button class="trash" onclick="removeCandidate('+i+')">✕</button></div>';
+  const reliable=x.n&&x.score>=.32;
+  const evidence=x.evidence||activeDetector||"on-device classifier";
+  return '<div class="candidate '+(reliable?'':'low-confidence')+'"><input type="checkbox" '+(reliable?"checked":"")+' aria-label="Include candidate"><input type="text" value="'+esc(display)+'" placeholder="'+esc(p.candidate)+'" oninput="detected['+i+'].n=window.wcReverseIngredient(this.value)"><span class="small">'+(x.score?Math.round(x.score*100)+"%":p.edit)+'</span><span class="evidence">'+esc(evidence)+'</span><button class="trash" onclick="removeCandidate('+i+')">✕</button></div>';
  }).join("");
  $("#candidateTools").classList.toggle("hidden",!detected.length);
 };
@@ -163,7 +165,7 @@ window.analyzePhoto=async function(){
     if(objects.length)activeDetector="MobileNet + Lite object detector";
    }catch(extraError){console.warn("Optional detector skipped",extraError);objectDetectorPromise=null}
   }
-  detected=Object.entries(best).map(([n,score])=>({n,score})).sort((a,b)=>b.score-a.score).slice(0,12);
+  detected=Object.entries(best).map(([n,score])=>({n,score,evidence:isVideo()?"3 video frames · on-device":"photo · on-device"})).sort((a,b)=>b.score-a.score).slice(0,12);
   if(!detected.length){detected=[{n:"",score:0}];renderCandidates();setStatus(t.low)}
   else{renderCandidates();setStatus(detected.length+" "+p.found+" · "+t.source+" ("+activeDetector+(isVideo()?", 3 frames":"")+")")}
  }catch(err){console.warn("Cookora Vision v9",err);classifierPromise=null;detected=[{n:"",score:0}];renderCandidates();setStatus(t.low)}
@@ -177,7 +179,7 @@ function syncCameraLabels(){
  const clear=$("#wcClearAll");if(clear)clear.textContent={en:"Clear",ko:"선택 해제",es:"Quitar selección",ja:"選択解除",zh:"取消选择"}[l]||"Clear";
  const again=$("#wcAnalyzeAgain");if(again)again.textContent={en:"Analyze again",ko:"다시 분석",es:"Analizar de nuevo",ja:"再解析",zh:"重新分析"}[l]||"Analyze again";
 }
-window.wcSelectAllCandidates=function(on){$("#candidates .candidate input[type='checkbox']").forEach(x=>x.checked=!!on)};
+window.wcSelectAllCandidates=function(on){$$("#candidates .candidate input[type='checkbox']").forEach(x=>x.checked=!!on)};
 window.wcAnalyzeAgain=function(){if(photoFile)window.analyzePhoto()};
 function openLiveCamera(){
  const input=$("#directCamera");

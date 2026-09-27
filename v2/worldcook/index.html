@@ -1,5 +1,5 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Cookora</title><meta name="description" content="Cookora turns the ingredients you already have into recipes, guided cooking, pantry memory, and smarter shopping."><link rel="stylesheet" href="./style.css"></head><body>
-<header class="top"><div class="logo">🍳</div><div class="brand">Cookora</div><span class="beta">WORKING BETA</span><select id="lang" class="lang" aria-label="Language"><option value="en">English</option><option value="ko">한국어</option><option value="es">Español</option><option value="ja">日本語</option><option value="zh">中文</option></select></header>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Cookora In</title><meta name="description" content="Cookora In — See ingredients. Find meals. Start cooking."><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23165d3a'/%3E%3Cpath d='M18 34h28a14 14 0 0 1-28 0Z' fill='%23ffe17c'/%3E%3C/svg%3E"><link rel="stylesheet" href="./style.css"></head><body>
+<header class="top"><div class="logo">🍳</div><div><div class="brand">Cookora In</div><div class="brandline">See ingredients. Find meals. Start cooking.</div></div><span class="beta">TEST BETA</span><select id="lang" class="lang" aria-label="Language"><option value="en">English</option><option value="ko">한국어</option><option value="es">Español</option><option value="ja">日本語</option><option value="zh">中文</option></select></header>
 <main class="wrap"><section class="hero"><div><div class="eyebrow">PANTRY → WORLD CUISINE → COOKING MODE</div><h1 id="headline">What can I cook right now?</h1><div id="subtitle" class="sub">Add what you have. We’ll find dishes across the world.</div><div class="search"><input id="search" placeholder="Search dishes or countries"><button class="primary" onclick="setView('pantry')">＋ <span id="addLabel">Add ingredient</span></button></div></div><aside class="score"><div>PANTRY MATCH</div><b id="readyCount">0</b><div id="readyText">dishes ready without shopping</div><div class="chips" id="heroChips"></div></aside></section>
 <nav class="tabs"><button class="tab active" data-view="explore" onclick="setView('explore')">🌍 <span data-i="explore">Explore</span></button><button class="tab" data-view="pantry" onclick="setView('pantry')">🧺 <span data-i="pantry">My pantry</span></button><button class="tab" data-view="saved" onclick="setView('saved')">♥ <span data-i="saved">Saved</span></button><button class="tab" data-view="passport" onclick="setView('passport')">🗺 <span data-i="passport">Passport</span></button></nav>
 <section id="explore"><div class="filters"><button class="filter active" data-filter="all">All</button><button class="filter" data-filter="0">Ready now</button><button class="filter" data-filter="1">Missing 1</button><button class="filter" data-filter="2">Missing 2</button><button class="filter" data-filter="zero">Zero waste</button></div><div id="cards" class="grid"></div></section>
@@ -7,7 +7,7 @@
 <section id="saved" class="hidden"><div id="savedCards" class="grid"></div></section><section id="passport" class="hidden"><div class="score" style="display:block;margin-top:20px"><div>COOK THE WORLD</div><h2 style="font-size:34px;margin:8px 0">Your flavor passport</h2><div id="passportGrid" class="grid"></div></div></section>
 <div class="ad">ADVERTISEMENT PLACEHOLDER · NEVER SHOWN DURING COOKING MODE</div></main><div id="modal"></div><div id="cooking"></div>
 
-<script src="./recipes-i18n.js"></script>
+<link rel="stylesheet" href="./cookora-extra.css"><script src="./recipes-i18n.js"></script>
 <script src="./recipe-batch-100.js"></script>
 <script src="./recipe-batch-20260927.js"></script>
 <script src="./recipe-names-a.js"></script>
@@ -20,7 +20,8 @@
 <script src="./nutrition-v1.js"></script>
 <script src="./app-a.js"></script>
 <script src="./app-b.js"></script>
-<script src="./photo-ai-v2.js?v=9.0.0"></script>
+<script src="./photo-ai-v2.js?v=10.0.0"></script>
+<script src="./cookora-in-v1.js?v=1.0.0"></script>
 <script src="./shopping-v1.js"></script>
 <script src="./app-c.js"></script>
 </body></html>
