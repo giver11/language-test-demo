@@ -1,12 +1,12 @@
 [
  {
   "provider": "eomunhoe",
-  "sourceName": "사단법인 한국어문회 공식 홈페이지",
-  "sourceUrl": "https://www.hanja.re.kr/",
+  "sourceName": "한국어문회 급수배정 안내 · 급수별 배정한자 HWP (배정한자8급.hwp ~ 배정한자특급.hwp)",
+  "sourceUrl": "https://www.hanja.re.kr/kccpt/exam/levelConfirm.do",
   "verifiedAt": "2026-09-28",
   "year": 2026,
-  "status": "unreachable",
-  "note": "이 개발 환경에서는 공식 사이트 접속(robots.txt 응답 실패)이 되지 않아 직접 대조하지 못함."
+  "status": "official",
+  "note": "공식 HWP 15개 급수 읽기·쓰기 배정한자와 앱 데이터를 전수 대조(2026-09-28). 煕→熙 1자 보정, 1급 쓰기 2,005자·5급Ⅱ 쓰기(急 대신 級) 공식 목록 반영. 특급Ⅱ 표기 4,918자는 공식 원문 주석대로 자형 기준 4,650자 + 다음자 중복 등록 268자."
  },
  {
   "provider": "eomunhoe",

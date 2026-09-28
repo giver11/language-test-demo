@@ -75,7 +75,7 @@ async def run_width(browser, W):
     await pg.wait_for_selector('.lv')
     enabled = await pg.eval_on_selector_all('[data-l]', 'els => els.map(e => e.dataset.l)')
     total = await pg.eval_on_selector_all('.lv', 'els => els.length')
-    rec(f'{T} D02', '대한검정회 급수 선택 (8급~사범 14개 + 대사범 표시)', enabled == list(EXPECT) and total == 15, f'선택 가능 {len(enabled)} / 표시 {total}')
+    rec(f'{T} D02', '대한검정회 급수 선택 (8급~대사범 15개)', enabled == list(EXPECT) + ['dsa'] and total == 15, f'선택 가능 {len(enabled)} / 표시 {total}')
     await shot(pg, f'{W}-d02-levels')
 
     # 3. 데이터 검증 함수
@@ -194,6 +194,24 @@ async def run_width(browser, W):
         if sw > W + 1:
             over.append(f'{h}:{sw}')
     rec(f'{T} D11', f'{W}px 가로 넘침 없음', not over, ', '.join(over) or 'OK')
+
+    # 11b. 대사범: 사범 5,000자 범위 + 서술형 안내(자동 채점 모의시험 미제공)
+    await choose(pg, 'daehan', 'dsa')
+    await pg.goto(BASE + '#/hanja'); await pg.wait_for_selector('.hcell')
+    tabs = await pg.eval_on_selector_all('.tabs button', 'els => els.map(e => e.textContent)')
+    note = await pg.inner_text('#view')
+    await pg.goto(BASE + '#/mock'); await pg.wait_for_selector('h1')
+    mk = await pg.inner_text('#view')
+    await pg.goto(BASE + '#/quiz'); await pg.wait_for_selector('[data-start]')
+    await pg.click('[data-start]'); await pg.wait_for_selector('.qhost .choice')
+    rec(f'{T} D11b', '대사범: 누적 5,000자 학습·문제풀이, 모의시험은 서술형 안내', any('누적 전체 5000' in t for t in tabs) and '별도 선정한자 목록이 없어요' in note and '국역·논술' in mk and not await pg.query_selector('[data-start=full]'), ' | '.join(tabs[:2]))
+
+    # 11c. 한국어문회 공식 쓰기 배정 (1급 2,005자, 5급Ⅱ 級/急), 특급Ⅱ 자형 4,650자
+    r = await pg.evaluate("""async () => { const D = await import('./js/data.js');
+      const w1 = await D.writeScope('eomunhoe', '1'); const w52 = await D.writeScope('eomunhoe', '5-2'); const s2 = await D.scopeChars('eomunhoe', 's2');
+      const lv = await D.level('eomunhoe', 's2');
+      return {w1: w1.length, w52: w52.length, has級: w52.includes('級'), has急: w52.includes('急'), s2: s2.length, glyph: lv.readCountGlyph, hee: s2.includes('熙'), heeOld: s2.includes('煕')}; }""")
+    rec(f'{T} D11c', '한국어문회 공식 대조(1급 쓰기 2,005 · 5급Ⅱ 級 · 특급Ⅱ 4,650 · 熙)', r['w1'] == 2005 and r['w52'] == 225 and r['has級'] and not r['has急'] and r['s2'] == 4650 == r['glyph'] and r['hee'] and not r['heeOld'], str(r))
 
     # 12. 타 기관 회귀
     ok12, det12 = True, []

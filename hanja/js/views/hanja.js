@@ -19,8 +19,9 @@ function noData(view, c) {
 async function list(view, { ctx: c, params }) {
   if (!c.level.hasData) return noData(view, c);
   const dict = await D.dict();
-  const tab = params.tab || 'new';
   const newChars = await D.scopeChars(c.pid, c.lid, true);
+  // 신출 한자가 없는 급수(대한검정회 대사범: 별도 선정한자 없음)는 누적 전체를 기본으로
+  const tab = params.tab || (newChars.length ? 'new' : 'all');
   const all = await D.scopeChars(c.pid, c.lid);
   const wset = new Set(await D.writeScope(c.pid, c.lid));
   const sets = {
@@ -34,7 +35,7 @@ async function list(view, { ctx: c, params }) {
   view.innerHTML = `
     <h1>${esc(c.provider.name)} ${esc(c.level.name)} 한자</h1>
     <p class="sub">배정 ${c.level.readCount ? c.level.readCount.toLocaleString() + '자' : ''} · 이번 급수 신출 ${newChars.length}자 · 암기 ${known}/${all.length}
-      ${c.level.status.hanja === 'official-file' ? '<span class="badge official">공식 xls 변환</span>' : c.level.status.hanja === 'official' ? '<span class="badge official">공식 선정한자</span>' : '<span class="badge secondary">2차 자료 · 공식 대조 필요</span>'}</p>
+      ${c.level.status.hanja === 'official-file' ? '<span class="badge official">공식 xls 변환</span>' : c.level.status.hanja === 'official' ? `<span class="badge official">${c.pid === 'eomunhoe' ? '공식 배정한자' : '공식 선정한자'}</span>` : '<span class="badge secondary">2차 자료 · 공식 대조 필요</span>'}</p>
     ${c.level.notes.length ? `<div class="notice">${c.level.notes.map(esc).join('<br>')}</div>` : ''}
     <div class="tabs">${[['new', `이번 급수 신출 ${newChars.length}`], ['all', `누적 전체 ${all.length}`], ['todo', `안 외운 한자 ${sets.todo.length}`], ['fav', `⭐ ${sets.fav.length}`]]
       .map(([k, l]) => `<button class="${tab === k ? 'on' : ''}" data-tab="${k}" type="button">${l}</button>`).join('')}</div>
@@ -123,7 +124,7 @@ async function cards(view, { ctx: c, params }) {
     const todo = order.filter((ch) => !c.p.cards[ch]);
     const weak = order.filter((ch) => c.p.cards[ch] && c.p.cards[ch].s !== 'know');
     items = [...todo, ...weak].slice(0, n);
-  } else items = newChars;
+  } else items = newChars.length ? newChars : all;
   if (!items.length) {
     view.innerHTML = `<h1>플래시카드</h1><div class="empty">학습할 카드가 없어요 🎉<br><a href="#/hanja">한자 목록으로</a></div>`;
     return;

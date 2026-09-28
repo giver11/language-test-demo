@@ -18,10 +18,16 @@ async def run():
             pg.on('pageerror', lambda e: errs.append(str(e)))
             cdp = await ctx.new_cdp_session(pg)
             await pg.goto(BASE); await pg.wait_for_selector('.pick')
-            await pg.tap('[data-p=daehan]'); await pg.wait_for_selector('.lv')
-            dis = await pg.eval_on_selector_all('.lv[disabled]', 'e=>e.length'); en = await pg.eval_on_selector_all('.lv:not([disabled])', 'e=>e.length')
-            await pg.tap('.lv[disabled] >> nth=0', force=True); await pg.wait_for_timeout(200)
-            still = await pg.inner_text('h1')
+            # 데이터 없는 급수(비활성) 탭 동작: 비활성 급수가 남아 있는 기관에서 확인
+            dis = en = 0; still = '-'
+            for pid in ('jinheung', 'korcham', 'daehan', 'eomunhoe'):
+                await pg.goto(BASE + '#/onboard?p=' + pid + '&r=' + label[:2]); await pg.wait_for_selector('.lv')
+                dis = await pg.eval_on_selector_all('.lv[disabled]', 'e=>e.length'); en = await pg.eval_on_selector_all('.lv:not([disabled])', 'e=>e.length')
+                if dis:
+                    await pg.tap('.lv[disabled] >> nth=0', force=True); await pg.wait_for_timeout(200)
+                    still = await pg.inner_text('h1')
+                    break
+            await pg.goto(BASE + '#/onboard?p=daehan&r=x' + label[:2]); await pg.wait_for_selector('[data-l="8"]')
             await pg.tap('[data-l="8"]'); await pg.tap('[data-skip]'); await pg.tap('[data-go]'); await pg.wait_for_selector('.dday')
             await pg.goto(BASE+'#/cards?set=new'); await pg.wait_for_selector('.flash')
             fh = await pg.eval_on_selector('.flash .front', 'e=>{const r=e.getBoundingClientRect();return [Math.round(r.width),Math.round(r.height)]}')

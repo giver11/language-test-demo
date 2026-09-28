@@ -310,7 +310,7 @@ print("대한상공회의소 공식 배정한자:", len(KC_LIST), Counter(l for 
 
 # 사전에 없는 글자 추가 (진흥회: 공식 훈음, 상공회의소: libhangul → 없으면 보충표)
 _added = Counter(); _kc_nohunum = []
-for c, l, h, e in JH_LIST:
+for c, l, h, e in (JH_LIST if M.PHASE2 else []):
     if c in dict_chars:
         continue
     if c in JH_COMPAT_KEEP:
@@ -319,9 +319,9 @@ for c, l, h, e in JH_LIST:
     else:
         dict_chars[c] = {"c": c, "id": "U+%04X" % ord(c), "m": JH_HUNUM[c], "r": JH_HUNUM[c][0][1], "rad": None, "st": None, "src": "jinheung-official"}
     _added["jinheung"] += 1
-for c, l, h, e in JH_LIST:
+for c, l, h, e in (JH_LIST if M.PHASE2 else []):
     dict_chars[c]["jh"] = JH_HUNUM[c]
-for c, l in KC_LIST:
+for c, l in (KC_LIST if M.PHASE2 else []):
     if c in dict_chars:
         continue
     if c in HUNUM_SUPP:
@@ -511,47 +511,77 @@ cum_by_level = {}
 for (lid, name, cat, rd, wr, q, ps, tm) in M.EOMUNHOE_LEVELS:
     cum += new_counts[lid]
     cum_by_level[lid] = cum
+import hashlib
+def _set_hash(st):
+    return hashlib.sha256("".join(sorted(st, key=ord)).encode("utf-8")).hexdigest()[:16]
+eom_level_of_tmp = {x["c"]: x["level"] for x in eom_map}
+def eom_cum(L):
+    return {c for c, l in eom_level_of_tmp.items() if LEVEL_IDX[l] <= LEVEL_IDX[L]}
+EOM_WRITE_1 = [nfc(c) for c in open(os.path.join(HERE, "src/eomunhoe_write1.txt"), encoding="utf-8").read().strip()]
+eom_write_sets = {}
 for i, (lid, name, cat, rd, wr, q, ps, tm) in enumerate(M.EOMUNHOE_LEVELS):
-    # 쓰기 범위 = 하위 급수 읽기 배정 누적(배정 수가 정확히 일치하는 급수)
-    write_upto = None
-    for lj in LEVEL_ORDER[:i]:
-        if cum_by_level[lj] == wr:
-            write_upto = lj
+    if not wr:
+        continue
+    if lid == "1":
+        ws = set(EOM_WRITE_1)
+    else:
+        # 공식: 쓰기 배정 = 하위 급수 읽기 배정 누적 (배정 수 일치)
+        base = [lj for lj in LEVEL_ORDER[:i] if cum_by_level[lj] == wr]
+        if not base:
+            raise SystemExit("한국어문회 %s 쓰기 %d자에 해당하는 하위 급수 없음" % (name, wr))
+        ws = eom_cum(base[-1])
+    ex = EOM_CHECK.get("writeExceptions", {}).get(lid)
+    if ex:
+        ws = (ws - set(ex["remove"])) | set(ex["add"])
+    if len(ws) != wr:
+        raise SystemExit("한국어문회 %s 쓰기 %d자 ≠ 공식 %d자" % (name, len(ws), wr))
+    exp = EOM_CHECK["write"].get(lid, "")
+    if re.fullmatch(r"[0-9a-f]{16}", exp) and _set_hash(ws) != exp:
+        raise SystemExit("한국어문회 %s 쓰기 배정한자가 공식 HWP와 다름 (%s ≠ %s)" % (name, _set_hash(ws), exp))
+    eom_write_sets[lid] = ws
+for lid, exp in EOM_CHECK["read"].items():
+    if _set_hash(eom_cum(lid)) != exp:
+        raise SystemExit("한국어문회 %s 읽기 배정한자가 공식 HWP와 다름" % lid)
+_prev = set()
+for lid in LEVEL_ORDER:
+    if lid in eom_write_sets:
+        if not _prev <= eom_write_sets[lid]:
+            raise SystemExit("한국어문회 쓰기 배정 누적 구조 위반: %s" % lid)
+        _prev = eom_write_sets[lid]
+print("한국어문회 쓰기 배정 공식 대조 통과:", {k: len(v) for k, v in eom_write_sets.items()})
+for i, (lid, name, cat, rd, wr, q, ps, tm) in enumerate(M.EOMUNHOE_LEVELS):
     note = []
     data_count = cum_by_level[lid]
-    if data_count != rd:
-        note.append("공식 표기 읽기 배정 %d자 ↔ 공식 xls 변환 데이터 누적 %d자 불일치 — 공식 자료 확인 필요" % (rd, data_count))
-    if wr and write_upto is None:
-        # 1급 쓰기 2005자: 3급 누적 1817자까지만 확정
-        cand = [lj for lj in LEVEL_ORDER[:i] if cum_by_level[lj] <= wr]
-        write_upto = cand[-1] if cand else None
-        note.append("공식 쓰기 배정 %d자 중 %s까지(%d자)만 확정 — 나머지 %d자 공식 목록 확인 필요" % (
-            wr, dict(zip(LEVEL_ORDER, [l[1] for l in M.EOMUNHOE_LEVELS]))[write_upto], cum_by_level[write_upto], wr - cum_by_level[write_upto]))
+    glyph = rd
+    if lid == "s2":
+        glyph = 4650  # 공식 원문: 4,918자 중 다음자 중복 등록 268자를 빼면 자형 기준 4,650자
+        note.append("공식 표기 4,918자는 전산용 한자의 다음자(多音字) 중복 등록 268자를 포함한 수 — 자형 기준 4,650자 (공식 배정한자특급Ⅱ.hwp 원문 주석). 앱 데이터 4,650자 = 공식 목록과 일치.")
+    if data_count != glyph:
+        raise SystemExit("한국어문회 %s 읽기 %d자 ≠ 공식 %d자" % (name, data_count, glyph))
+    if lid == "1":
+        note.append("쓰기 2,005자 = 2급 배정한자 2,355자 중 성명·지명용 350자를 제외한 공식 목록(배정한자1급.hwp).")
+    if lid == "5-2":
+        note.append("쓰기 225자: 공식 목록은 6급Ⅱ 읽기 225자 중 急 대신 級을 포함(배정한자5급II.hwp).")
     dist = M.EOMUNHOE_TYPE_DIST[lid]
     assert sum(dist) == q, (lid, sum(dist), q)
     eom_levels.append({
         "id": lid, "name": name, "order": i, "category": cat,
-        "readCount": rd, "writeCount": wr, "newCount": new_counts[lid], "dataCount": data_count,
-        "writeUpto": write_upto, "hasData": True,
+        "readCount": rd, "readCountGlyph": glyph, "writeCount": wr, "newCount": new_counts[lid], "dataCount": data_count,
+        "writeDataCount": len(eom_write_sets.get(lid, ())), "hasData": True,
         "exam": {"questionCount": q, "passCount": ps, "timeMin": tm, "passRule": "%d문항 중 %d문항 이상(%d%%)" % (q, ps, round(ps * 100 / q)),
                  "mockSupported": True},
         "notes": note,
-        "status": {"levels": "secondary", "hanja": "official-file", "examFormat": "secondary"},
+        "status": {"levels": "official", "hanja": "official", "examFormat": "secondary"},
     })
 dump("providers/eomunhoe/levels.json", {"provider": "eomunhoe", "levels": eom_levels,
-                                         "writeRule": "한국어문회 쓰기 배정한자 = 하위 급수의 읽기 배정한자 누적(배정 수 일치로 산출). 공식 쓰기 목록 대조 필요.",
+                                         "writeRule": "공식 급수별 배정한자 HWP의 쓰기 배정한자 목록과 전수 대조(1급 2,005자·5급Ⅱ 예외 포함).",
+                                         "verification": {"source": "https://www.hanja.re.kr/kccpt/exam/levelConfirm.do", "verifiedAt": M.VERIFIED_AT, "readFix": "煕→熙"},
                                          "sourceRefs": [s["sourceUrl"] for s in M.SOURCES["eomunhoe"]]}, compact=False)
 eom_write_level = {}
 for x in eom_map:
-    # 이 글자가 쓰기 범위에 처음 들어가는 급수
-    li = LEVEL_IDX[x["level"]]
-    wl = None
-    for L in eom_levels:
-        if L["writeUpto"] is not None and LEVEL_IDX[L["writeUpto"]] >= li:
-            wl = L["id"]
-            break
-    eom_write_level[x["c"]] = wl
-dump("providers/eomunhoe/hanja-mapping.json", {"provider": "eomunhoe", "status": "official-file",
+    # 이 글자가 쓰기 범위에 처음 들어가는 급수 (공식 쓰기 배정 기준)
+    eom_write_level[x["c"]] = next((lid for lid in LEVEL_ORDER if x["c"] in eom_write_sets.get(lid, ())), None)
+dump("providers/eomunhoe/hanja-mapping.json", {"provider": "eomunhoe", "status": "official",
       "fields": {"c": "character", "l": "읽기 배정 급수(level)", "w": "쓰기 범위에 포함되는 첫 급수(writingRequired 기준)"},
       "items": [{"c": x["c"], "l": x["level"], "w": eom_write_level[x["c"]]} for x in eom_map]})
 dump("providers/eomunhoe/exam-types.json", {"provider": "eomunhoe", "status": "secondary",
@@ -581,9 +611,10 @@ for i, (lid, name, cat, cnt, q, tm, ps, struct) in enumerate(M.DAEHAN_LEVELS):
     new_n = sum(1 for l in dh_level_of.values() if l == lid)
     cum += new_n
     ok = bool(new_n) and cnt is not None and cum == cnt and dh_valid_upto
+    is_dsa = lid == "dsa"
     if new_n and cnt is not None and cum != cnt:
         raise SystemExit("대한검정회 %s 누적 %d자 ≠ 공식 %d자 — 입력 데이터 확인 필요" % (name, cum, cnt))
-    if not ok:
+    if not ok and not is_dsa:
         dh_valid_upto = False
     srcs = {dh_src[c] for c, l in dh_level_of.items() if l == lid}
     status_h = ("official" if srcs == {"official"} else "secondary") if ok else "missing"
@@ -591,8 +622,21 @@ for i, (lid, name, cat, cnt, q, tm, ps, struct) in enumerate(M.DAEHAN_LEVELS):
     notes = []
     if ok and status_h == "secondary":
         notes.append("%s 선정한자: 2차 자료(나무위키 전사본) 기준 — 공식 선정한자표와 대조 필요." % name)
-    if not ok:
+    if not ok and not is_dsa:
         notes.append("선정한자 목록 " + M.NEEDS + " (공식 자료실 원문 미확보)")
+    if is_dsa:
+        dh_levels.append({"id": lid, "name": name, "order": i, "category": cat, "readCount": None, "writeCount": None,
+                          "newCount": 0, "dataCount": cum, "hasData": dh_valid_upto, "scopeFrom": "sa",
+                          "subjects": ["대학·논어·맹자·중용", "고문진보·사략", "고급한문Ⅱ(선정단원)", "기타"],
+                          "exam": {"examMode": "offline", "questionCount": q, "timeMin": tm, "passCount": ps,
+                                   "passRule": "%d문항 중 %d문항 이상 (1문항당 1점, 70점 이상)" % (q, ps), "structure": struct,
+                                   "format": "필기시험 · 국역 및 논술", "mockSupported": False,
+                                   "mockBlockedReason": "대사범은 경전·고문 지문을 국역·논술하는 서술형 시험이라 자동 채점 모의시험을 제공하지 않아요. 공식 기출문제로 대비하세요"},
+                          "examOnline": None,
+                          "notes": ["대사범은 별도 선정한자 목록이 없어요(공식). 한문지식 기반인 사범 선정한자 5,000자를 학습 범위로 제공하고, 경전·고문 지문은 공식 기출문제로 대비하세요.",
+                                    "검정과목(공식): 대학·논어·맹자·중용 / 고문진보·사략 / 고급한문Ⅱ(선정단원) / 기타 — 10개 지문 100문항, 60분, 국역 및 논술."],
+                          "status": {"levels": "official", "hanja": "official", "examFormat": "official"}})
+        continue
     dh_levels.append({"id": lid, "name": name, "order": i, "category": cat, "readCount": cnt, "writeCount": None,
                       "newCount": new_n if ok else None, "dataCount": cum if ok else 0, "hasData": ok,
                       "exam": {"examMode": "offline", "questionCount": q, "timeMin": tm, "passCount": ps,
@@ -786,7 +830,7 @@ def gen_bank(provider, level_ids, level_of, write_level_of, allowed, level_order
         # 하위 급수 글자 일부도 복습 문항으로 포함
         review = [c for c in scope if level_of[c] != L]
         rng.shuffle(review)
-        review = review[: max(10, len(new) // 3)]
+        review = review[: max(10, len(new) // 3)] if new else review[:600]
         focus = new + review
         he_pool = sorted({he_str(c) for c in scope})
         q = []
