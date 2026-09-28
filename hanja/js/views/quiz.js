@@ -12,8 +12,12 @@ export default async function (view, { ctx: c, params }) {
     return;
   }
   const qs = bank.questions;
+  // 진흥회·상공회의소는 공식 출제 영역(area) 기준으로 묶어 보여 줌
+  const keyOf = (q) => (c.pid === 'jinheung' || c.pid === 'korcham') && q.area ? q.area : q.typeLabel;
   const types = {};
-  for (const q of qs) types[q.typeLabel] = (types[q.typeLabel] || 0) + 1;
+  for (const q of qs) types[keyOf(q)] = (types[keyOf(q)] || 0) + 1;
+  const qi = await D.questionIndex().catch(() => null);
+  const qiP = qi && qi.providers[c.pid];
   const et = await D.examTypes(c.pid).catch(() => null);
   const sel = { type: params.type || '전체', n: +(params.n || 10) };
   const draw = () => {
@@ -21,6 +25,14 @@ export default async function (view, { ctx: c, params }) {
       <h1>문제 풀이</h1>
       <p class="sub">${esc(c.provider.name)} ${esc(c.level.name)} · <b>기출유형 연습문제 · 예상문제</b></p>
       <div class="notice info">공식 배정한자와 공식 문제유형을 기준으로 이 앱에서 새로 만든 문제예요 (실제 기출문제가 아니에요). 문제은행 ${qs.length.toLocaleString()}문항.</div>
+      <details class="card flat" style="margin:10px 0"><summary><b>문제은행 구성 · 출처 구분</b></summary>
+        <div class="table-wrap" style="margin-top:8px"><table><tbody>
+          <tr><th>이 앱의 문제</th><td>자체 제작 연습문제 ${qs.length.toLocaleString()}문항 <span class="badge">original-practice</span><div class="tiny">공식 배정/선정한자 범위와 공식 출제 유형을 기준으로 만든 문제예요. 실제 기출문제가 아니에요.</div></td></tr>
+          <tr><th>공식 기출문제</th><td>저작권 보호 — 앱에 저장하지 않고 공식 사이트로만 연결 <a href="${esc(c.provider.pastExamUrl)}" target="_blank" rel="noopener">공식 기출 ↗</a></td></tr>
+          <tr><th>모의시험</th><td>공식 문항 수·시간·합격 기준에 맞춰 자체 제작 문항으로 구성</td></tr>
+        </tbody></table></div>
+        ${qiP && qiP.levels[c.lid] ? `<div class="table-wrap" style="margin-top:8px"><table><thead><tr><th>출제 영역</th><th>문항</th></tr></thead><tbody>${Object.entries(qiP.levels[c.lid].byArea).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${v.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>` : ''}
+      </details>
       <h3>문제 유형</h3>
       <div class="chips">${['전체', ...Object.keys(types)].map((t) => `<button class="chip ${sel.type === t ? 'sel' : ''}" data-t="${esc(t)}" type="button">${esc(t)}${t !== '전체' ? ` <span class="small">${types[t]}</span>` : ''}</button>`).join('')}</div>
       ${et && et.status !== 'official' ? `<p class="tiny">유형 구성: ${esc(et.statusNote || '')}</p>` : ''}
@@ -34,7 +46,7 @@ export default async function (view, { ctx: c, params }) {
     view.querySelectorAll('[data-t]').forEach((b) => (b.onclick = () => { sel.type = b.dataset.t; draw(); }));
     view.querySelectorAll('[data-n]').forEach((b) => (b.onclick = () => { sel.n = +b.dataset.n; draw(); }));
     view.querySelector('[data-start]').onclick = () => {
-      const pool = sel.type === '전체' ? qs : qs.filter((q) => q.typeLabel === sel.type);
+      const pool = sel.type === '전체' ? qs : qs.filter((q) => keyOf(q) === sel.type);
       const seen = c.p.quiz.seen || (c.p.quiz.seen = {});
       const fresh = shuffle(pool.filter((q) => !seen[q.id]));
       const old = shuffle(pool.filter((q) => seen[q.id]));

@@ -34,7 +34,7 @@ async function list(view, { ctx: c, params }) {
   const known = all.filter((ch) => c.p.cards[ch] && c.p.cards[ch].s === 'know').length;
   view.innerHTML = `
     <h1>${esc(c.provider.name)} ${esc(c.level.name)} 한자</h1>
-    <p class="sub">배정 ${c.level.readCount ? c.level.readCount.toLocaleString() + '자' : ''} · 이번 급수 신출 ${newChars.length}자 · 암기 ${known}/${all.length}
+    <p class="sub">${c.level.selectedCount ? `선정한자 ${c.level.selectedCount.toLocaleString()}자(평가한자 ${c.level.readCount.toLocaleString()}자)` : `배정 ${c.level.readCount ? c.level.readCount.toLocaleString() + '자' : ''}`} · 이번 급수 신출 ${newChars.length}자 · 암기 ${known}/${all.length}
       ${c.level.status.hanja === 'official-file' ? '<span class="badge official">공식 xls 변환</span>' : c.level.status.hanja === 'official' ? `<span class="badge official">${c.pid === 'eomunhoe' ? '공식 배정한자' : '공식 선정한자'}</span>` : '<span class="badge secondary">2차 자료 · 공식 대조 필요</span>'}</p>
     ${c.level.notes.length ? `<div class="notice">${c.level.notes.map(esc).join('<br>')}</div>` : ''}
     <div class="tabs">${[['new', `이번 급수 신출 ${newChars.length}`], ['all', `누적 전체 ${all.length}`], ['todo', `안 외운 한자 ${sets.todo.length}`], ['fav', `⭐ ${sets.fav.length}`]]

@@ -102,5 +102,6 @@ render().then(() => {
   // 대한검정회 데이터 무결성 검사 (불일치 시 console.error)
   const st = S.get();
   if (st.current && st.current.provider === 'daehan') D.validateDaehanHanjaData().catch((e) => console.error(e));
+  else if (st.current && st.current.provider) D.validateProviderData(st.current.provider).catch((e) => console.error(e));
 });
 window.__hanja = { S, go };

@@ -1,6 +1,6 @@
 // 정적 JSON 데이터 로더 (캐시). 모든 시험 정보는 data/ 파일에서만 읽는다 — 코드에 일정·급수를 하드코딩하지 않음.
 // 배포 버전 — 데이터·코드가 섞여 캐시되지 않도록 모든 데이터 요청에 붙임
-export const APP_VERSION = '2026.09.28-5';
+export const APP_VERSION = '2026.09.28-6';
 const cache = new Map();
 export const BASE = new URL('../data/', import.meta.url).href;
 
@@ -66,6 +66,7 @@ export async function writeScope(pid, lid) {
 export async function wordsMapping(pid) { return json(`providers/${pid}/words-mapping.json`); }
 export async function idiomsMapping(pid) { return json(`providers/${pid}/idioms-mapping.json`); }
 
+export async function questionIndex() { return json('questions/index.json'); }
 export async function bank(pid, lid) {
   try { return await json(`questions/${pid}/${lid}.json`); } catch (e) { return null; }
 }
@@ -84,20 +85,52 @@ export async function strokes(c) {
 // 현재 선택 기관 — 대한검정회 선택 시 공식 선정한자훈음표의 훈음(dh)을 우선 표시
 let _heProvider = null;
 export function setHeProvider(pid) { _heProvider = pid || null; }
+const HE_FIELD = { daehan: 'dh', jinheung: 'jh' };
 export function heList(d, pid = _heProvider) {
   if (!d) return [];
-  if (pid === 'daehan' && d.dh && d.dh.length) return d.dh;
+  const f = HE_FIELD[pid];
+  if (f && d[f] && d[f].length) return d[f];
   return d.m || [];
 }
 export function heStr(d, pid) {
   if (!d) return '';
   const m = heList(d, pid);
-  if (m.length) return m[0][0] + ' ' + m[0][1];
-  return d.r || '';
+  if (m.length && m[0][0]) return m[0][0] + ' ' + m[0][1];
+  if (m.length && m[0][1]) return m[0][1] + ' (뜻 자료 없음)';
+  return d.noHunum ? '훈음 공식 자료 없음' : (d.r || '');
 }
 export function heAll(d, pid) {
   const m = heList(d, pid);
   return m.map((x) => x[0] + ' ' + x[1]).join(', ');
+}
+
+// 기관 공통 데이터 검증: 급수별 누적 수 = 공식 파일 수, 중복, 사전 누락, 훈음 누락(공식 자료 없음으로 문서화된 글자는 경고)
+export async function validateProviderData(pid, { quiet = false } = {}) {
+  const lv = await levels(pid);
+  const m = await mapping(pid);
+  const dic = await dict();
+  const report = [];
+  const seen = new Set();
+  let cum = 0;
+  const known = new Set(lv.levels.map((l) => l.id));
+  const foreign = m.items.filter((x) => !known.has(x.l));
+  for (const L of lv.levels) {
+    if (!L.hasData) continue;
+    const news = m.items.filter((x) => x.l === L.id);
+    const dup = [];
+    for (const x of news) { if (seen.has(x.c)) dup.push(x.c); seen.add(x.c); }
+    cum += news.length;
+    const expected = L.officialFileCount != null ? L.officialFileCount : L.readCountGlyph != null ? L.readCountGlyph : L.readCount;
+    const missing = news.filter((x) => !dic[x.c]).map((x) => x.c);
+    const noHunum = news.filter((x) => { const d = dic[x.c]; const h = d && heList(d, pid); return d && (!h.length || !h[0][0] || !h[0][1]); }).map((x) => x.c);
+    const undocumented = noHunum.filter((c) => !(dic[c].noHunum || dic[c].hunMissing));
+    const ok = (expected == null || cum === expected) && !dup.length && !missing.length && !undocumented.length;
+    const row = { 기관: pid, 급수: L.name, 예상: expected, 실제: cum, 신출: news.length, 중복: dup, 누락: missing, 훈음없음: noHunum, ok };
+    if (!ok && !quiet) console.error('[validateProviderData] 불일치', row);
+    report.push(row);
+  }
+  if (foreign.length && !quiet) console.error('[validateProviderData] 급수 범위 밖 항목', pid, foreign.slice(0, 20));
+  return { ok: report.every((r) => r.ok) && !foreign.length, levels: report, foreign: foreign.length };
 }
 
 // 대한검정회 선정한자 데이터 검증: 급수별 누적 개수(공식) · 중복 · 누락(사전/훈음) · 기관 혼입

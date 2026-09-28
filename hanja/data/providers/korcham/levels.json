@@ -6,11 +6,11 @@
    "name": "9급",
    "order": 0,
    "category": "등록",
-   "readCount": null,
+   "readCount": 50,
+   "newCount": 50,
    "writeCount": 0,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "dataCount": 50,
+   "hasData": true,
    "exam": {
     "questionCount": 30,
     "sections": {
@@ -26,16 +26,17 @@
     "fullScore": 140,
     "timeMin": 30,
     "passRule": "60% 이상 득점",
+    "passTotalRatio": 0.6,
+    "passSectionMin": 0,
+    "passCount": null,
     "format": "CBT 객관식",
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "급수별 배정한자 공식 자료 확인 필요 (공식 '배정한자 (1~ 9급).zip', 이 환경에서 다운로드 불가)"
-   ],
+   "notes": [],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -44,11 +45,11 @@
    "name": "8급",
    "order": 1,
    "category": "등록",
-   "readCount": null,
+   "readCount": 150,
+   "newCount": 100,
    "writeCount": 0,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "dataCount": 150,
+   "hasData": true,
    "exam": {
     "questionCount": 50,
     "sections": {
@@ -64,16 +65,17 @@
     "fullScore": 250,
     "timeMin": 30,
     "passRule": "60% 이상 득점",
+    "passTotalRatio": 0.6,
+    "passSectionMin": 0,
+    "passCount": null,
     "format": "CBT 객관식",
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "급수별 배정한자 공식 자료 확인 필요 (공식 '배정한자 (1~ 9급).zip', 이 환경에서 다운로드 불가)"
-   ],
+   "notes": [],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -82,11 +84,11 @@
    "name": "7급",
    "order": 2,
    "category": "등록",
-   "readCount": null,
+   "readCount": 300,
+   "newCount": 150,
    "writeCount": 0,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "dataCount": 300,
+   "hasData": true,
    "exam": {
     "questionCount": 70,
     "sections": {
@@ -102,16 +104,17 @@
     "fullScore": 360,
     "timeMin": 40,
     "passRule": "60% 이상 득점",
+    "passTotalRatio": 0.6,
+    "passSectionMin": 0,
+    "passCount": null,
     "format": "CBT 객관식",
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "급수별 배정한자 공식 자료 확인 필요 (공식 '배정한자 (1~ 9급).zip', 이 환경에서 다운로드 불가)"
-   ],
+   "notes": [],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -120,11 +123,11 @@
    "name": "6급",
    "order": 3,
    "category": "등록",
-   "readCount": null,
+   "readCount": 450,
+   "newCount": 150,
    "writeCount": 0,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "dataCount": 450,
+   "hasData": true,
    "exam": {
     "questionCount": 90,
     "sections": {
@@ -140,16 +143,17 @@
     "fullScore": 480,
     "timeMin": 40,
     "passRule": "60% 이상 득점",
+    "passTotalRatio": 0.6,
+    "passSectionMin": 0,
+    "passCount": null,
     "format": "CBT 객관식",
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "급수별 배정한자 공식 자료 확인 필요 (공식 '배정한자 (1~ 9급).zip', 이 환경에서 다운로드 불가)"
-   ],
+   "notes": [],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -158,11 +162,11 @@
    "name": "5급",
    "order": 4,
    "category": "등록",
-   "readCount": null,
+   "readCount": 600,
+   "newCount": 150,
    "writeCount": 0,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "dataCount": 600,
+   "hasData": true,
    "exam": {
     "questionCount": 100,
     "sections": {
@@ -178,16 +182,17 @@
     "fullScore": 580,
     "timeMin": 60,
     "passRule": "70% 이상 득점",
+    "passTotalRatio": 0.7,
+    "passSectionMin": 0,
+    "passCount": null,
     "format": "CBT 객관식",
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "급수별 배정한자 공식 자료 확인 필요 (공식 '배정한자 (1~ 9급).zip', 이 환경에서 다운로드 불가)"
-   ],
+   "notes": [],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -196,11 +201,11 @@
    "name": "4급",
    "order": 5,
    "category": "등록",
-   "readCount": null,
+   "readCount": 900,
+   "newCount": 300,
    "writeCount": 0,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "dataCount": 900,
+   "hasData": true,
    "exam": {
     "questionCount": 110,
     "sections": {
@@ -216,16 +221,17 @@
     "fullScore": 650,
     "timeMin": 60,
     "passRule": "70% 이상 득점",
+    "passTotalRatio": 0.7,
+    "passSectionMin": 0,
+    "passCount": null,
     "format": "CBT 객관식",
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "급수별 배정한자 공식 자료 확인 필요 (공식 '배정한자 (1~ 9급).zip', 이 환경에서 다운로드 불가)"
-   ],
+   "notes": [],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -234,11 +240,11 @@
    "name": "3급",
    "order": 6,
    "category": "공인",
-   "readCount": null,
+   "readCount": 1800,
+   "newCount": 900,
    "writeCount": 0,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "dataCount": 1800,
+   "hasData": true,
    "exam": {
     "questionCount": 120,
     "sections": {
@@ -254,16 +260,17 @@
     "fullScore": 720,
     "timeMin": 60,
     "passRule": "전과목 60% 이상 + 만점의 80% 이상",
+    "passTotalRatio": 0.8,
+    "passSectionMin": 0.6,
+    "passCount": null,
     "format": "CBT 객관식",
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "급수별 배정한자 공식 자료 확인 필요 (공식 '배정한자 (1~ 9급).zip', 이 환경에서 다운로드 불가)"
-   ],
+   "notes": [],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -272,11 +279,11 @@
    "name": "2급",
    "order": 7,
    "category": "공인",
-   "readCount": null,
+   "readCount": 3301,
+   "newCount": 1501,
    "writeCount": 0,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "dataCount": 3301,
+   "hasData": true,
    "exam": {
     "questionCount": 130,
     "sections": {
@@ -292,16 +299,19 @@
     "fullScore": 760,
     "timeMin": 80,
     "passRule": "전과목 60% 이상 + 만점의 80% 이상",
+    "passTotalRatio": 0.8,
+    "passSectionMin": 0.6,
+    "passCount": null,
     "format": "CBT 객관식",
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
    "notes": [
-    "급수별 배정한자 공식 자료 확인 필요 (공식 '배정한자 (1~ 9급).zip', 이 환경에서 다운로드 불가)"
+    "1·2급 배정한자 = KS X 1001 한자 2,824자 + 대법원 인명용 한자 284자(공식 표 머리글)."
    ],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -310,11 +320,11 @@
    "name": "1급",
    "order": 8,
    "category": "공인",
-   "readCount": null,
+   "readCount": 4908,
+   "newCount": 1607,
    "writeCount": 0,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "dataCount": 4908,
+   "hasData": true,
    "exam": {
     "questionCount": 150,
     "sections": {
@@ -330,17 +340,21 @@
     "fullScore": 900,
     "timeMin": 80,
     "passRule": "전과목 60% 이상 + 만점의 90% 이상",
+    "passTotalRatio": 0.9,
+    "passSectionMin": 0.6,
+    "passCount": null,
     "format": "CBT 객관식",
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
    "notes": [
-    "급수별 배정한자 공식 자료 확인 필요 (공식 '배정한자 (1~ 9급).zip', 이 환경에서 다운로드 불가)",
-    "공식 FAQ: 1급 응시자는 1~9급 누적 약 4,908자 학습 필요, 1급 배정은 1,607자"
+    "공식: 1급 응시자는 1~9급 누적 4,908자 학습 필요(1급 신규 배정 1,607자).",
+    "1·2급 배정한자 = KS X 1001 한자 2,824자 + 대법원 인명용 한자 284자(공식 표 머리글).",
+    "공식 배정한자 파일에는 훈음이 없어 공통 사전·대법원 인명용 한자 조회 기준으로 표시. 뜻(훈)이 공식·공공 자료에 없는 33자는 음만 표시하고 훈음 문항에서 제외: 跭㯳䤥䏧𣃽㛦𢻠𪊭䪸䃉𩔉𩠻㠘𥜽貹䨭䳠㜣暚琟䦞㒚𤨒𥌾䚾𩓞𩇕皗䑐琗𡽜䡣𠘕"
    ],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   }

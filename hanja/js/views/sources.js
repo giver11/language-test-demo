@@ -15,7 +15,7 @@ export default async function (view) {
       <div class="small">시행 근거: ${esc(p.operatingSource)}</div>
       <div class="small">기출문제: ${esc(p.pastExamPolicy)} <a href="${esc(p.pastExamUrl)}" target="_blank" rel="noopener">공식 기출문제 보기 ↗</a></div>
       <div class="table-wrap" style="margin-top:10px"><table><thead><tr><th>급수</th><th>배정(공식 표기)</th><th>앱 등록</th><th>문항</th><th>시간</th><th>합격기준</th><th>상태</th></tr></thead><tbody>
-        ${lv.levels.map((l) => `<tr><td>${esc(l.name)}</td><td>${l.readCount ? l.readCount.toLocaleString() : '확인 필요'}${l.writeCount ? ` / 쓰기 ${l.writeCount.toLocaleString()}` : ''}</td><td>${l.dataCount ? l.dataCount.toLocaleString() : 0}자</td>
+        ${lv.levels.map((l) => `<tr><td>${esc(l.name)}</td><td>${l.selectedCount ? `선정 ${l.selectedCount.toLocaleString()} · 평가 ` : ''}${l.readCount ? l.readCount.toLocaleString() : (l.scopeFrom ? '별도 없음(공식)' : '확인 필요')}${l.writeCount ? ` / 쓰기 ${l.writeCount.toLocaleString()}` : ''}</td><td>${l.dataCount ? l.dataCount.toLocaleString() : 0}자</td>
           <td>${l.exam.questionCount != null ? l.exam.questionCount : '-'}</td><td>${l.exam.timeMin ? l.exam.timeMin + '분' : '-'}</td><td class="small">${esc(l.exam.passRule || '-')}</td><td>${statusBadge(l.hasData ? l.status.hanja : 'missing')}</td></tr>`).join('')}
       </tbody></table></div>
       ${p.id === 'daehan' ? daehanFooter() : ''}

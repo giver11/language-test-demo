@@ -20,7 +20,8 @@ const TYPE_POOL = {
 const SUBSTITUTE = { 장단음: '독음', 약자: '훈음' };
 const RUN_KEY = 'hanjaPass.mockRun';
 
-function compose(bank, dist, scale = 1) {
+function compose(bank, dist, scale = 1, pools = null) {
+  const poolOf = (k) => (pools && pools[k]) || TYPE_POOL[k] || [];
   const byType = {};
   for (const q of bank.questions) (byType[q.type] = byType[q.type] || []).push(q);
   for (const k of Object.keys(byType)) byType[k] = shuffle(byType[k]);
@@ -42,11 +43,11 @@ function compose(bank, dist, scale = 1) {
     if (!cnt) continue;
     let k = key;
     if (SUBSTITUTE[key]) { notes.push(`${key} ${cnt}문항 → ${SUBSTITUTE[key]} 문항으로 대체 (${key} 데이터 미확보)`); k = SUBSTITUTE[key]; }
-    let got = take(TYPE_POOL[k] || [], cnt);
+    let got = take(poolOf(k), cnt);
     if (got.length < cnt) {
       const need = cnt - got.length;
       notes.push(`${key} ${need}문항 부족 → 독음·훈음 문항으로 채움`);
-      got = got.concat(take([...TYPE_POOL['독음'], ...TYPE_POOL['훈음']], need));
+      got = got.concat(take([...TYPE_POOL['독음'], ...TYPE_POOL['훈음'], ...Object.values(pools || {}).flat()], need));
     }
     plan.push(...got.map((q) => ({ ...q, section: key })));
   }
@@ -75,9 +76,13 @@ export default async function (view, { ctx: c, args, params }) {
     formatHtml = `<div class="table-wrap"><table><thead><tr><th>영역(앱 구성)</th><th>문항</th></tr></thead><tbody>${Object.entries(dist).filter(([, v]) => v).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${Math.round(v * sc)}</td></tr>`).join('')}</tbody></table></div>
       <p class="tiny">공식 문항 수·시간·합격 기준은 공식 시험안내 기준, 영역별 배분은 앱 구성입니다. ${statusBadge(et.status)}</p>`;
   } else if (c.pid === 'korcham') {
-    formatHtml = `<div class="table-wrap"><table><thead><tr><th>영역</th><th>문항</th><th>배점</th></tr></thead><tbody>${Object.entries(ex.sections || {}).map(([k, v]) => `<tr><td>${k}</td><td>${v}</td><td>${ex.points[k]}점</td></tr>`).join('')}</tbody></table></div>`;
+    formatHtml = `<div class="table-wrap"><table><thead><tr><th>영역</th><th>문항</th><th>배점</th></tr></thead><tbody>${Object.entries(ex.sections || {}).map(([k, v]) => `<tr><td>${k}</td><td>${v}</td><td>${ex.points[k]}점</td></tr>`).join('')}</tbody></table></div>
+      <p class="tiny">만점 ${ex.fullScore}점 · ${esc(ex.passRule || '')} (공식). 영역 안 세부 유형은 앱 구성입니다.</p>`;
   } else if (c.pid === 'jinheung') {
-    formatHtml = `<div class="table-wrap"><table><tbody><tr><th>총 문항</th><td>${ex.questionCount}</td></tr><tr><th>주관식</th><td>${ex.subjective} (한자쓰기 ${ex.writing})</td></tr><tr><th>객관식</th><td>${ex.objective}</td></tr><tr><th>배점/만점</th><td>${ex.pointEach} / ${ex.fullScore}</td></tr></tbody></table></div>`;
+    const dist = (et && et.levels && et.levels[c.lid]) || {};
+    formatHtml = `<div class="table-wrap"><table><tbody><tr><th>총 문항</th><td>${ex.questionCount}</td></tr><tr><th>주관식</th><td>${ex.subjective} (한자쓰기 ${ex.writing})</td></tr><tr><th>객관식</th><td>${ex.objective}</td></tr><tr><th>배점/만점</th><td>${ex.pointEach} / ${ex.fullScore}</td></tr></tbody></table></div>
+      ${Object.keys(dist).length ? `<div class="table-wrap" style="margin-top:8px"><table><thead><tr><th>출제 영역(공식 비율 환산)</th><th>문항</th></tr></thead><tbody>${Object.entries(dist).filter(([, v]) => v).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${v}</td></tr>`).join('')}</tbody></table></div>
+      <p class="tiny">${esc((et && et.statusNote) || '')}</p>` : ''}`;
   }
   view.innerHTML = `
     <h1>모의시험</h1>
@@ -110,9 +115,10 @@ export default async function (view, { ctx: c, args, params }) {
     const dist = et.levels[c.lid];
     const mini = b.dataset.start === 'mini';
     const base = L.exam && L.exam.questionCount && ex.questionCount ? ex.questionCount / L.exam.questionCount : 1;
-    const { questions, notes } = compose(bank, dist, (mini ? 0.2 : 1) * base);
+    const { questions, notes } = compose(bank, dist, (mini ? 0.2 : 1) * base, et && et.pools);
+    const scoring = ex.points ? { points: ex.points, passTotalRatio: ex.passTotalRatio, passSectionMin: ex.passSectionMin } : null;
     const runState = { pid: c.pid, lid: c.lid, mini, examMode: ex.examMode || 'offline', start: Date.now(), timeMin: mini ? Math.max(5, Math.round(ex.timeMin / 5)) : ex.timeMin,
-      passCount: mini ? Math.ceil((ex.passCount * questions.length) / ex.questionCount) : ex.passCount, officialPass: ex.passCount, officialTotal: ex.questionCount,
+      passCount: ex.passCount == null ? null : mini ? Math.ceil((ex.passCount * questions.length) / ex.questionCount) : ex.passCount, officialPass: ex.passCount, officialTotal: ex.questionCount, scoring, passRule: ex.passRule,
       questions, answers: {}, notes, cur: 0 };
     saveRun(runState);
     location.hash = '#/mock/run';
@@ -186,8 +192,19 @@ async function run(view, c) {
       if (q.type === 'write' && a && a.verdict) S.recordWriting(c.pid, q.answer, a.verdict === 'good' ? 'good' : a.verdict === 'near' ? 'near' : 'retry');
     });
     const total = R.questions.length;
+    // 대한상공회의소: 영역별 배점(한자4·어휘6·독해8) 합산 + 전체 득점 비율 + 과목별 최소 비율(공식 합격기준)
+    let score = null, fullScore = null, weightedPass = null;
+    if (R.scoring) {
+      score = 0; fullScore = 0; weightedPass = true;
+      for (const [sec, v] of Object.entries(byType)) {
+        const pt = R.scoring.points[sec] || 0;
+        score += v.c * pt; fullScore += v.a * pt;
+        if (R.scoring.passSectionMin && v.a && v.c / v.a < R.scoring.passSectionMin) weightedPass = false;
+      }
+      if (!fullScore || score / fullScore < R.scoring.passTotalRatio) weightedPass = false;
+    }
     const rec = { t: Date.now(), level: R.lid, mini: R.mini, total, correct, wrong: total - correct, pct: Math.round((correct * 100) / total), passCount: R.passCount,
-      pass: correct >= R.passCount, officialPass: R.officialPass, officialTotal: R.officialTotal, byType, weak, weakWrite, weakIdiom, notes: R.notes,
+      pass: weightedPass != null ? weightedPass : correct >= R.passCount, score, fullScore, passRule: R.passRule, officialPass: R.officialPass, officialTotal: R.officialTotal, byType, weak, weakWrite, weakIdiom, notes: R.notes,
       usedSec: Math.round((Date.now() - R.start) / 1000) };
     c.p.mocks.push(rec);
     S.markStudy('mock', 20);
@@ -209,11 +226,11 @@ async function showResult(view, c, i) {
   view.innerHTML = `
     <h1>모의시험 결과</h1>
     <p class="sub">${esc(c.provider.name)} ${esc((c.levels.find((l) => l.id === m.level) || {}).name || '')} ${m.mini ? '· 미니(1/5 축소)' : ''} · ${new Date(m.t).toLocaleString('ko-KR')}</p>
-    <div class="card center"><div class="small">총점 (정답 문항)</div><div class="cmp-num" style="font-size:44px">${m.correct} / ${m.total}</div><div>정답률 <b>${m.pct}%</b> · 정답 ${m.correct} · 오답 ${m.wrong} · 소요 ${Math.floor(m.usedSec / 60)}분</div></div>
-    <div class="notice ${m.pass ? 'ok' : 'bad'}">${m.pass
+    <div class="card center"><div class="small">총점 (정답 문항)</div><div class="cmp-num" style="font-size:44px">${m.correct} / ${m.total}</div><div>정답률 <b>${m.pct}%</b> · 정답 ${m.correct} · 오답 ${m.wrong} · 소요 ${Math.floor(m.usedSec / 60)}분</div>${m.score != null ? `<div style="margin-top:6px">배점 합산 <b>${m.score}</b> / ${m.fullScore}점 (${Math.round((m.score * 100) / (m.fullScore || 1))}%)</div>` : ''}</div>
+    ${m.score != null ? `<div class="notice ${m.pass ? 'ok' : 'bad'}">${m.pass ? '공식 합격 기준을 충족합니다' : '공식 합격 기준에 미달해요'} — ${esc(m.passRule || '')}<div class="tiny">영역별 배점과 과목별 최소 득점률로 판정했어요. 모의시험 결과는 실제 시험 합격을 보장하지 않습니다.</div></div>` : `<div class="notice ${m.pass ? 'ok' : 'bad'}">${m.pass
       ? `현재 모의시험 결과가 공식 합격 기준(${m.mini ? `축소 환산 ${m.passCount}/${m.total}, 공식 ${m.officialPass}/${m.officialTotal}` : `${m.officialTotal}문항 중 ${m.officialPass}문항 이상`})을 충족합니다.`
       : `공식 합격 기준(${m.mini ? `축소 환산 ${m.passCount}/${m.total}` : `${m.officialTotal}문항 중 ${m.officialPass}문항`})까지 ${m.passCount - m.correct}문항이 부족해요.`}
-      <div class="tiny">모의시험 결과는 실제 시험 합격을 보장하지 않습니다.</div></div>
+      <div class="tiny">모의시험 결과는 실제 시험 합격을 보장하지 않습니다.</div></div>`}
     ${m.notes && m.notes.length ? `<div class="notice info">${m.notes.map(esc).join('<br>')}</div>` : ''}
     <h3>유형별 정답률</h3>
     <div class="table-wrap"><table><thead><tr><th>유형</th><th>정답</th><th>정답률</th></tr></thead><tbody>${Object.entries(m.byType).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${v.c}/${v.a}</td><td>${Math.round((v.c * 100) / v.a)}%</td></tr>`).join('')}</tbody></table></div>

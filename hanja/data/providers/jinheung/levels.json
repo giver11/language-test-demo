@@ -7,10 +7,14 @@
    "order": 0,
    "category": "등록",
    "readCount": 50,
+   "selectedCount": 30,
+   "officialFileCount": 30,
+   "wordsLabel": "20자",
+   "wordsOfficial": 13,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 30,
+   "dataCount": 30,
+   "hasData": true,
    "exam": {
     "questionCount": 50,
     "subjective": 20,
@@ -19,18 +23,16 @@
     "pointEach": 2,
     "fullScore": 100,
     "timeMin": 60,
-    "passCount": null,
-    "passRule": "만점의 70% 이상",
+    "passCount": 35,
+    "passRule": "만점(100점)의 70% 이상",
     "passRatio": 0.7,
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
-   ],
+   "notes": [],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -40,10 +42,14 @@
    "order": 1,
    "category": "등록",
    "readCount": 120,
+   "selectedCount": 50,
+   "officialFileCount": 50,
+   "wordsLabel": "70자",
+   "wordsOfficial": 43,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 20,
+   "dataCount": 50,
+   "hasData": true,
    "exam": {
     "questionCount": 50,
     "subjective": 20,
@@ -52,18 +58,16 @@
     "pointEach": 2,
     "fullScore": 100,
     "timeMin": 60,
-    "passCount": null,
-    "passRule": "만점의 70% 이상",
+    "passCount": 35,
+    "passRule": "만점(100점)의 70% 이상",
     "passRatio": 0.7,
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
-   ],
+   "notes": [],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -73,10 +77,14 @@
    "order": 2,
    "category": "등록",
    "readCount": 170,
+   "selectedCount": 70,
+   "officialFileCount": 70,
+   "wordsLabel": "100자",
+   "wordsOfficial": 62,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 20,
+   "dataCount": 70,
+   "hasData": true,
    "exam": {
     "questionCount": 80,
     "subjective": 50,
@@ -85,18 +93,16 @@
     "pointEach": 1.25,
     "fullScore": 100,
     "timeMin": 60,
-    "passCount": null,
-    "passRule": "만점의 70% 이상",
+    "passCount": 56,
+    "passRule": "만점(100점)의 70% 이상",
     "passRatio": 0.7,
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
-   ],
+   "notes": [],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -106,10 +112,14 @@
    "order": 3,
    "category": "등록",
    "readCount": 250,
+   "selectedCount": 150,
+   "officialFileCount": 151,
+   "wordsLabel": "100자",
+   "wordsOfficial": 62,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 81,
+   "dataCount": 151,
+   "hasData": true,
    "exam": {
     "questionCount": 100,
     "subjective": 70,
@@ -118,18 +128,18 @@
     "pointEach": 1,
     "fullScore": 100,
     "timeMin": 60,
-    "passCount": null,
-    "passRule": "만점의 70% 이상",
+    "passCount": 70,
+    "passRule": "만점(100점)의 70% 이상",
     "passRatio": 0.7,
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
    "notes": [
-    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
+    "공식 파일(급수별선정한자.hwp) 누적 151자 · 급수표 표기 150자 — 공식 파일의 준5급 신출이 81자(표기 80자)여서 1자 차이. 원문 그대로 반영."
    ],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -139,10 +149,14 @@
    "order": 4,
    "category": "등록",
    "readCount": 450,
+   "selectedCount": 300,
+   "officialFileCount": 301,
+   "wordsLabel": "150자",
+   "wordsOfficial": 117,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 150,
+   "dataCount": 301,
+   "hasData": true,
    "exam": {
     "questionCount": 100,
     "subjective": 70,
@@ -151,18 +165,18 @@
     "pointEach": 1,
     "fullScore": 100,
     "timeMin": 60,
-    "passCount": null,
-    "passRule": "만점의 70% 이상",
+    "passCount": 70,
+    "passRule": "만점(100점)의 70% 이상",
     "passRatio": 0.7,
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
    "notes": [
-    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
+    "공식 파일(급수별선정한자.hwp) 누적 301자 · 급수표 표기 300자 — 공식 파일의 준5급 신출이 81자(표기 80자)여서 1자 차이. 원문 그대로 반영."
    ],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -172,10 +186,14 @@
    "order": 5,
    "category": "등록",
    "readCount": 700,
+   "selectedCount": 500,
+   "officialFileCount": 501,
+   "wordsLabel": "200자",
+   "wordsOfficial": 139,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 200,
+   "dataCount": 501,
+   "hasData": true,
    "exam": {
     "questionCount": 100,
     "subjective": 70,
@@ -184,18 +202,18 @@
     "pointEach": 1,
     "fullScore": 100,
     "timeMin": 60,
-    "passCount": null,
-    "passRule": "만점의 70% 이상",
+    "passCount": 70,
+    "passRule": "만점(100점)의 70% 이상",
     "passRatio": 0.7,
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
    "notes": [
-    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
+    "공식 파일(급수별선정한자.hwp) 누적 501자 · 급수표 표기 500자 — 공식 파일의 준5급 신출이 81자(표기 80자)여서 1자 차이. 원문 그대로 반영."
    ],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -205,10 +223,14 @@
    "order": 6,
    "category": "등록",
    "readCount": 900,
+   "selectedCount": 700,
+   "officialFileCount": 701,
+   "wordsLabel": "200자",
+   "wordsOfficial": 154,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 200,
+   "dataCount": 701,
+   "hasData": true,
    "exam": {
     "questionCount": 100,
     "subjective": 70,
@@ -217,18 +239,18 @@
     "pointEach": 1,
     "fullScore": 100,
     "timeMin": 60,
-    "passCount": null,
-    "passRule": "만점의 70% 이상",
+    "passCount": 70,
+    "passRule": "만점(100점)의 70% 이상",
     "passRatio": 0.7,
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
    "notes": [
-    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
+    "공식 파일(급수별선정한자.hwp) 누적 701자 · 급수표 표기 700자 — 공식 파일의 준5급 신출이 81자(표기 80자)여서 1자 차이. 원문 그대로 반영."
    ],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -238,10 +260,14 @@
    "order": 7,
    "category": "등록",
    "readCount": 1350,
+   "selectedCount": 1000,
+   "officialFileCount": 1001,
+   "wordsLabel": "350자",
+   "wordsOfficial": 305,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 300,
+   "dataCount": 1001,
+   "hasData": true,
    "exam": {
     "questionCount": 100,
     "subjective": 70,
@@ -250,19 +276,19 @@
     "pointEach": 1,
     "fullScore": 100,
     "timeMin": 60,
-    "passCount": null,
-    "passRule": "만점의 70% 이상",
+    "passCount": 70,
+    "passRule": "만점(100점)의 70% 이상",
     "passRatio": 0.7,
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
    "notes": [
-    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)",
-    "공식 다운로드 목록 표기: 선정한자 1,000자 + 교과서한자어 350 (급수표 합계 1,350)"
+    "공식 다운로드 목록 표기: 선정한자 1,000자 + 교과서한자어 350 (급수표 합계 1,350)",
+    "공식 파일(급수별선정한자.hwp) 누적 1001자 · 급수표 표기 1000자 — 공식 파일의 준5급 신출이 81자(표기 80자)여서 1자 차이. 원문 그대로 반영."
    ],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -272,10 +298,14 @@
    "order": 8,
    "category": "공인",
    "readCount": 1800,
+   "selectedCount": 1300,
+   "officialFileCount": 1301,
+   "wordsLabel": "500자",
+   "wordsOfficial": 436,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 300,
+   "dataCount": 1301,
+   "hasData": true,
    "exam": {
     "questionCount": 100,
     "subjective": 70,
@@ -284,19 +314,19 @@
     "pointEach": 2,
     "fullScore": 200,
     "timeMin": 60,
-    "passCount": null,
-    "passRule": "만점의 70% 이상",
+    "passCount": 70,
+    "passRule": "만점(200점)의 70% 이상",
     "passRatio": 0.7,
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
    "notes": [
-    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)",
-    "공식 다운로드 목록 표기: 선정한자 1,300자 + 교과서한자어 500 (급수표 합계 1,800)"
+    "공식 다운로드 목록 표기: 선정한자 1,300자 + 교과서한자어 500 (급수표 합계 1,800)",
+    "공식 파일(급수별선정한자.hwp) 누적 1301자 · 급수표 표기 1300자 — 공식 파일의 준5급 신출이 81자(표기 80자)여서 1자 차이. 원문 그대로 반영."
    ],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -306,10 +336,14 @@
    "order": 9,
    "category": "공인",
    "readCount": 2300,
+   "selectedCount": 2300,
+   "officialFileCount": 2301,
+   "wordsLabel": "500단어",
+   "wordsOfficial": 496,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 1000,
+   "dataCount": 2301,
+   "hasData": true,
    "exam": {
     "questionCount": 100,
     "subjective": 70,
@@ -318,18 +352,19 @@
     "pointEach": 2,
     "fullScore": 200,
     "timeMin": 60,
-    "passCount": null,
-    "passRule": "만점의 70% 이상",
+    "passCount": 70,
+    "passRule": "만점(200점)의 70% 이상",
     "passRatio": 0.7,
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
    "notes": [
-    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
+    "공식 파일(급수별선정한자.hwp) 누적 2301자 · 급수표 표기 2300자 — 공식 파일의 준5급 신출이 81자(표기 80자)여서 1자 차이. 원문 그대로 반영.",
+    "직업분야별 실용한자어 500단어는 선정한자 수에 포함(공식)."
    ],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -339,10 +374,14 @@
    "order": 10,
    "category": "공인",
    "readCount": 3500,
+   "selectedCount": 3500,
+   "officialFileCount": 3501,
+   "wordsLabel": "500단어",
+   "wordsOfficial": 480,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 1200,
+   "dataCount": 3501,
+   "hasData": true,
    "exam": {
     "questionCount": 150,
     "subjective": 100,
@@ -351,18 +390,19 @@
     "pointEach": 2,
     "fullScore": 300,
     "timeMin": 80,
-    "passCount": null,
-    "passRule": "만점의 70% 이상",
+    "passCount": 105,
+    "passRule": "만점(300점)의 70% 이상",
     "passRatio": 0.7,
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
    "notes": [
-    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
+    "공식 파일(급수별선정한자.hwp) 누적 3501자 · 급수표 표기 3500자 — 공식 파일의 준5급 신출이 81자(표기 80자)여서 1자 차이. 원문 그대로 반영.",
+    "직업분야별 실용한자어 500단어는 선정한자 수에 포함(공식)."
    ],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   },
@@ -372,10 +412,14 @@
    "order": 11,
    "category": "공인",
    "readCount": 5000,
+   "selectedCount": 5000,
+   "officialFileCount": 5001,
+   "wordsLabel": null,
+   "wordsOfficial": 0,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 1500,
+   "dataCount": 5001,
+   "hasData": true,
    "exam": {
     "questionCount": 200,
     "subjective": 150,
@@ -384,23 +428,26 @@
     "pointEach": 2,
     "fullScore": 400,
     "timeMin": 120,
-    "passCount": null,
-    "passRule": "만점의 80% 이상",
+    "passCount": 160,
+    "passRule": "만점(400점)의 80% 이상",
     "passRatio": 0.8,
-    "mockSupported": false,
-    "mockBlockedReason": "배정한자 데이터 없음"
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
    "notes": [
-    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
+    "공식 파일(급수별선정한자.hwp) 누적 5001자 · 급수표 표기 5000자 — 공식 파일의 준5급 신출이 81자(표기 80자)여서 1자 차이. 원문 그대로 반영.",
+    "사범: 사서삼경·명심보감·고문진보·한시에서 널리 통용되는 문장이 출제(공식)."
    ],
    "status": {
     "levels": "official",
-    "hanja": "missing",
+    "hanja": "official",
     "examFormat": "official"
    }
   }
  ],
  "testTime": "매회 전 급수(사범~8급) 오후 3시",
+ "countRule": "평가한자(readCount) = 선정한자(selectedCount) + 교과서 한자어에 새로 나오는 한자 수(3급 이하) / 1·2급은 실용한자어 500단어가 선정한자 수에 포함 (공식 examGrade.do)",
+ "writeRule": "한자쓰기 문항 범위는 공식 별도 목록이 없어 해당 급수 누적 선정한자로 연습(앱 구성).",
  "sourceRefs": [
   "https://www.hanja114.org/common/intro/examInfoList.do",
   "https://web.hanja114.org/common/intro/exam.do",

@@ -213,6 +213,40 @@ async def run_width(browser, W):
       return {w1: w1.length, w52: w52.length, has級: w52.includes('級'), has急: w52.includes('急'), s2: s2.length, glyph: lv.readCountGlyph, hee: s2.includes('熙'), heeOld: s2.includes('煕')}; }""")
     rec(f'{T} D11c', '한국어문회 공식 대조(1급 쓰기 2,005 · 5급Ⅱ 級 · 특급Ⅱ 4,650 · 熙)', r['w1'] == 2005 and r['w52'] == 225 and r['has級'] and not r['has急'] and r['s2'] == 4650 == r['glyph'] and r['hee'] and not r['heeOld'], str(r))
 
+    # 12a. 한자교육진흥회: 공식 선정한자(준5급 신출 81 · 누적 151), 공식 훈음, 영역별 모의시험
+    await choose(pg, 'jinheung', '5-j')
+    await pg.goto(BASE + '#/hanja?tab=all'); await pg.wait_for_selector('.hcell')
+    jt = await pg.eval_on_selector_all('.tabs button', 'els => els.map(e => e.textContent)')
+    jsub = await pg.inner_text('.sub')
+    await pg.goto(BASE + '#/quiz'); await pg.wait_for_selector('[data-start]')
+    jq = await pg.inner_text('#view')
+    await pg.goto(BASE + '#/mock'); await pg.wait_for_selector('[data-start=mini]')
+    jm = await pg.inner_text('#view')
+    await pg.click('[data-start=mini]'); await pg.wait_for_selector('.qhost .choice, .qhost .pad canvas')
+    jrun = await pg.evaluate("() => JSON.parse(localStorage.getItem('hanjaPass.mockRun'))")
+    await pg.click('[data-submit]'); await pg.click('[data-yes]'); await pg.wait_for_selector('h1:has-text("모의시험 결과")')
+    jv = await pg.evaluate("async () => { const D = await import('./js/data.js'); return D.validateProviderData('jinheung', {quiet:true}); }")
+    rec(f'{T} D12a', '한자교육진흥회 공식 데이터·문제·모의시험', any('이번 급수 신출 81' in t for t in jt) and any('누적 전체 151' in t for t in jt) and '선정한자 150자(평가한자 250자)' in jsub
+        and '문제은행 구성' in jq and '선정한자·훈음' in jm and len(jrun['questions']) >= 15 and jv['ok'], f"{jt[:2]} · 미니 {len(jrun['questions'])}문항 · 검증 {jv['ok']}")
+
+    # 12b. 대한상공회의소: 공식 배정한자(1급 누적 4,908), 배점 합산 채점
+    await choose(pg, 'korcham', '1')
+    await pg.goto(BASE + '#/hanja?tab=all'); await pg.wait_for_selector('.hcell')
+    kt = await pg.eval_on_selector_all('.tabs button', 'els => els.map(e => e.textContent)')
+    await pg.goto(BASE + '#/mock'); await pg.wait_for_selector('[data-start=mini]')
+    await pg.click('[data-start=mini]'); await pg.wait_for_selector('.qhost .choice')
+    for _ in range(6):
+        await pg.click('.qhost .choice >> nth=0'); await pg.wait_for_timeout(80)
+        nx = await pg.query_selector('[data-next]')
+        if nx: await nx.click(); await pg.wait_for_timeout(80)
+    await pg.click('[data-submit]'); await pg.click('[data-yes]'); await pg.wait_for_selector('h1:has-text("모의시험 결과")')
+    kr = await pg.inner_text('#view')
+    kv = await pg.evaluate("async () => { const D = await import('./js/data.js'); return D.validateProviderData('korcham', {quiet:true}); }")
+    await pg.goto(BASE + '#/search?q=' + '跭'); await pg.wait_for_selector('.srow')
+    ks = await pg.inner_text('.srow')
+    rec(f'{T} D12b', '대한상공회의소 공식 배정한자·배점 채점·훈 없음 표시', any('이번 급수 신출 1607' in t for t in kt) and any('누적 전체 4908' in t for t in kt) and '배점 합산' in kr and '점' in kr and kv['ok'] and '뜻 자료 없음' in ks,
+        f"{kt[:2]} · 검색 {ks.splitlines()[1] if len(ks.splitlines())>1 else ks}")
+
     # 12. 타 기관 회귀
     ok12, det12 = True, []
     for pid in ['eomunhoe', 'jinheung', 'korcham']:

@@ -321,8 +321,30 @@ for c, l, h, e in (JH_LIST if M.PHASE2 else []):
     _added["jinheung"] += 1
 for c, l, h, e in (JH_LIST if M.PHASE2 else []):
     dict_chars[c]["jh"] = JH_HUNUM[c]
+SCOURT = {}
+def _scourt_pairs(eums, info):
+    pairs = []
+    for h, e in re.findall(r"([가-힣]+)\(([가-힣/]+)\)", info):
+        e = e.split("/")[0]
+        if [h, e] not in pairs:
+            pairs.append([h, e])
+    return pairs or [["", eums.split(",")[0]]]
+for fn, src in (("korcham_hunum_scourt.txt", "scourt-inmyung"), ("korcham_hunum_scourt_ext.txt", "scourt-ext")):
+    for line in open(os.path.join(HERE, "src", fn), encoding="utf-8"):
+        if line.startswith("#") or not line.strip():
+            continue
+        parts = line.rstrip("\n").split("|")
+        c, eums, info = nfc(parts[0]), parts[1], nfc(parts[2])
+        SCOURT[c] = (_scourt_pairs(eums, info), src)
 for c, l in (KC_LIST if M.PHASE2 else []):
     if c in dict_chars:
+        continue
+    if c in SCOURT:
+        m, src = SCOURT[c]
+        dict_chars[c] = {"c": c, "id": "U+%04X" % ord(c), "m": m, "r": m[0][1], "rad": None, "st": None, "src": src}
+        if not m[0][0]:
+            dict_chars[c]["hunMissing"] = True
+        _added["korcham"] += 1
         continue
     if c in HUNUM_SUPP:
         m = [HUNUM_SUPP[c]]; src = "supplement"
@@ -330,7 +352,10 @@ for c, l in (KC_LIST if M.PHASE2 else []):
         m = [list(p.rsplit(" ", 1)) if " " in p else ["", p] for p in lh_char[c][:3]]; src = "libhangul"
         m = [x for x in m if x[0]] or m
     else:
-        _kc_nohunum.append(c); continue
+        # 공식·공공 자료 어디에도 훈음이 없는 글자: 사전에는 올리되 훈음 없음 표시 (문항 생성 제외)
+        _kc_nohunum.append(c)
+        dict_chars[c] = {"c": c, "id": "U+%04X" % ord(c), "m": [], "r": "", "rad": None, "st": None, "src": "korcham-official", "noHunum": True}
+        continue
     dict_chars[c] = {"c": c, "id": "U+%04X" % ord(c), "m": m, "r": m[0][1], "rad": None, "st": None, "src": src}
     _added["korcham"] += 1
 print("사전 추가:", dict(_added), "상공회의소 훈음 미확보:", len(_kc_nohunum), "".join(_kc_nohunum))
@@ -392,9 +417,15 @@ print("한자어 후보:", len(words))
 
 HE_PREF = [None]   # 문제 생성 시 기관별 훈음 우선순위 (대한검정회: 공식 훈음 dh)
 def he_list(d):
+    if HE_PREF[0] == "jinheung" and d.get("jh"):
+        return d["jh"]
     if HE_PREF[0] == "daehan" and d.get("dh"):
         return d["dh"]
     return d["m"]
+
+def has_hunum(c):
+    ml = he_list(dict_chars[c])
+    return bool(ml and ml[0][0] and ml[0][1])
 
 def gloss(w):
     parts = []
@@ -669,42 +700,104 @@ dump("providers/daehan/exam-types.json", {"provider": "daehan", "status": "app-c
       "statusNote": "공식 기준: 급수별 총 문항 수·시간·합격 기준(시험안내). 영역별 세부 배분은 공식 공개 자료가 없어 앱 구성(훈음·독음 중심 + 완성형·반의어·동의어·뜻풀이·동음이의어·부수·획수)으로 공식 문항 수에 맞춤.",
       "levels": {l[0]: dh_dist(l[4]) for l in M.DAEHAN_LEVELS}}, compact=False)
 
-# --- 한자교육진흥회
+# --- 한자교육진흥회 (공식 급수별선정한자.hwp + 교과서/실용 한자어)
+JH_ORDER = [l[0] for l in M.JINHEUNG_LEVELS]
+jh_level_of = {c: l for c, l, _h, _e in JH_LIST} if M.PHASE2 else {}
 jh_levels = []
+_cum = 0
 for i, (lid, name, cat, cnt, tm, q, subj, wr, obj, pt, full, pr) in enumerate(M.JINHEUNG_LEVELS):
-    notes = ["급수별 선정한자 목록 " + M.NEEDS + " (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"]
+    new_n = sum(1 for l in jh_level_of.values() if l == lid)
+    _cum += new_n
+    sel = M.JINHEUNG_SELECTED[lid]
+    ok = bool(jh_level_of)
+    notes = []
     if lid in M.JINHEUNG_NOTES:
         notes.append(M.JINHEUNG_NOTES[lid])
-    jh_levels.append({"id": lid, "name": name, "order": i, "category": cat, "readCount": cnt, "writeCount": None,
-                      "newCount": None, "dataCount": 0, "hasData": False,
+    if ok and _cum != sel:
+        notes.append("공식 파일(급수별선정한자.hwp) 누적 %d자 · 급수표 표기 %d자 — 공식 파일의 준5급 신출이 81자(표기 80자)여서 1자 차이. 원문 그대로 반영." % (_cum, sel))
+    if lid in ("1", "2"):
+        notes.append("직업분야별 실용한자어 500단어는 선정한자 수에 포함(공식).")
+    if lid == "sa":
+        notes.append("사범: 사서삼경·명심보감·고문진보·한시에서 널리 통용되는 문장이 출제(공식).")
+    words_off = len(JH_WORDS.get(lid, []))
+    jh_levels.append({"id": lid, "name": name, "order": i, "category": cat, "readCount": cnt, "selectedCount": sel,
+                      "officialFileCount": _cum if ok else None, "wordsLabel": M.JINHEUNG_WORDS_LABEL[lid], "wordsOfficial": words_off,
+                      "writeCount": None, "newCount": new_n if ok else None, "dataCount": _cum if ok else 0, "hasData": ok,
                       "exam": {"questionCount": q, "subjective": subj, "writing": wr, "objective": obj, "pointEach": pt, "fullScore": full,
-                               "timeMin": tm, "passCount": None, "passRule": "만점의 %d%% 이상" % round(pr * 100), "passRatio": pr,
-                               "mockSupported": False, "mockBlockedReason": "배정한자 데이터 없음"},
-                      "notes": notes, "status": {"levels": "official", "hanja": "missing", "examFormat": "official"}})
+                               "timeMin": tm, "passCount": -(-q * int(pr * 100) // 100), "passRule": "만점(%d점)의 %d%% 이상" % (full, round(pr * 100)), "passRatio": pr,
+                               "mockSupported": ok, "mockBlockedReason": None if ok else "배정한자 데이터 없음"},
+                      "notes": notes, "status": {"levels": "official", "hanja": "official" if ok else "missing", "examFormat": "official"}})
 dump("providers/jinheung/levels.json", {"provider": "jinheung", "levels": jh_levels, "testTime": "매회 전 급수(사범~8급) 오후 3시",
+      "countRule": "평가한자(readCount) = 선정한자(selectedCount) + 교과서 한자어에 새로 나오는 한자 수(3급 이하) / 1·2급은 실용한자어 500단어가 선정한자 수에 포함 (공식 examGrade.do)",
+      "writeRule": "한자쓰기 문항 범위는 공식 별도 목록이 없어 해당 급수 누적 선정한자로 연습(앱 구성).",
       "sourceRefs": [s["sourceUrl"] for s in M.SOURCES["jinheung"]]}, compact=False)
-dump("providers/jinheung/hanja-mapping.json", {"provider": "jinheung", "status": "missing", "statusNote": M.NEEDS, "items": []})
-dump("providers/jinheung/exam-types.json", {"provider": "jinheung", "status": "official", "ratio": M.JINHEUNG_TYPE_RATIO}, compact=False)
+dump("providers/jinheung/hanja-mapping.json", {"provider": "jinheung", "status": "official" if jh_level_of else "missing",
+      "statusNote": "한자교육진흥회 공식 「급수별선정한자.hwp」(web.hanja114.org 평가한자 다운로드) 원문 기준 5,001행. 훈음은 공식 파일 기준.",
+      "source": {"sourceName": "한자교육진흥회 급수별 선정한자(HWP)", "sourceUrl": "https://web.hanja114.org/common/intro/examGrade.do", "verifiedAt": M.VERIFIED_AT},
+      "items": [{"c": c, "l": l, "w": l, "src": "official"} for c, l in sorted(jh_level_of.items(), key=lambda x: (JH_ORDER.index(x[1]), x[0]))]})
+def _pct_dist(q, parts):
+    # parts: [(key, pct)] → 합이 q가 되도록 반올림 보정
+    tot = sum(v for _, v in parts) or 1
+    raw = [(k, q * v / tot) for k, v in parts if v]
+    out = {k: int(v) for k, v in raw}
+    rest = q - sum(out.values())
+    for k, v in sorted(raw, key=lambda kv: -(kv[1] - int(kv[1])))[:rest]:
+        out[k] += 1
+    return out
+_JH_GROUP = {"sa": "사범", "1": "1급", "2": "2급~준5급", "3": "2급~준5급", "3-j": "2급~준5급", "4": "2급~준5급", "4-j": "2급~준5급",
+             "5": "2급~준5급", "5-j": "2급~준5급", "6": "6급", "7": "7급·8급", "8": "7급·8급"}
+JH_AREAS = ["선정한자·훈음", "선정한자·독음", "선정한자·쓰기", "선정한자·기타", "한자어·독음", "한자어·용어뜻", "한자어·쓰기", "한자어·기타"]
+JH_POOLS = {"선정한자·훈음": ["hunum", "hunum-rev"], "선정한자·독음": ["reading-char"], "선정한자·쓰기": ["write"],
+            "선정한자·기타": ["radical", "antonym", "synonym", "homophone-char", "stroke-count"],
+            "한자어·독음": ["word-reading"], "한자어·용어뜻": ["word-gloss", "idiom-meaning"], "한자어·쓰기": ["word-from-reading"],
+            "한자어·기타": ["word-blank", "idiom-blank"]}
+jh_dist = {}
+for lid, name, cat, cnt, tm, q, subj, wr, obj, pt, full, pr in M.JINHEUNG_LEVELS:
+    g = M.JINHEUNG_TYPE_RATIO[_JH_GROUP[lid]]
+    pcts = g["선정한자"] + g.get("한자어", [0, 0, 0, 0])
+    jh_dist[lid] = _pct_dist(q, list(zip(JH_AREAS, pcts)))
+dump("providers/jinheung/exam-types.json", {"provider": "jinheung", "status": "official-ratio",
+      "statusNote": "공식 시험요강 '출제유형 비율'(%)을 공식 문항 수에 맞춰 환산. 한자어 쓰기는 앱에서 '독음에 맞는 한자어 고르기'로 연습.",
+      "ratio": M.JINHEUNG_TYPE_RATIO, "levels": jh_dist, "pools": JH_POOLS}, compact=False)
 
-# --- 대한상공회의소
+# --- 대한상공회의소 (공식 배정한자 (1~9급).zip)
+KC_ORDER = [l[0] for l in M.KORCHAM_LEVELS]
+kc_level_of = {c: l for c, l in KC_LIST} if M.PHASE2 else {}
 kc_levels = []
+_cum = 0
 for i, (lid, name, cat, tm, (a, b, c3), rule) in enumerate(M.KORCHAM_LEVELS):
     full = a * 4 + b * 6 + c3 * 8
-    kc_levels.append({"id": lid, "name": name, "order": i, "category": cat, "readCount": None, "writeCount": 0,
-                      "newCount": None, "dataCount": 0, "hasData": False,
+    new_n = sum(1 for l in kc_level_of.values() if l == lid)
+    _cum += new_n
+    ok = bool(kc_level_of)
+    tr, smin = M.KORCHAM_PASS[lid]
+    no_h = [c for c, l in kc_level_of.items() if l == lid and not has_hunum(c)]
+    notes = []
+    if lid == "1":
+        notes.append("공식: 1급 응시자는 1~9급 누적 4,908자 학습 필요(1급 신규 배정 1,607자).")
+    if lid in ("1", "2"):
+        notes.append("1·2급 배정한자 = KS X 1001 한자 2,824자 + 대법원 인명용 한자 284자(공식 표 머리글).")
+    if no_h:
+        notes.append("공식 배정한자 파일에는 훈음이 없어 공통 사전·대법원 인명용 한자 조회 기준으로 표시. 뜻(훈)이 공식·공공 자료에 없는 %d자는 음만 표시하고 훈음 문항에서 제외: %s" % (len(no_h), "".join(no_h)))
+    kc_levels.append({"id": lid, "name": name, "order": i, "category": cat, "readCount": _cum if ok else None, "newCount": new_n if ok else None,
+                      "writeCount": 0, "dataCount": _cum if ok else 0, "hasData": ok,
                       "exam": {"questionCount": a + b + c3, "sections": {"한자": a, "어휘": b, "독해": c3}, "points": {"한자": 4, "어휘": 6, "독해": 8},
-                               "fullScore": full, "timeMin": tm, "passRule": rule, "format": "CBT 객관식", "mockSupported": False,
-                               "mockBlockedReason": "배정한자 데이터 없음"},
-                      "notes": ["급수별 배정한자 " + M.NEEDS + " (공식 '배정한자 (1~ 9급).zip', 이 환경에서 다운로드 불가)",
-                                "공식 FAQ: 1급 응시자는 1~9급 누적 약 4,908자 학습 필요, 1급 배정은 1,607자"] if lid == "1" else
-                               ["급수별 배정한자 " + M.NEEDS + " (공식 '배정한자 (1~ 9급).zip', 이 환경에서 다운로드 불가)"],
-                      "status": {"levels": "official", "hanja": "missing", "examFormat": "official"}})
+                               "fullScore": full, "timeMin": tm, "passRule": rule, "passTotalRatio": tr, "passSectionMin": smin,
+                               "passCount": None, "format": "CBT 객관식", "mockSupported": ok, "mockBlockedReason": None if ok else "배정한자 데이터 없음"},
+                      "notes": notes, "status": {"levels": "official", "hanja": "official" if ok else "missing", "examFormat": "official"}})
 dump("providers/korcham/levels.json", {"provider": "korcham", "levels": kc_levels,
       "note": "상공회의소 한자는 읽기·이해 중심의 객관식 시험(쓰기 문항 없음). 쓰기 연습은 학습용으로만 제공.",
       "sourceRefs": [s["sourceUrl"] for s in M.SOURCES["korcham"]]}, compact=False)
-dump("providers/korcham/hanja-mapping.json", {"provider": "korcham", "status": "missing", "statusNote": M.NEEDS, "items": []})
+dump("providers/korcham/hanja-mapping.json", {"provider": "korcham", "status": "official" if kc_level_of else "missing",
+      "statusNote": "대한상공회의소 공식 「배정한자 (1~9급).zip」(배정한자(5~9급).hwp, 배정한자(1~4급).hwp) 원문 기준 4,908자. 공식 파일에 훈음 없음 → 훈음은 공통 사전·대법원 인명용 한자 조회.",
+      "source": {"sourceName": "상공회의소 한자 급수별(1~9급) 배정한자", "sourceUrl": "https://license.korcham.net/co/examguide02Sub.do?cd=0401&mm=53&num=2948011", "verifiedAt": M.VERIFIED_AT},
+      "items": [{"c": c, "l": l, "w": None, "src": "official"} for c, l in sorted(kc_level_of.items(), key=lambda x: (KC_ORDER.index(x[1]), x[0]))]})
+KC_POOLS = {"한자": ["hunum", "hunum-rev", "reading-char", "radical", "antonym", "synonym", "homophone-char", "stroke-count"],
+            "어휘": ["word-reading", "word-from-reading", "word-gloss", "word-blank"],
+            "독해": ["sentence-reading", "idiom-meaning", "idiom-blank", "word-gloss"]}
 dump("providers/korcham/exam-types.json", {"provider": "korcham", "status": "official", "sections": ["한자", "어휘", "독해"],
-      "format": "CBT 객관식", "detailNote": "영역별 세부 유형은 공식 '검정 기준' 문서(hwpx) 확인 필요"}, compact=False)
+      "format": "CBT 객관식", "statusNote": "영역별 문항 수·배점은 공식 시험안내 기준. 영역 안 세부 유형은 앱 구성.",
+      "levels": {l[0]: {"한자": l[4][0], "어휘": l[4][1], "독해": l[4][2]} for l in M.KORCHAM_LEVELS}, "pools": KC_POOLS}, compact=False)
 
 # ------------------------------------------------------------------ 8. 2026 시험 일정
 S_EOM = [s for s in M.SOURCES["eomunhoe"] if s["status"] == "secondary"][0]
@@ -777,7 +870,7 @@ def all_eums(c):
     v = _eum_cache.get(c)
     if v is None:
         d = dict_chars[c]
-        v = _eum_cache[c] = {m[1] for m in d["m"]} | {m[1] for m in d.get("dh", [])} | {d["r"]}
+        v = _eum_cache[c] = {m[1] for m in d["m"]} | {m[1] for m in d.get("dh", [])} | {m[1] for m in d.get("jh", [])} | {d["r"]}
     return v
 
 def pick(pool, k, exclude, key=lambda x: x):
@@ -818,14 +911,15 @@ def mcq(provider, level, qtype, typeLabel, question, prompt, answer, distractors
         q.update(extra)
     return q
 
-def gen_bank(provider, level_ids, level_of, write_level_of, allowed, level_order, level_names):
-    """level_of: 字->level id (읽기), write_level_of: 字->쓰기 시작 level id"""
+def gen_bank(provider, level_ids, level_of, write_level_of, allowed, level_order, level_names, word_list=None):
+    """level_of: 字->level id (읽기), write_level_of: 字->쓰기 시작 level id, word_list: 기관 공식 한자어 [{w,r}] (없으면 공통 목록)"""
     idx = {l: i for i, l in enumerate(level_order)}
+    WL = word_list if word_list is not None else wlist
     banks = {}
     for L in level_ids:
         Li = idx[L]
-        scope = [c for c, l in level_of.items() if idx[l] <= Li]
-        new = [c for c, l in level_of.items() if l == L]
+        scope = [c for c, l in level_of.items() if idx[l] <= Li and has_hunum(c)]
+        new = [c for c, l in level_of.items() if l == L and has_hunum(c)]
         scope_set = set(scope)
         # 하위 급수 글자 일부도 복습 문항으로 포함
         review = [c for c in scope if level_of[c] != L]
@@ -849,15 +943,22 @@ def gen_bank(provider, level_ids, level_of, write_level_of, allowed, level_order
                         "'%s'은(는) %s입니다." % (ans, c))
                 if x: q.append(x)
         # --- 독음 (한자어)
-        wscope = [w for w in wlist if all(ch in scope_set for ch in w["w"])]
+        wscope = [w for w in WL if all(ch in scope_set for ch in w["w"])]
         wnew = [w for w in wscope if any(level_of[ch] == L for ch in w["w"])]
         wnew = wnew[: (60 if Li < 5 else 150 if Li < 9 else 250)]
         if len(wnew) < 120:
             # 신출 한자가 들어간 한자어가 적은 급수(특급 등): 범위 내 빈출 한자어로 보충(복습)
             extra_w = [w for w in wscope if w not in wnew][: 120 - len(wnew)]
             wnew = wnew + extra_w
+        if "한자독음" in types:
+            eum_pool = sorted({dict_chars[s]["r"] for s in scope})
+            for c in focus:
+                ans = he_list(dict_chars[c])[0][1]
+                ds = pick([e for e in eum_pool if e not in all_eums(c)], 3, [ans])
+                x = mcq(provider, L, "reading-char", "독음", "다음 한자의 음(소리)은?", c, ans, ds, [c], "%s의 음은 '%s'입니다 (%s)." % (c, ans, he_str(c)))
+                if x: q.append(x)
         if "독음" in types:
-            if len(wnew) < 10:
+            if len(wnew) < 10 and "한자독음" not in types:
                 # 한자어가 적은 저급수: 한 글자 독음 문항으로 보충
                 eum_pool = sorted({dict_chars[s]["r"] for s in scope})
                 for c in focus:
@@ -1043,7 +1144,8 @@ qdir = os.path.join(DATA, "questions")
 if os.path.isdir(qdir):
     shutil.rmtree(qdir)
 bank_stats = {"eomunhoe": {}, "daehan": {}, "jinheung": {}, "korcham": {}}
-for L, qs in banks.items():
+def _dump_eom():
+  for L, qs in banks.items():
     dump("questions/eomunhoe/%s.json" % L, {"provider": "eomunhoe", "level": L, "sourceType": "original-practice",
                                              "label": "기출유형 연습문제 · 예상문제 (자체 제작, 실제 기출문제 아님)", "questions": qs})
     bank_stats["eomunhoe"][L] = dict(Counter(q["typeLabel"] for q in qs), total=len(qs))
@@ -1053,10 +1155,57 @@ dh_data_levels = [L["id"] for L in dh_levels if L["hasData"]]
 HE_PREF[0] = "daehan"
 dh_banks = gen_bank("daehan", dh_data_levels, dh_level_of, {}, {l: DH_TYPES for l in dh_data_levels}, DH_ORDER, None)
 HE_PREF[0] = None
-for L, qs in dh_banks.items():
+def _dump_dh():
+  for L, qs in dh_banks.items():
     dump("questions/daehan/%s.json" % L, {"provider": "daehan", "level": L, "sourceType": "original-practice",
                                            "label": "기출유형 연습문제 · 예상문제 (자체 제작, 실제 기출문제 아님) — 대한검정회 선정한자 범위", "questions": qs})
     bank_stats["daehan"][L] = dict(Counter(q["typeLabel"] for q in qs), total=len(qs))
+
+JH_TYPES_BY_LEVEL = {}
+for lid, name, cat, cnt, tm, q, subj, wr, obj, pt, full, pr in M.JINHEUNG_LEVELS:
+    t = {"훈음", "한자독음", "독음", "뜻풀이", "완성형", "부수", "반의어", "동의어", "동음이의어", "획수"}
+    if wr:
+        t.add("한자쓰기")
+    JH_TYPES_BY_LEVEL[lid] = t
+def _usable_words(lst):
+    out, seen = [], set()
+    for x in lst:
+        w, r = x["w"], x["r"]
+        if w in seen or " " in w or len(w) < 2 or len(w) != len(r) or not re.fullmatch(r"[가-힣]+", r):
+            continue
+        if not all(ch in dict_chars and has_hunum(ch) for ch in w):
+            continue
+        seen.add(w)
+        out.append({"w": w, "r": r, "f": 0})
+    return out
+JH_WORDS_USABLE = {}
+_acc = []
+for lid in [l[0] for l in M.JINHEUNG_LEVELS]:
+    _acc = _acc + JH_WORDS.get(lid, [])
+    JH_WORDS_USABLE[lid] = _usable_words(_acc)
+jh_banks, kc_banks = {}, {}
+if M.PHASE2:
+    HE_PREF[0] = "jinheung"
+    for lid in [l["id"] for l in jh_levels if l["hasData"]]:
+        jh_banks.update(gen_bank("jinheung", [lid], jh_level_of, jh_level_of, {lid: JH_TYPES_BY_LEVEL[lid]}, JH_ORDER, None,
+                                 word_list=JH_WORDS_USABLE[lid] + [w for w in wlist[:4000] if all(ch in jh_level_of for ch in w["w"])]))
+    HE_PREF[0] = None
+    KC_TYPES = {"훈음", "한자독음", "독음", "뜻풀이", "완성형", "부수", "반의어", "동의어", "동음이의어", "획수", "문장"}
+    kc_banks = gen_bank("korcham", [l["id"] for l in kc_levels if l["hasData"]], kc_level_of, {}, {l["id"]: KC_TYPES for l in kc_levels}, KC_ORDER, None)
+AREA_OF = {"jinheung": {t: a for a, ts in JH_POOLS.items() for t in ts}, "korcham": {t: a for a, ts in KC_POOLS.items() for t in ts}}
+for pid, bk, lab in (("jinheung", jh_banks, "한자교육진흥회 선정한자·한자어 범위"), ("korcham", kc_banks, "대한상공회의소 배정한자 범위")):
+    for L, qs in bk.items():
+        for x in qs:
+            x["area"] = AREA_OF[pid].get(x["type"], x["typeLabel"])
+        dump("questions/%s/%s.json" % (pid, L), {"provider": pid, "level": L, "sourceType": "original-practice",
+                                                 "label": "기출유형 연습문제 · 예상문제 (자체 제작, 실제 기출문제 아님) — " + lab, "questions": qs})
+        bank_stats[pid][L] = dict(Counter(q["typeLabel"] for q in qs), total=len(qs))
+for bk, pid in ((banks, "eomunhoe"), (dh_banks, "daehan")):
+    for L, qs in bk.items():
+        for x in qs:
+            x["area"] = x["typeLabel"] if pid == "eomunhoe" else "한문지식(선정한자) · " + x["typeLabel"]
+
+_dump_eom(); _dump_dh()
 
 # 한자어/사자성어 기관·급수 매핑 (구성 한자 기준 산출)
 def map_items(level_of, order):
@@ -1084,9 +1233,32 @@ for pid, lof, order in (("eomunhoe", eom_level_of, LEVEL_ORDER), ("daehan", dh_l
         bank_stats[pid][L]["words"] = len(wmap.get(L, []))
         bank_stats[pid][L]["idioms"] = len(imap.get(L, []))
 
-for pid in ("jinheung", "korcham"):
-    dump("providers/%s/words-mapping.json" % pid, {"provider": pid, "levels": {}, "statusNote": M.NEEDS})
-    dump("providers/%s/idioms-mapping.json" % pid, {"provider": pid, "levels": {}, "statusNote": M.NEEDS})
+JH_WORDS_ALL = {}
+if M.PHASE2:
+    jh_wmap = {}
+    for lid in JH_ORDER:
+        lst = _usable_words(JH_WORDS.get(lid, []))
+        jh_wmap[lid] = [x["w"] for x in lst]
+        for x in lst:
+            JH_WORDS_ALL.setdefault(x["w"], x["r"])
+    _, jh_imap = map_items(jh_level_of, JH_ORDER)
+    dump("providers/jinheung/words-mapping.json", {"provider": "jinheung", "status": "official",
+          "basis": "공식 교과서 한자어(8급~3급)·직업분야별 실용한자어(2급·1급) 목록. 띄어쓰기·영문 약어가 있는 용어는 학습 카드에서 제외.",
+          "officialCounts": {k: len(v) for k, v in JH_WORDS.items()}, "levels": jh_wmap,
+          "fields": {"categories": {lid: sorted({x["cat"] for x in JH_WORDS.get(lid, []) if x["cat"]}) for lid in ("1", "2")}}})
+    dump("providers/jinheung/idioms-mapping.json", {"provider": "jinheung", "basis": "구성 한자 기준 산출. 공식 사자성어 출제범위 목록 아님.", "levels": jh_imap})
+    kc_wmap, kc_imap = map_items(kc_level_of, KC_ORDER)
+    dump("providers/korcham/words-mapping.json", {"provider": "korcham", "basis": "구성 한자가 모두 상공회의소 배정한자에 포함되는 한자어(구성 한자 중 가장 높은 급수에 배치). 공식 출제 목록 아님.", "levels": kc_wmap})
+    dump("providers/korcham/idioms-mapping.json", {"provider": "korcham", "basis": "구성 한자 기준 산출. 공식 사자성어 출제범위 목록 아님.", "levels": kc_imap})
+    for pid, wm, im, order in (("jinheung", jh_wmap, jh_imap, JH_ORDER), ("korcham", kc_wmap, kc_imap, KC_ORDER)):
+        for L in order:
+            bank_stats[pid].setdefault(L, {})
+            bank_stats[pid][L]["words"] = len(wm.get(L, []))
+            bank_stats[pid][L]["idioms"] = len(im.get(L, []))
+else:
+    for pid in ("jinheung", "korcham"):
+        dump("providers/%s/words-mapping.json" % pid, {"provider": pid, "levels": {}, "statusNote": M.NEEDS})
+        dump("providers/%s/idioms-mapping.json" % pid, {"provider": pid, "levels": {}, "statusNote": M.NEEDS})
 
 # 대한검정회 전용 한자 DB (기관 namespace 분리: providers/daehan/hanja.json)
 dh_scope_levels = {c: DH_ORDER[DH_ORDER.index(l):] for c, l in dh_level_of.items()}
@@ -1114,7 +1286,7 @@ dump("providers/daehan/hanja.json", {"provider": "daehan", "count": len(dh_db),
       "items": dh_db}, compact=False)
 
 used_words = set()
-for L in list(banks.values()) + list(dh_banks.values()):
+for L in list(banks.values()) + list(dh_banks.values()) + list(jh_banks.values()) + list(kc_banks.values()):
     for q in L:
         for fld in ("prompt", "answer"):
             v = q.get(fld)
@@ -1123,13 +1295,24 @@ for L in list(banks.values()) + list(dh_banks.values()):
         for ch in q.get("choices", []):
             if ch in words:
                 used_words.add(ch)
-for pid in ("eomunhoe", "daehan"):
+for pid in ("eomunhoe", "daehan", "korcham"):
     wm = json.load(open(os.path.join(DATA, "providers/%s/words-mapping.json" % pid), encoding="utf-8"))
     for ws in wm["levels"].values():
         used_words.update(ws)
 for d in dict_chars.values():
     used_words.update(d["ex"])
 wout = [x for x in wlist if x["w"] in used_words]
+_have = {x["w"] for x in wout}
+for w, r in JH_WORDS_ALL.items():
+    if w not in _have:
+        wout.append({"w": w, "r": r, "f": 0})
+for L in jh_banks.values():
+    for q in L:
+        for v in [q.get("prompt"), q.get("answer")] + list(q.get("choices", [])):
+            if isinstance(v, str) and v not in _have and len(v) >= 2:
+                for x in JH_WORDS_USABLE.get("sa", []) + JH_WORDS_USABLE.get("1", []):
+                    if x["w"] == v:
+                        wout.append(x); _have.add(v); break
 dump("dictionary/words.json", {"meta": {"description": "한자어 목록: libhangul 한자 사전(BSD-3-Clause)의 독음 + 사용 빈도. 뜻은 구성 한자 훈음 풀이로 제공(사전식 정의 아님).",
                                         "count": len(wout)},
                                "words": [{"w": x["w"], "r": x["r"], "f": x["f"]} for x in wout]})
@@ -1137,7 +1320,22 @@ wlist = wout
 dump("stats.json", {"builtAt": M.VERIFIED_AT, "dictionary": len(dict_chars), "strokes": sum(1 for d in dict_chars.values() if d.get("so")),
                     "words": len(wlist), "idioms": len(idioms), "pairs": {k: len(v) for k, v in pairs.items()},
                     "banks": bank_stats,
-                    "providers": {"eomunhoe": len(eom_map), "daehan": len(dh_level_of), "jinheung": 0, "korcham": 0}}, compact=False)
+                    "providers": {"eomunhoe": len(eom_map), "daehan": len(dh_level_of), "jinheung": len(jh_level_of), "korcham": len(kc_level_of)}}, compact=False)
+
+# ---- 문제은행 목록(manifest): 출처 구분 · 공식 영역 매핑 · 공식 기출 링크
+_prov = {p["id"]: p for p in M.PROVIDERS}
+manifest = {"generatedAt": M.VERIFIED_AT,
+            "policy": {"sourceType": {"original-practice": "이 앱이 공식 배정/선정한자와 공식 출제 유형을 기준으로 자체 제작한 연습문제(실제 기출 아님)",
+                                      "official-past-exam": "기관 공식 기출문제 — 저작권 보호로 앱에 저장하지 않고 공식 사이트 링크로만 연결"},
+                       "note": "모의시험은 공식 문항 수·시간·합격 기준(가능한 경우 영역 배분)에 맞춰 자체 제작 문항으로 구성합니다."},
+            "providers": {}}
+for pid, bk in (("eomunhoe", banks), ("daehan", dh_banks), ("jinheung", jh_banks), ("korcham", kc_banks)):
+    pv = _prov[pid]
+    manifest["providers"][pid] = {
+        "officialPastExam": {"url": pv["pastExamUrl"], "policy": pv["pastExamPolicy"], "storedInApp": False},
+        "levels": {L: {"count": len(qs), "sourceType": "original-practice",
+                       "byArea": dict(Counter(q.get("area", q["typeLabel"]) for q in qs))} for L, qs in bk.items()}}
+dump("questions/index.json", manifest, compact=False)
 print(json.dumps({k: v.get("total") for k, v in bank_stats["eomunhoe"].items()}, ensure_ascii=False))
 print("문제 총합:", sum(v.get("total", 0) for p in bank_stats.values() for v in p.values()))
 
