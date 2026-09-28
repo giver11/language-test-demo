@@ -84,12 +84,15 @@ export default async function (view, { ctx: c, params }) {
     pad.clear();
     setFb('');
     medians = await referenceMedians(ch);
+    // 획순 데이터를 받는 동안 다른 화면으로 이동했으면 중단 (이전 화면 요소 없음)
+    if (!view.querySelector('[data-count]') || items[idx] !== ch) return;
     view.querySelector('[data-count]').textContent = `${idx + 1} / ${items.length}`;
     view.querySelector('[data-he]').textContent = D.heStr(d);
     view.querySelector('[data-show]').textContent = level === 3 ? '?' : ch;
     view.querySelector('[data-lvlabel]').textContent = level === 1 ? '보고 따라 쓰세요' : level === 2 ? '희미한 가이드 위에 쓰세요' : '뜻과 음을 보고 외워서 쓰세요';
     view.querySelectorAll('[data-lv]').forEach((b) => b.classList.toggle('sel', +b.dataset.lv === level));
     await pad.setGuide(ch, level === 1 ? 'solid' : level === 2 ? 'faint' : 'none');
+    if (!view.querySelector('[data-count]')) return;
     if (!medians) setFb('near', '이 글자는 공개 획순 데이터가 없어 자동 판정·획순 보기가 지원되지 않아요. 쓰고 나서 “정답 보기”로 비교하세요.');
   }
 
