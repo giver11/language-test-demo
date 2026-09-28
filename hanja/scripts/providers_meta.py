@@ -20,9 +20,9 @@ NEEDS = "공식 자료 확인 필요"
 
 SOURCES = {
     "eomunhoe": [
-        {"provider": "eomunhoe", "sourceName": "사단법인 한국어문회 공식 홈페이지", "sourceUrl": "https://www.hanja.re.kr/",
-         "verifiedAt": VERIFIED_AT, "year": 2026, "status": "unreachable",
-         "note": "이 개발 환경에서는 공식 사이트 접속(robots.txt 응답 실패)이 되지 않아 직접 대조하지 못함."},
+        {"provider": "eomunhoe", "sourceName": "한국어문회 급수배정 안내 · 급수별 배정한자 HWP (배정한자8급.hwp ~ 배정한자특급.hwp)", "sourceUrl": "https://www.hanja.re.kr/kccpt/exam/levelConfirm.do",
+         "verifiedAt": VERIFIED_AT, "year": 2026, "status": OFFICIAL,
+         "note": "공식 HWP 15개 급수 읽기·쓰기 배정한자와 앱 데이터를 전수 대조(2026-09-28). 煕→熙 1자 보정, 1급 쓰기 2,005자·5급Ⅱ 쓰기(急 대신 級) 공식 목록 반영. 특급Ⅱ 표기 4,918자는 공식 원문 주석대로 자형 기준 4,650자 + 다음자 중복 등록 268자."},
         {"provider": "eomunhoe", "sourceName": "한국어문회 학습자료 급수별 배정한자 xls → CSV 변환본 (rycont/hanja-grade-dataset)",
          "sourceUrl": "https://github.com/rycont/hanja-grade-dataset", "verifiedAt": VERIFIED_AT, "year": 2026, "status": OFFICIAL_FILE,
          "note": "한국어문회 공식 홈페이지 학습자료의 xls 파일을 CSV로 변환한 공개 데이터셋(커밋 91a1f49, 2024-06-06). 데이터 저작권은 한국어문회에 있음."},
@@ -43,7 +43,7 @@ SOURCES = {
          "note": "급수별 선정한자 누적 수(8급 30 ~ 사범 5,000) 확인. 표 일부는 인코딩 문제로 판독 제한."},
         {"provider": "daehan", "sourceName": "대한검정회 등급별 선정한자", "sourceUrl": "https://www.hanja.ne.kr/jupsu/jupsu07_01.asp",
          "verifiedAt": VERIFIED_AT, "year": 2026, "status": "image-only",
-         "note": "페이지 본문은 8·7·6급 제목과 누적 구성(30/50/70자)만 텍스트로 제공. 한자 목록은 자료실 게시판(/board/board/list.asp?tb=inno_12)에 있으며 이 개발 환경에서는 robots.txt 차단으로 원문 확보 불가 → 공식 자료 확인 필요."},
+         "note": "한자 목록은 자료실 게시판의 「8급~사범 선정한자훈음표」 PDF로 제공 → 원문 확보·반영 완료(scripts/src/daehan_official_raw.txt). 대사범은 별도 선정한자 없이 경전·고문 지문(국역·논술)으로 출제."},
         {"provider": "daehan", "sourceName": "대한검정회 공식 기출문제 (최근 2회분, 무단 복제·배포 금지)", "sourceUrl": "https://www.hanja.ne.kr/jupsu/jupsu07.asp",
          "verifiedAt": VERIFIED_AT, "year": 2026, "status": OFFICIAL, "note": "앱에는 저장하지 않고 링크로만 연결."},
         {"provider": "daehan", "sourceName": "나무위키 한자급수자격검정/배정한자 (2차 자료)", "sourceUrl": "https://namu.wiki/w/%ED%95%9C%EC%9E%90%EA%B8%89%EC%88%98%EC%9E%90%EA%B2%A9%EA%B2%80%EC%A0%95/%EB%B0%B0%EC%A0%95%ED%95%9C%EC%9E%90",
@@ -56,7 +56,7 @@ SOURCES = {
          "verifiedAt": VERIFIED_AT, "year": 2026, "status": OFFICIAL},
         {"provider": "jinheung", "sourceName": "한자실력급수 급수별 평가한자", "sourceUrl": "https://web.hanja114.org/common/intro/examGrade.do",
          "verifiedAt": VERIFIED_AT, "year": 2026, "status": OFFICIAL,
-         "note": "급수별 한자 수는 확인. 한자 목록은 .hwp/.exe 파일로만 배포되어 이 환경에서 다운로드 불가 → 배정한자 공식 자료 확인 필요."},
+         "note": "공식 '급수별선정한자.hwp'(8급~사범 5,001행)와 '교과서한자어.zip'(8급~3급), '1급·2급 실용한자어목록.hwp'를 내려받아 반영(2026-09-28). 공식 파일의 준5급 신출은 81자로 급수표(누적 150자)보다 1자 많음 — 원문 그대로 반영."},
         {"provider": "jinheung", "sourceName": "한자실력급수 시험요강(문항수·시간·합격기준)", "sourceUrl": "https://web.hanja114.org/common/intro/examGuide.do",
          "verifiedAt": VERIFIED_AT, "year": 2026, "status": OFFICIAL},
     ],
@@ -69,7 +69,7 @@ SOURCES = {
          "verifiedAt": VERIFIED_AT, "year": 2026, "status": OFFICIAL},
         {"provider": "korcham", "sourceName": "상공회의소 한자 시험문제 자료실", "sourceUrl": "https://license.korcham.net/co/examguide02.do?cd=0401&mm=53",
          "verifiedAt": VERIFIED_AT, "year": 2026, "status": OFFICIAL,
-         "note": "상시검정 문제는 문제은행식으로 비공개. 배정한자는 '배정한자 (1~ 9급).zip'으로만 배포되어 이 환경에서 다운로드 불가."},
+         "note": "상시검정 문제는 문제은행식으로 비공개. 공식 '배정한자 (1~9급).zip'(배정한자(1~4급).hwp, 배정한자(5~9급).hwp)을 내려받아 급수별 배정한자 4,908자 반영(2026-09-28). 공식 파일에는 훈음이 없어 훈음은 공통 사전 기준."},
         {"provider": "korcham", "sourceName": "상공회의소 한자 FAQ", "sourceUrl": "https://license.korcham.net/co/examguide05.do?cd=0401&mm=53",
          "verifiedAt": VERIFIED_AT, "year": 2026, "status": OFFICIAL},
         {"provider": "korcham", "sourceName": "민간자격정보서비스 상공회의소한자 기본정보", "sourceUrl": "https://www.pqi.or.kr/inf/qul/infQulBasDetail.do?qulId=373",
@@ -194,6 +194,9 @@ JINHEUNG_LEVELS = [
     ("1", "1급", "공인", 3500, 80, 150, 100, 25, 50, 2, 300, 0.7),
     ("sa", "사범", "공인", 5000, 120, 200, 150, 25, 50, 2, 400, 0.8),
 ]
+# 공식 examGrade.do 표: 급수별 선정한자 누적 수 (평가한자 = 선정한자 + 교과서/실용 한자어)
+JINHEUNG_SELECTED = {"8": 30, "7": 50, "6": 70, "5-j": 150, "5": 300, "4-j": 500, "4": 700, "3-j": 1000, "3": 1300, "2": 2300, "1": 3500, "sa": 5000}
+JINHEUNG_WORDS_LABEL = {"8": "20자", "7": "70자", "6": "100자", "5-j": "100자", "5": "150자", "4-j": "200자", "4": "200자", "3-j": "350자", "3": "500자", "2": "500단어", "1": "500단어", "sa": None}
 JINHEUNG_NOTES = {
     "3": "공식 다운로드 목록 표기: 선정한자 1,300자 + 교과서한자어 500 (급수표 합계 1,800)",
     "3-j": "공식 다운로드 목록 표기: 선정한자 1,000자 + 교과서한자어 350 (급수표 합계 1,350)",
@@ -220,4 +223,8 @@ KORCHAM_LEVELS = [
     ("2", "2급", "공인", 80, (50, 40, 40), "전과목 60% 이상 + 만점의 80% 이상"),
     ("1", "1급", "공인", 80, (50, 50, 50), "전과목 60% 이상 + 만점의 90% 이상"),
 ]
+# 공식 '배정한자 (1~9급).zip' 표 머리글: 급수별 신규 배정 수 (누적 = 하위 급수 포함)
+KORCHAM_NEW = {"9": 50, "8": 100, "7": 150, "6": 150, "5": 150, "4": 300, "3": 900, "2": 1501, "1": 1607}
+# 합격기준(공식 문구)을 채점용 수치로: (전체 득점 비율, 과목별 최소 비율)
+KORCHAM_PASS = {"9": (0.6, 0), "8": (0.6, 0), "7": (0.6, 0), "6": (0.6, 0), "5": (0.7, 0), "4": (0.7, 0), "3": (0.8, 0.6), "2": (0.8, 0.6), "1": (0.9, 0.6)}
 KORCHAM_POINTS = (4, 6, 8)  # 한자/어휘/독해 문항당 배점 (공식)

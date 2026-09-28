@@ -112,6 +112,18 @@ for r in rows:
     eom_map.append({"c": c, "level": lid})
 
 print("한국어문회 배정한자:", len(eom_map), Counter(x["level"] for x in eom_map))
+EOM_CHECK = json.load(open(os.path.join(HERE, "src/eomunhoe_official_check.json"), encoding="utf-8"))
+for _old, _new in EOM_CHECK["readFix"].items():
+    if len(_old) != 1:
+        continue
+    for x in eom_map:
+        if x["c"] == _old:
+            x["c"] = _new
+    if _old in dict_chars and _new not in dict_chars:
+        e = dict_chars.pop(_old)
+        e["c"] = _new; e["id"] = "U+%04X" % ord(_new)
+        dict_chars[_new] = e
+print("한국어문회 공식 대조 보정:", EOM_CHECK["readFix"])
 
 # 대한검정회 공식 선정한자(8급~사범 5,000자) + 공식 훈음표
 #   src/daehan_official_raw.txt : 「8급~사범 선정한자훈음표」 급수별 신출 한자 원문 순서 (SHA-256 대조 완료)
@@ -229,6 +241,99 @@ for c, _l in DH_OFFICIAL_LIST:
     if c in DH_HUNUM and c not in DH_COMPAT_KEEP:
         dict_chars[c]["dh"] = DH_HUNUM[c]
 print("사전 크기(대한검정회 추가 후):", len(dict_chars))
+
+# ---- 한자교육진흥회 공식 「급수별선정한자.hwp」 (scripts/src/jinheung/part*.txt, SHA-256 대조 완료)
+JH_NAME2ID = {l[1]: l[0] for l in M.JINHEUNG_LEVELS}
+JH_RAW = []
+cur = None  # 급수 머리글은 분할 파일 사이에서 이어짐
+for fn in ("part1.txt", "part2.txt", "part3.txt", "part4.txt"):
+    for line in open(os.path.join(HERE, "src/jinheung", fn), encoding="utf-8"):
+        line = line.rstrip("\n")
+        if not line:
+            continue
+        if line.startswith("#"):
+            cur = JH_NAME2ID[line[1:]]
+            continue
+        c, h, e = line.split("|")
+        JH_RAW.append((c, cur, h.strip(), e.strip()))
+_jn = Counter(nfc(c) for c, *_ in JH_RAW)
+JH_COMPAT_KEEP = {c for c, *_ in JH_RAW if nfc(c) != c and _jn[nfc(c)] > 1}
+JH_LIST = [((c if c in JH_COMPAT_KEEP else nfc(c)), l, h, e) for c, l, h, e in JH_RAW]
+_jd = [c for c, n in Counter(c for c, *_ in JH_LIST).items() if n > 1]
+if _jd:
+    raise SystemExit("한자교육진흥회 공식 선정한자 중복: %s" % _jd)
+def _first_syllable(e):
+    m = re.match(r"[가-힣]", e)
+    return m.group(0) if m else None
+JH_HUNUM = {}
+for c, l, h, e in JH_LIST:
+    eum = _first_syllable(e)
+    if not eum or not h:
+        raise SystemExit("한자교육진흥회 훈음 누락: %s %s %s" % (c, h, e))
+    JH_HUNUM[c] = [[nfc(h), eum]]
+print("한자교육진흥회 공식 선정한자:", len(JH_LIST), Counter(l for _, l, *_ in JH_LIST), "호환용 한자 유지:", sorted(JH_COMPAT_KEEP))
+# 교과서 한자어(8급~3급) · 직업분야별 실용한자어(2급·1급) 공식 목록
+JH_WORDS = defaultdict(list)
+cur = None; cat = None
+for fn in ("words1.txt", "words2.txt"):
+    for line in open(os.path.join(HERE, "src/jinheung", fn), encoding="utf-8"):
+        line = line.rstrip("\n")
+        if not line:
+            continue
+        if line.startswith("#"):
+            cur = JH_NAME2ID[line[1:]]; cat = None
+            continue
+        if line.startswith("@"):
+            cat = line[1:]
+            continue
+        w, r = line.split("|")
+        JH_WORDS[cur].append({"w": nfc(w), "r": r, "cat": cat})
+print("한자교육진흥회 공식 한자어:", {k: len(v) for k, v in JH_WORDS.items()})
+
+# ---- 대한상공회의소 공식 「배정한자 (1~9급).zip」 (scripts/src/korcham_official.txt, SHA-256 대조 완료)
+KC_LIST = []
+for line in open(os.path.join(HERE, "src/korcham_official.txt"), encoding="utf-8"):
+    line = line.rstrip("\n")
+    if not line:
+        continue
+    lid, chars = line.split("\t")
+    for c in chars:
+        KC_LIST.append((nfc(c), lid))
+_kd = [c for c, n in Counter(c for c, _ in KC_LIST).items() if n > 1]
+if _kd:
+    raise SystemExit("대한상공회의소 배정한자 중복: %s" % _kd)
+for lid, n in M.KORCHAM_NEW.items():
+    got = sum(1 for _, l in KC_LIST if l == lid)
+    if got != n:
+        raise SystemExit("대한상공회의소 %s급 %d자 ≠ 공식 %d자" % (lid, got, n))
+print("대한상공회의소 공식 배정한자:", len(KC_LIST), Counter(l for _, l in KC_LIST))
+
+# 사전에 없는 글자 추가 (진흥회: 공식 훈음, 상공회의소: libhangul → 없으면 보충표)
+_added = Counter(); _kc_nohunum = []
+for c, l, h, e in JH_LIST:
+    if c in dict_chars:
+        continue
+    if c in JH_COMPAT_KEEP:
+        base = nfc(c)
+        dict_chars[c] = {"c": c, "id": "U+%04X" % ord(c), "m": JH_HUNUM[c], "r": JH_HUNUM[c][0][1], "rad": None, "st": None, "src": "jinheung-official", "base": base}
+    else:
+        dict_chars[c] = {"c": c, "id": "U+%04X" % ord(c), "m": JH_HUNUM[c], "r": JH_HUNUM[c][0][1], "rad": None, "st": None, "src": "jinheung-official"}
+    _added["jinheung"] += 1
+for c, l, h, e in JH_LIST:
+    dict_chars[c]["jh"] = JH_HUNUM[c]
+for c, l in KC_LIST:
+    if c in dict_chars:
+        continue
+    if c in HUNUM_SUPP:
+        m = [HUNUM_SUPP[c]]; src = "supplement"
+    elif lh_char.get(c):
+        m = [list(p.rsplit(" ", 1)) if " " in p else ["", p] for p in lh_char[c][:3]]; src = "libhangul"
+        m = [x for x in m if x[0]] or m
+    else:
+        _kc_nohunum.append(c); continue
+    dict_chars[c] = {"c": c, "id": "U+%04X" % ord(c), "m": m, "r": m[0][1], "rad": None, "st": None, "src": src}
+    _added["korcham"] += 1
+print("사전 추가:", dict(_added), "상공회의소 훈음 미확보:", len(_kc_nohunum), "".join(_kc_nohunum))
 
 # 훈음 교차검증: 한국어문회 음이 libhangul 훈음 문자열의 음과 일치하는지
 mismatch = []
