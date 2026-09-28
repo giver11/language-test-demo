@@ -47,6 +47,7 @@ async function render() {
   closeSheet();
   let { name, args, params } = parseHash();
   const st = S.get();
+  D.setHeProvider(st.current && st.current.provider);
   let hasCtx = st.current && st.current.provider && S.prov(st.current.provider).level;
   // 지원이 종료된 기관이 선택돼 있던 경우(기록은 보존) → 기관 다시 선택
   if (hasCtx && !(await D.provider(st.current.provider))) hasCtx = false;
@@ -97,5 +98,9 @@ async function updateCtxButton() {
 }
 
 window.addEventListener('hashchange', render);
-render();
+render().then(() => {
+  // 대한검정회 데이터 무결성 검사 (불일치 시 console.error)
+  const st = S.get();
+  if (st.current && st.current.provider === 'daehan') D.validateDaehanHanjaData().catch((e) => console.error(e));
+});
 window.__hanja = { S, go };

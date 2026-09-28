@@ -79,3 +79,18 @@ export function bar(pct, color) {
   const v = Math.max(0, Math.min(100, pct || 0));
   return `<div class="bar"><i style="width:${v}%;${color ? 'background:' + color : ''}"></i></div>`;
 }
+
+// 대한검정회 공식 자료 안내 (기출문제는 저작권 보호 — 공식 홈페이지 링크로만 안내)
+export const DAEHAN_LINKS = [
+  ['공식 홈페이지', 'https://www.hanja.ne.kr/'],
+  ['공식 선정한자', 'https://www.hanja.ne.kr/jupsu/jupsu07_01.asp'],
+  ['공식 시험안내', 'https://www.hanja.ne.kr/apply/info01.asp'],
+  ['공식 기출문제', 'https://www.hanja.ne.kr/jupsu/jupsu07.asp'],
+];
+export function daehanFooter() {
+  return `<div class="card flat dh-foot">
+    <div class="btns" style="flex-wrap:wrap;gap:6px">${DAEHAN_LINKS.map(([t, u]) => `<a class="btn sm" href="${u}" target="_blank" rel="noopener">${t} ↗</a>`).join('')}</div>
+    <p class="small" style="margin:8px 0 0">대한검정회 공식 홈페이지에서 제공하는 최근 기출문제를 확인할 수 있습니다. 이 앱의 문제는 공식 선정한자 범위로 자체 제작한 기출유형 연습문제·예상문제이며 실제 기출문제가 아닙니다.</p>
+    <p class="tiny" style="margin:6px 0 0">자료 기준: 사단법인 대한민국한자교육연구회·대한검정회 공식 홈페이지</p>
+  </div>`;
+}

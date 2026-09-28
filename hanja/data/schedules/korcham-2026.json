@@ -1,0 +1,26 @@
+{
+ "provider": "korcham",
+ "year": 2026,
+ "examName": "상공회의소 한자",
+ "status": "official",
+ "type": "always",
+ "source": {
+  "provider": "korcham",
+  "sourceName": "상공회의소 한자 시험일정 / 2026년 상시 자격시험 시작일정 안내",
+  "sourceUrl": "https://license.korcham.net/co/examguide03.do?cd=0401&mm=53",
+  "verifiedAt": "2026-09-28",
+  "year": 2026
+ },
+ "officialUrl": "https://license.korcham.net/",
+ "always": {
+  "description": "상시 시행(시험개설 여부는 시험장 상황에 따라 다름)",
+  "applyRule": "개설일로부터 시험일 4일 전까지",
+  "resultRule": "시험일 다음날 오전 10시",
+  "yearStart": {
+   "applyStart": "2026-01-01",
+   "firstExam": "2026-01-05"
+  },
+  "note": "지역상의 시행은 상의별로 다를 수 있음. 정해진 회차 날짜가 없으므로 D-Day는 사용자가 접수한 시험일로 설정."
+ },
+ "sessions": []
+}

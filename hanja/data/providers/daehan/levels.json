@@ -12,20 +12,28 @@
    "dataCount": 30,
    "hasData": true,
    "exam": {
+    "examMode": "offline",
     "questionCount": 25,
-    "passCount": null,
-    "timeMin": null,
-    "passRule": "70점 이상 (공식 출제형식 페이지 판독값 — 급수별 세부 확인 필요)",
-    "mockSupported": false
+    "timeMin": 40,
+    "passCount": 18,
+    "passRule": "25문항 중 18문항 이상 (70점 이상)",
+    "structure": "객관식 25",
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "8급 30자: 나무위키 전사본(2차 자료). 공식 선정한자표(이미지)와 대조 필요.",
-    "문항 수는 공식 페이지 판독값 — 공식 자료 확인 필요"
-   ],
+   "examOnline": {
+    "examMode": "online",
+    "questionCount": 25,
+    "timeMin": 15,
+    "passCount": 18,
+    "passRule": "25문항 중 18문항 이상 (70점 이상)",
+    "structure": "객관식 25"
+   },
+   "notes": [],
    "status": {
-    "levels": "partial",
-    "hanja": "secondary",
-    "examFormat": "partial"
+    "levels": "official",
+    "hanja": "official",
+    "examFormat": "official"
    }
   },
   {
@@ -35,24 +43,32 @@
    "category": "등록(민간)",
    "readCount": 50,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 20,
+   "dataCount": 50,
+   "hasData": true,
    "exam": {
+    "examMode": "offline",
     "questionCount": 25,
-    "passCount": null,
-    "timeMin": null,
-    "passRule": "70점 이상 (공식 출제형식 페이지 판독값 — 급수별 세부 확인 필요)",
-    "mockSupported": false
+    "timeMin": 40,
+    "passCount": 18,
+    "passRule": "25문항 중 18문항 이상 (70점 이상)",
+    "structure": "객관식 25",
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "선정한자 목록 공식 자료 확인 필요 (공식 사이트에 이미지로만 게시)",
-    "문항 수는 공식 페이지 판독값 — 공식 자료 확인 필요"
-   ],
+   "examOnline": {
+    "examMode": "online",
+    "questionCount": 25,
+    "timeMin": 15,
+    "passCount": 18,
+    "passRule": "25문항 중 18문항 이상 (70점 이상)",
+    "structure": "객관식 25"
+   },
+   "notes": [],
    "status": {
-    "levels": "partial",
-    "hanja": "missing",
-    "examFormat": "partial"
+    "levels": "official",
+    "hanja": "official",
+    "examFormat": "official"
    }
   },
   {
@@ -62,24 +78,32 @@
    "category": "등록(민간)",
    "readCount": 70,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 20,
+   "dataCount": 70,
+   "hasData": true,
    "exam": {
+    "examMode": "offline",
     "questionCount": 50,
-    "passCount": null,
-    "timeMin": null,
-    "passRule": "70점 이상 (공식 출제형식 페이지 판독값 — 급수별 세부 확인 필요)",
-    "mockSupported": false
+    "timeMin": 40,
+    "passCount": 35,
+    "passRule": "50문항 중 35문항 이상 (70점 이상)",
+    "structure": "객관식 50",
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "선정한자 목록 공식 자료 확인 필요 (공식 사이트에 이미지로만 게시)",
-    "문항 수는 공식 페이지 판독값 — 공식 자료 확인 필요"
-   ],
+   "examOnline": {
+    "examMode": "online",
+    "questionCount": 50,
+    "timeMin": 25,
+    "passCount": 35,
+    "passRule": "50문항 중 35문항 이상 (70점 이상)",
+    "structure": "객관식 50"
+   },
+   "notes": [],
    "status": {
-    "levels": "partial",
-    "hanja": "missing",
-    "examFormat": "partial"
+    "levels": "official",
+    "hanja": "official",
+    "examFormat": "official"
    }
   },
   {
@@ -89,24 +113,32 @@
    "category": "등록(민간)",
    "readCount": 100,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 30,
+   "dataCount": 100,
+   "hasData": true,
    "exam": {
+    "examMode": "offline",
     "questionCount": 50,
-    "passCount": null,
-    "timeMin": null,
-    "passRule": "70점 이상 (공식 출제형식 페이지 판독값 — 급수별 세부 확인 필요)",
-    "mockSupported": false
+    "timeMin": 40,
+    "passCount": 35,
+    "passRule": "50문항 중 35문항 이상 (70점 이상)",
+    "structure": "객관식 50",
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "선정한자 목록 공식 자료 확인 필요 (공식 사이트에 이미지로만 게시)",
-    "문항 수는 공식 페이지 판독값 — 공식 자료 확인 필요"
-   ],
+   "examOnline": {
+    "examMode": "online",
+    "questionCount": 50,
+    "timeMin": 25,
+    "passCount": 35,
+    "passRule": "50문항 중 35문항 이상 (70점 이상)",
+    "structure": "객관식 50"
+   },
+   "notes": [],
    "status": {
-    "levels": "partial",
-    "hanja": "missing",
-    "examFormat": "partial"
+    "levels": "official",
+    "hanja": "official",
+    "examFormat": "official"
    }
   },
   {
@@ -116,24 +148,32 @@
    "category": "등록(민간)",
    "readCount": 250,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 150,
+   "dataCount": 250,
+   "hasData": true,
    "exam": {
-    "questionCount": 100,
-    "passCount": null,
-    "timeMin": null,
-    "passRule": "70점 이상 (공식 출제형식 페이지 판독값 — 급수별 세부 확인 필요)",
-    "mockSupported": false
+    "examMode": "offline",
+    "questionCount": 50,
+    "timeMin": 40,
+    "passCount": 35,
+    "passRule": "50문항 중 35문항 이상 (70점 이상)",
+    "structure": "객관식 50",
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "선정한자 목록 공식 자료 확인 필요 (공식 사이트에 이미지로만 게시)",
-    "문항 수는 공식 페이지 판독값 — 공식 자료 확인 필요"
-   ],
+   "examOnline": {
+    "examMode": "online",
+    "questionCount": 50,
+    "timeMin": 25,
+    "passCount": 35,
+    "passRule": "50문항 중 35문항 이상 (70점 이상)",
+    "structure": "객관식 50"
+   },
+   "notes": [],
    "status": {
-    "levels": "partial",
-    "hanja": "missing",
-    "examFormat": "partial"
+    "levels": "official",
+    "hanja": "official",
+    "examFormat": "official"
    }
   },
   {
@@ -143,24 +183,32 @@
    "category": "등록(민간)",
    "readCount": 400,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 150,
+   "dataCount": 400,
+   "hasData": true,
    "exam": {
-    "questionCount": 100,
-    "passCount": null,
-    "timeMin": null,
-    "passRule": "70점 이상 (공식 출제형식 페이지 판독값 — 급수별 세부 확인 필요)",
-    "mockSupported": false
+    "examMode": "offline",
+    "questionCount": 50,
+    "timeMin": 40,
+    "passCount": 35,
+    "passRule": "50문항 중 35문항 이상 (70점 이상)",
+    "structure": "객관식 50",
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "선정한자 목록 공식 자료 확인 필요 (공식 사이트에 이미지로만 게시)",
-    "문항 수는 공식 페이지 판독값 — 공식 자료 확인 필요"
-   ],
+   "examOnline": {
+    "examMode": "online",
+    "questionCount": 50,
+    "timeMin": 25,
+    "passCount": 35,
+    "passRule": "50문항 중 35문항 이상 (70점 이상)",
+    "structure": "객관식 50"
+   },
+   "notes": [],
    "status": {
-    "levels": "partial",
-    "hanja": "missing",
-    "examFormat": "partial"
+    "levels": "official",
+    "hanja": "official",
+    "examFormat": "official"
    }
   },
   {
@@ -170,24 +218,32 @@
    "category": "등록(민간)",
    "readCount": 600,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 200,
+   "dataCount": 600,
+   "hasData": true,
    "exam": {
-    "questionCount": 100,
-    "passCount": null,
-    "timeMin": null,
-    "passRule": "70점 이상 (공식 출제형식 페이지 판독값 — 급수별 세부 확인 필요)",
-    "mockSupported": false
+    "examMode": "offline",
+    "questionCount": 50,
+    "timeMin": 40,
+    "passCount": 35,
+    "passRule": "50문항 중 35문항 이상 (70점 이상)",
+    "structure": "객관식 50",
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "선정한자 목록 공식 자료 확인 필요 (공식 사이트에 이미지로만 게시)",
-    "문항 수는 공식 페이지 판독값 — 공식 자료 확인 필요"
-   ],
+   "examOnline": {
+    "examMode": "online",
+    "questionCount": 50,
+    "timeMin": 25,
+    "passCount": 35,
+    "passRule": "50문항 중 35문항 이상 (70점 이상)",
+    "structure": "객관식 50"
+   },
+   "notes": [],
    "status": {
-    "levels": "partial",
-    "hanja": "missing",
-    "examFormat": "partial"
+    "levels": "official",
+    "hanja": "official",
+    "examFormat": "official"
    }
   },
   {
@@ -197,24 +253,32 @@
    "category": "등록(민간)",
    "readCount": 800,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 200,
+   "dataCount": 800,
+   "hasData": true,
    "exam": {
-    "questionCount": 100,
-    "passCount": null,
-    "timeMin": null,
-    "passRule": "70점 이상 (공식 출제형식 페이지 판독값 — 급수별 세부 확인 필요)",
-    "mockSupported": false
+    "examMode": "offline",
+    "questionCount": 50,
+    "timeMin": 40,
+    "passCount": 35,
+    "passRule": "50문항 중 35문항 이상 (70점 이상)",
+    "structure": "객관식 50",
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "선정한자 목록 공식 자료 확인 필요 (공식 사이트에 이미지로만 게시)",
-    "문항 수는 공식 페이지 판독값 — 공식 자료 확인 필요"
-   ],
+   "examOnline": {
+    "examMode": "online",
+    "questionCount": 50,
+    "timeMin": 25,
+    "passCount": 35,
+    "passRule": "50문항 중 35문항 이상 (70점 이상)",
+    "structure": "객관식 50"
+   },
+   "notes": [],
    "status": {
-    "levels": "partial",
-    "hanja": "missing",
-    "examFormat": "partial"
+    "levels": "official",
+    "hanja": "official",
+    "examFormat": "official"
    }
   },
   {
@@ -224,24 +288,32 @@
    "category": "등록(민간)",
    "readCount": 1000,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 200,
+   "dataCount": 1000,
+   "hasData": true,
    "exam": {
-    "questionCount": 100,
-    "passCount": null,
-    "timeMin": null,
-    "passRule": "70점 이상 (공식 출제형식 페이지 판독값 — 급수별 세부 확인 필요)",
-    "mockSupported": false
+    "examMode": "offline",
+    "questionCount": 50,
+    "timeMin": 40,
+    "passCount": 35,
+    "passRule": "50문항 중 35문항 이상 (70점 이상)",
+    "structure": "객관식 50",
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "선정한자 목록 공식 자료 확인 필요 (공식 사이트에 이미지로만 게시)",
-    "문항 수는 공식 페이지 판독값 — 공식 자료 확인 필요"
-   ],
+   "examOnline": {
+    "examMode": "online",
+    "questionCount": 50,
+    "timeMin": 25,
+    "passCount": 35,
+    "passRule": "50문항 중 35문항 이상 (70점 이상)",
+    "structure": "객관식 50"
+   },
+   "notes": [],
    "status": {
-    "levels": "partial",
-    "hanja": "missing",
-    "examFormat": "partial"
+    "levels": "official",
+    "hanja": "official",
+    "examFormat": "official"
    }
   },
   {
@@ -251,24 +323,25 @@
    "category": "공인",
    "readCount": 1500,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 500,
+   "dataCount": 1500,
+   "hasData": true,
    "exam": {
+    "examMode": "offline",
     "questionCount": 100,
-    "passCount": null,
-    "timeMin": null,
-    "passRule": "70점 이상 (공식 출제형식 페이지 판독값 — 급수별 세부 확인 필요)",
-    "mockSupported": false
+    "timeMin": 60,
+    "passCount": 70,
+    "passRule": "100문항 중 70문항 이상 (70점 이상)",
+    "structure": "객관식 50 · 주관식 50",
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "선정한자 목록 공식 자료 확인 필요 (공식 사이트에 이미지로만 게시)",
-    "문항 수는 공식 페이지 판독값 — 공식 자료 확인 필요"
-   ],
+   "examOnline": null,
+   "notes": [],
    "status": {
-    "levels": "partial",
-    "hanja": "missing",
-    "examFormat": "partial"
+    "levels": "official",
+    "hanja": "official",
+    "examFormat": "official"
    }
   },
   {
@@ -278,24 +351,25 @@
    "category": "공인",
    "readCount": 2000,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 500,
+   "dataCount": 2000,
+   "hasData": true,
    "exam": {
+    "examMode": "offline",
     "questionCount": 100,
-    "passCount": null,
-    "timeMin": null,
-    "passRule": "70점 이상 (공식 출제형식 페이지 판독값 — 급수별 세부 확인 필요)",
-    "mockSupported": false
+    "timeMin": 60,
+    "passCount": 70,
+    "passRule": "100문항 중 70문항 이상 (70점 이상)",
+    "structure": "객관식 50 · 주관식 50",
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "선정한자 목록 공식 자료 확인 필요 (공식 사이트에 이미지로만 게시)",
-    "문항 수는 공식 페이지 판독값 — 공식 자료 확인 필요"
-   ],
+   "examOnline": null,
+   "notes": [],
    "status": {
-    "levels": "partial",
-    "hanja": "missing",
-    "examFormat": "partial"
+    "levels": "official",
+    "hanja": "official",
+    "examFormat": "official"
    }
   },
   {
@@ -305,24 +379,25 @@
    "category": "공인",
    "readCount": 2500,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 500,
+   "dataCount": 2500,
+   "hasData": true,
    "exam": {
+    "examMode": "offline",
     "questionCount": 150,
-    "passCount": null,
-    "timeMin": null,
-    "passRule": "70점 이상 (공식 출제형식 페이지 판독값 — 급수별 세부 확인 필요)",
-    "mockSupported": false
+    "timeMin": 90,
+    "passCount": 105,
+    "passRule": "150문항 중 105문항 이상 (70점 이상)",
+    "structure": "객관식 50 · 주관식 100",
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "선정한자 목록 공식 자료 확인 필요 (공식 사이트에 이미지로만 게시)",
-    "문항 수는 공식 페이지 판독값 — 공식 자료 확인 필요"
-   ],
+   "examOnline": null,
+   "notes": [],
    "status": {
-    "levels": "partial",
-    "hanja": "missing",
-    "examFormat": "partial"
+    "levels": "official",
+    "hanja": "official",
+    "examFormat": "official"
    }
   },
   {
@@ -332,24 +407,25 @@
    "category": "공인",
    "readCount": 3500,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 1000,
+   "dataCount": 3500,
+   "hasData": true,
    "exam": {
+    "examMode": "offline",
     "questionCount": 150,
-    "passCount": null,
-    "timeMin": null,
-    "passRule": "70점 이상 (공식 출제형식 페이지 판독값 — 급수별 세부 확인 필요)",
-    "mockSupported": false
+    "timeMin": 90,
+    "passCount": 105,
+    "passRule": "150문항 중 105문항 이상 (70점 이상)",
+    "structure": "객관식 50 · 주관식 100",
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "선정한자 목록 공식 자료 확인 필요 (공식 사이트에 이미지로만 게시)",
-    "문항 수는 공식 페이지 판독값 — 공식 자료 확인 필요"
-   ],
+   "examOnline": null,
+   "notes": [],
    "status": {
-    "levels": "partial",
-    "hanja": "missing",
-    "examFormat": "partial"
+    "levels": "official",
+    "hanja": "official",
+    "examFormat": "official"
    }
   },
   {
@@ -359,24 +435,25 @@
    "category": "공인",
    "readCount": 5000,
    "writeCount": null,
-   "newCount": null,
-   "dataCount": 0,
-   "hasData": false,
+   "newCount": 1500,
+   "dataCount": 5000,
+   "hasData": true,
    "exam": {
+    "examMode": "offline",
     "questionCount": 150,
-    "passCount": null,
-    "timeMin": null,
-    "passRule": "70점 이상 (공식 출제형식 페이지 판독값 — 급수별 세부 확인 필요)",
-    "mockSupported": false
+    "timeMin": 90,
+    "passCount": 105,
+    "passRule": "150문항 중 105문항 이상 (70점 이상)",
+    "structure": "객관식 50 · 주관식 100",
+    "mockSupported": true,
+    "mockBlockedReason": null
    },
-   "notes": [
-    "선정한자 목록 공식 자료 확인 필요 (공식 사이트에 이미지로만 게시)",
-    "문항 수는 공식 페이지 판독값 — 공식 자료 확인 필요"
-   ],
+   "examOnline": null,
+   "notes": [],
    "status": {
-    "levels": "partial",
-    "hanja": "missing",
-    "examFormat": "partial"
+    "levels": "official",
+    "hanja": "official",
+    "examFormat": "official"
    }
   },
   {
@@ -390,52 +467,38 @@
    "dataCount": 0,
    "hasData": false,
    "exam": {
+    "examMode": "offline",
     "questionCount": 100,
-    "passCount": null,
-    "timeMin": null,
-    "passRule": "70점 이상 (공식 출제형식 페이지 판독값 — 급수별 세부 확인 필요)",
-    "mockSupported": false
+    "timeMin": 60,
+    "passCount": 70,
+    "passRule": "100문항 중 70문항 이상 (70점 이상)",
+    "structure": "10개 지문 · 100문항",
+    "mockSupported": false,
+    "mockBlockedReason": "선정한자 데이터 없음"
    },
+   "examOnline": null,
    "notes": [
-    "선정한자 목록 공식 자료 확인 필요 (공식 사이트에 이미지로만 게시)",
-    "문항 수는 공식 페이지 판독값 — 공식 자료 확인 필요"
+    "선정한자 목록 공식 자료 확인 필요 (공식 자료실 원문 미확보)"
    ],
    "status": {
-    "levels": "partial",
+    "levels": "official",
     "hanja": "missing",
-    "examFormat": "partial"
+    "examFormat": "official"
    }
   }
  ],
- "testTimes": {
-  "8급~2급": "13:40 입실, 14:00 시작 (공식 일정표 '오후 2시 정각 전국동시')",
-  "note": "시험 시간 세부는 공식 자료 확인 필요"
+ "examModes": {
+  "offline": "현장시험 (공식 시험안내 https://www.hanja.ne.kr/apply/info01.asp)",
+  "online": "자기주도형 온라인 시험 — 8급~3급만, 객관식 (https://www.hanja.ne.kr/info/info01_online.asp)"
  },
- "online": {
-  "levels": [
-   "8급",
-   "7급",
-   "6급",
-   "준5급",
-   "5급",
-   "준4급",
-   "4급",
-   "준3급",
-   "3급"
-  ],
-  "format": "객관식",
-  "items": {
-   "8급·7급": "25문항 15분",
-   "6급~3급": "50문항 25분"
-  },
-  "pass": "70점 이상",
-  "source": "https://www.hanja.ne.kr/info/info01_online.asp"
- },
+ "cumulative": "상위 급수 선정한자는 하위 급수 선정한자를 모두 포함하는 누적 구조 (공식)",
  "sourceRefs": [
   "https://www.hanja.ne.kr/info/info01.asp",
   "https://www.hanja.ne.kr/info/info01_online.asp",
+  "https://www.hanja.ne.kr/apply/info01.asp",
   "https://www.hanja.ne.kr/jupsu/info01.asp",
   "https://www.hanja.ne.kr/jupsu/jupsu07_01.asp",
+  "https://www.hanja.ne.kr/jupsu/jupsu07.asp",
   "https://namu.wiki/w/%ED%95%9C%EC%9E%90%EA%B8%89%EC%88%98%EC%9E%90%EA%B2%A9%EA%B2%80%EC%A0%95/%EB%B0%B0%EC%A0%95%ED%95%9C%EC%9E%90"
  ]
 }

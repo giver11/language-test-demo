@@ -74,7 +74,8 @@ async def ls(pg):
     return await pg.evaluate("() => JSON.parse(localStorage.getItem('hanjaPass.v1') || 'null')")
 
 async def main():
-    levels = {p: load(f'providers/{p}/levels.json')['levels'] for p in ['eomunhoe', 'daehan']}
+    PIDS = [x['id'] for x in load('providers/index.json')['providers']]
+    levels = {p: load(f'providers/{p}/levels.json')['levels'] for p in PIDS}
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         dev = dict(p.devices['iPhone 13'])
@@ -90,12 +91,12 @@ async def main():
         await pg.wait_for_selector('.pick')
         names = await pg.eval_on_selector_all('.pick .t', 'els => els.map(e => e.textContent)')
         title = await pg.inner_text('h1')
-        rec('TEST 1', '앱 실행 → 2개 시험기관 표시', names == ['한국어문회', '대한검정회'] and '어떤 한자시험을 준비하시나요' in title, str(names))
+        rec('TEST 1', '앱 실행 → 4개 시험기관 표시', names == ['한국어문회', '대한검정회', '한자교육진흥회', '대한상공회의소'] and '어떤 한자시험을 준비하시나요' in title, str(names))
         await shot(pg, 't01-onboard')
 
         # ---------------- TEST 2
         ok2, det = True, []
-        for pid in ['eomunhoe', 'daehan']:
+        for pid in PIDS:
             await pg.goto(BASE + '#/onboard?p=' + pid)
             await pg.wait_for_selector('.lv')
             shown = await pg.eval_on_selector_all('.lv b', 'els => els.map(e => e.textContent)')
@@ -224,8 +225,8 @@ async def main():
 
         # ---------------- TEST 6 획순
         await pg.goto(BASE + '#/search?q=學')
-        await pg.wait_for_selector('.hcell')
-        await pg.tap('.hcell')
+        await pg.wait_for_selector('.srow')
+        await pg.tap('.srow')
         await pg.wait_for_selector('.stroke-steps figure')
         figs = await pg.eval_on_selector_all('.stroke-steps figcaption', 'els => els.map(e => e.textContent)')
         await pg.wait_for_timeout(1500)
@@ -234,7 +235,7 @@ async def main():
         n_st = len(load('strokes/5B78.json')['s'])
         ok6 = len(figs) == n_st and figs[0] == '1획' and figs[-1] == f'{n_st}획' and len(anim_paths) == n_st and anim_paths[0] < 1
         # 획순 데이터 없는 글자는 애니메이션 없음 확인 (敎)
-        await pg.goto(BASE + '#/search?q=敎'); await pg.wait_for_selector('.hcell'); await pg.tap('.hcell'); await pg.wait_for_timeout(800)
+        await pg.goto(BASE + '#/search?q=敎'); await pg.wait_for_selector('.srow'); await pg.tap('.srow'); await pg.wait_for_timeout(800)
         nodata = await pg.inner_text('#sheet')
         ok6 &= '획순 데이터가 없어' in nodata and await pg.eval_on_selector_all('#sheet .stroke-anim polyline', 'e => e.length') == 0
         rec('TEST 6', '획순 표시(1획~N획 + 애니메이션, 데이터 없는 글자는 표시 안 함)', ok6, f'學 {len(figs)}단계, 애니메이션 진행 중 첫 획 offset={anim_paths[0] if anim_paths else None}; 敎 → 데이터 없음 안내')
@@ -378,12 +379,12 @@ async def main():
         await pg.wait_for_selector('.sched-cards')
         sch = await pg.inner_text('#view')
         await shot(pg, 't12-schedule')
-        ok12 = all(x in sch for x in ['한국어문회', '대한검정회', '2026.11.21', '2026.11.28', '마지막 확인: 2026-09-28', '공식 시험기관 발표 기준']) and not any(x in sch for x in ['한자교육진흥회', '대한상공회의소'])
+        ok12 = all(x in sch for x in ['한국어문회', '대한검정회', '한자교육진흥회', '대한상공회의소', '2026.11.21', '2026.11.28', '마지막 확인: 2026-09-28', '공식 시험기관 발표 기준'])
         # 데이터 파일과 화면 대조
-        for pid in ['eomunhoe', 'daehan']:
+        for pid in PIDS:
             for s in load(f'schedules/{pid}-2026.json')['sessions']:
                 ok12 &= s['examDate'].replace('-', '.') in sch
-        rec('TEST 12', '2개 기관 2026 시험일정', ok12, '어문회 4회·검정회 4회+온라인 2회 (진흥회·상공회의소 미표시)')
+        rec('TEST 12', '4개 기관 2026 시험일정', ok12, '데이터 파일의 모든 시험일이 화면에 표시')
 
         # ---------------- TEST 14 기관 변경 → 기존 진도 유지
         before = (await ls(pg))['byProvider']['eomunhoe']
@@ -405,7 +406,7 @@ async def main():
         await pg.goto(BASE + '#/compare?from=daehan:8&to=eomunhoe:8')
         await pg.wait_for_selector('.cmp-num')
         nums = await pg.eval_on_selector_all('.card .cmp-num', 'els => els.map(e => +e.textContent)')
-        A = {x['c'] for x in load('providers/daehan/hanja-mapping.json')['items']}
+        A = {x['c'] for x in load('providers/daehan/hanja-mapping.json')['items'] if x['l'] == '8'}
         B = [x['c'] for x in mp if x['l'] == '8']
         st = await ls(pg)
         learned = {c for p_ in st['byProvider'].values() for c, e in p_['cards'].items() if e.get('s') == 'know'}

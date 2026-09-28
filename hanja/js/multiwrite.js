@@ -46,7 +46,7 @@ export async function multiWrite(host, chars, opts = {}) {
     pad.loadStrokes(saved[i] || []);
     pad.clearOverlay();
     const d = dict[chars[i]];
-    hint.textContent = `${i + 1}번째 글자${opts.showHints !== false && d ? ` · 뜻: ${d.m && d.m[0] ? d.m[0][0] : ''}` : ''}`;
+    hint.textContent = `${i + 1}번째 글자${opts.showHints !== false && d ? ` · 뜻: ${D.heList(d)[0] ? D.heList(d)[0][0] : ''}` : ''}`;
     paintSlots();
   };
   slots.forEach((s) => (s.onclick = () => {

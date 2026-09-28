@@ -1,7 +1,7 @@
 import * as P from '../progress.js';
 import * as S from '../store.js';
 import * as D from '../data.js';
-import { esc, daysUntil, ddayText, fmtDate, bar } from '../ui.js';
+import { esc, daysUntil, ddayText, fmtDate, bar, daehanFooter } from '../ui.js';
 
 export default async function (view, { ctx: c }) {
   const sum = await P.summary(c);
@@ -67,5 +67,6 @@ export default async function (view, { ctx: c }) {
       <a href="#/schedule"><i>曆</i><b>2026 시험일정</b><span>어문회·검정회 공식 일정</span></a>
       <a href="#/compare"><i>比</i><b>기관 비교</b><span>배정한자 차이 계산</span></a>
       <a href="#/search"><i>索</i><b>한자 검색</b><span>한자·음·뜻·한자어</span></a>
-    </div>`;
+    </div>
+    ${c.pid === 'daehan' ? daehanFooter() : ''}`;
 }

@@ -1,0 +1,53 @@
+{
+ "provider": "jinheung",
+ "year": 2026,
+ "examName": "한자실력급수 자격시험",
+ "status": "official",
+ "source": {
+  "provider": "jinheung",
+  "sourceName": "한자교육진흥회(한국한자실력평가원) 시험일정",
+  "sourceUrl": "https://www.hanja114.org/common/intro/examInfoList.do",
+  "verifiedAt": "2026-09-28",
+  "year": 2026
+ },
+ "officialUrl": "https://web.hanja114.org/",
+ "note": "사정에 따라 시험 일정 및 접수기간은 조정될 수 있음(공식 안내).",
+ "sessions": [
+  {
+   "round": "제123회",
+   "levels": "사범~8급",
+   "applyStart": "2026-01-13",
+   "applyEnd": "2026-01-22",
+   "examDate": "2026-02-28",
+   "resultDate": "2026-03-26",
+   "mode": "오프라인 · 인터넷/방문 접수 · 오후 3시"
+  },
+  {
+   "round": "제124회",
+   "levels": "사범~8급",
+   "applyStart": "2026-04-14",
+   "applyEnd": "2026-04-23",
+   "examDate": "2026-05-16",
+   "resultDate": "2026-06-11",
+   "mode": "오프라인 · 인터넷/방문 접수 · 오후 3시"
+  },
+  {
+   "round": "제125회",
+   "levels": "사범~8급",
+   "applyStart": "2026-07-14",
+   "applyEnd": "2026-07-23",
+   "examDate": "2026-08-22",
+   "resultDate": "2026-09-17",
+   "mode": "오프라인 · 인터넷/방문 접수 · 오후 3시"
+  },
+  {
+   "round": "제126회",
+   "levels": "사범~8급",
+   "applyStart": "2026-10-13",
+   "applyEnd": "2026-10-22",
+   "examDate": "2026-11-21",
+   "resultDate": "2026-12-17",
+   "mode": "오프라인 · 인터넷/방문 접수 · 오후 3시"
+  }
+ ]
+}

@@ -1,6 +1,6 @@
 import * as D from '../data.js';
 import * as S from '../store.js';
-import { esc, shuffle, toast, statusBadge } from '../ui.js';
+import { esc, shuffle, toast, statusBadge, daehanFooter } from '../ui.js';
 import { renderQuestion } from '../qrender.js';
 
 const TYPE_POOL = {
@@ -14,6 +14,8 @@ const TYPE_POOL = {
   뜻풀이: ['idiom-meaning', 'word-gloss'],
   필순: ['stroke-order'],
   한자쓰기: ['write'],
+  획수: ['stroke-count'],
+  문장: ['sentence-reading'],
 };
 const SUBSTITUTE = { 장단음: '독음', 약자: '훈음' };
 const RUN_KEY = 'hanjaPass.mockRun';
@@ -55,7 +57,10 @@ export default async function (view, { ctx: c, args, params }) {
   if (args[0] === 'run') return run(view, c);
   if (args[0] === 'result') return showResult(view, c, +(params.i || 0));
   const L = c.level;
-  const ex = L.exam || {};
+  // 대한검정회: 현장시험(offline) / 자기주도형 온라인 시험(online, 8~3급) 형식 분리
+  const mode = params.mode === 'online' && L.examOnline ? 'online' : 'offline';
+  const ex = (mode === 'online' ? L.examOnline : L.exam) || {};
+  if (mode === 'online') ex.mockSupported = L.exam && L.exam.mockSupported;
   const et = await D.examTypes(c.pid).catch(() => null);
   const saved = loadRun();
   const history = c.p.mocks.filter((m) => m.level === c.lid).slice(-5).reverse();
@@ -64,6 +69,11 @@ export default async function (view, { ctx: c, args, params }) {
     const dist = et.levels[c.lid];
     formatHtml = `<div class="table-wrap"><table><thead><tr><th>유형</th><th>문항</th><th>앱 구성</th></tr></thead><tbody>${Object.entries(dist).filter(([, v]) => v).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${v}</td><td class="small">${SUBSTITUTE[k] ? `${SUBSTITUTE[k]} 문항으로 대체` : '자체 제작 유사문제'}</td></tr>`).join('')}</tbody></table></div>
       <p class="tiny">${esc(et.statusNote)} ${statusBadge(et.status)}</p>`;
+  } else if (c.pid === 'daehan' && et) {
+    const dist = et.levels[c.lid] || {};
+    const sc = L.exam && ex.questionCount ? ex.questionCount / L.exam.questionCount : 1;
+    formatHtml = `<div class="table-wrap"><table><thead><tr><th>영역(앱 구성)</th><th>문항</th></tr></thead><tbody>${Object.entries(dist).filter(([, v]) => v).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${Math.round(v * sc)}</td></tr>`).join('')}</tbody></table></div>
+      <p class="tiny">공식 문항 수·시간·합격 기준은 공식 시험안내 기준, 영역별 배분은 앱 구성입니다. ${statusBadge(et.status)}</p>`;
   } else if (c.pid === 'korcham') {
     formatHtml = `<div class="table-wrap"><table><thead><tr><th>영역</th><th>문항</th><th>배점</th></tr></thead><tbody>${Object.entries(ex.sections || {}).map(([k, v]) => `<tr><td>${k}</td><td>${v}</td><td>${ex.points[k]}점</td></tr>`).join('')}</tbody></table></div>`;
   } else if (c.pid === 'jinheung') {
@@ -72,6 +82,8 @@ export default async function (view, { ctx: c, args, params }) {
   view.innerHTML = `
     <h1>모의시험</h1>
     <p class="sub">${esc(c.provider.name)} ${esc(L.name)} · 공식 시험 형식 기준</p>
+    ${L.examOnline ? `<div class="tabs" role="tablist"><button class="${mode === 'offline' ? 'on' : ''}" data-mode="offline" type="button">현장시험</button><button class="${mode === 'online' ? 'on' : ''}" data-mode="online" type="button">온라인 시험 (8~3급)</button></div>` : ''}
+    ${ex.structure ? `<p class="small">시험 방식: ${esc(ex.examMode === 'online' ? '자기주도형 온라인 시험' : '현장시험')} · ${esc(ex.structure)}</p>` : ''}
     <div class="card">
       <dl class="kv" style="font-size:15px"><dt>문항 수</dt><dd>${ex.questionCount != null ? ex.questionCount : '공식 자료 확인 필요'}문항</dd>
         <dt>시험 시간</dt><dd>${ex.timeMin ? ex.timeMin + '분' : '공식 자료 확인 필요'}</dd>
@@ -90,13 +102,16 @@ export default async function (view, { ctx: c, args, params }) {
       </div>
       <p class="tiny">문제는 공식 배정한자·공식 유형 기준의 자체 제작 “실전 유사문제”입니다. 한자쓰기 문항은 필기 판정으로 채점합니다.</p>`
       : `<div class="notice bad">이 기관·급수는 모의시험을 제공하지 않아요: ${esc(ex.mockBlockedReason || '공식 시험형식 또는 배정한자 ' + '공식 자료 확인 필요')}.</div>`}
-    ${history.length ? `<h3>최근 기록</h3><div class="card">${history.map((m, k) => `<div class="list-row"><div class="grow"><b>${m.pct}%</b> · ${m.correct}/${m.total} ${m.mini ? '<span class="badge">미니</span>' : ''} ${m.pass ? '<span class="badge official">합격기준 충족</span>' : '<span class="badge missing">기준 미달</span>'}<div class="small">${new Date(m.t).toLocaleString('ko-KR')}</div></div><a class="btn sm" href="#/mock/result?i=${c.p.mocks.indexOf(m)}">결과</a></div>`).join('')}</div>` : ''}`;
+    ${history.length ? `<h3>최근 기록</h3><div class="card">${history.map((m, k) => `<div class="list-row"><div class="grow"><b>${m.pct}%</b> · ${m.correct}/${m.total} ${m.mini ? '<span class="badge">미니</span>' : ''} ${m.pass ? '<span class="badge official">합격기준 충족</span>' : '<span class="badge missing">기준 미달</span>'}<div class="small">${new Date(m.t).toLocaleString('ko-KR')}</div></div><a class="btn sm" href="#/mock/result?i=${c.p.mocks.indexOf(m)}">결과</a></div>`).join('')}</div>` : ''}
+    ${c.pid === 'daehan' ? daehanFooter() : ''}`;
+  view.querySelectorAll('[data-mode]').forEach((b) => (b.onclick = () => { location.hash = '#/mock?mode=' + b.dataset.mode; }));
   view.querySelectorAll('[data-start]').forEach((b) => (b.onclick = async () => {
     const bank = await D.bank(c.pid, c.lid);
     const dist = et.levels[c.lid];
     const mini = b.dataset.start === 'mini';
-    const { questions, notes } = compose(bank, dist, mini ? 0.2 : 1);
-    const runState = { pid: c.pid, lid: c.lid, mini, start: Date.now(), timeMin: mini ? Math.max(5, Math.round(ex.timeMin / 5)) : ex.timeMin,
+    const base = L.exam && L.exam.questionCount && ex.questionCount ? ex.questionCount / L.exam.questionCount : 1;
+    const { questions, notes } = compose(bank, dist, (mini ? 0.2 : 1) * base);
+    const runState = { pid: c.pid, lid: c.lid, mini, examMode: ex.examMode || 'offline', start: Date.now(), timeMin: mini ? Math.max(5, Math.round(ex.timeMin / 5)) : ex.timeMin,
       passCount: mini ? Math.ceil((ex.passCount * questions.length) / ex.questionCount) : ex.passCount, officialPass: ex.passCount, officialTotal: ex.questionCount,
       questions, answers: {}, notes, cur: 0 };
     saveRun(runState);

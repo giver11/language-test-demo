@@ -5,7 +5,7 @@ import { runSession } from './quiz.js';
 import { multiWrite } from '../multiwrite.js';
 
 export function gloss(w, dict, withEum = true) {
-  return [...w].map((ch) => { const d = dict[ch]; const h = d && d.m[0] ? d.m[0] : ['', d ? d.r : '']; return withEum ? `${ch}(${h[0]} ${h[1]})` : `${h[0]}`; }).join(' + ');
+  return [...w].map((ch) => { const d = dict[ch]; const hl = D.heList(d); const h = hl[0] ? hl[0] : ['', d ? d.r : '']; return withEum ? `${ch}(${h[0]} ${h[1]})` : `${h[0]}`; }).join(' + ');
 }
 
 const MODES = [['h2m', '한자 → 뜻'], ['m2h', '뜻 → 한자'], ['r2h', '음 → 한자'], ['blank', '빈칸'], ['combine', '한자 조합'], ['write', '직접 쓰기']];

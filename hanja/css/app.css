@@ -261,3 +261,4 @@ html,body{overflow-x:hidden}
 /* 화면이 낮은 폰에서도 쓰기 칸 전체가 한 화면에 들어오도록 (미지원 브라우저는 위의 max-width:440px 사용) */
 .pad{max-width:min(440px,max(250px,calc(100vh - 250px)))}
 @media (orientation:landscape) and (max-height:500px){.pad{max-width:270px}}
+.srow .lvl{font-size:13px;color:var(--muted,#555);line-height:1.4}

@@ -30,6 +30,10 @@ export default async function (view) {
       const m = await D.mapping(p.id);
       add(m.items.length > 0, `${p.name} 배정한자 매핑`, `${m.items.length.toLocaleString()}자 로드`);
     }
+    if (await D.provider('daehan')) {
+      const v = await D.validateDaehanHanjaData();
+      for (const r of v.levels) add(r.ok, `대한검정회 ${r.급수} 누적`, `실제 ${r.실제} / 공식 ${r.예상} · 신출 ${r.신출} · 중복 ${r.중복.length} · 누락 ${r.누락.length}`);
+    }
     const st = S.get();
     if (st.current && st.current.provider) {
       const pv = S.prov(st.current.provider);

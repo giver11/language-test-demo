@@ -17,12 +17,21 @@
  },
  {
   "provider": "daehan",
+  "sourceName": "대한검정회 공식 시험안내 (급수별 문항수·시험시간·합격기준)",
+  "sourceUrl": "https://www.hanja.ne.kr/apply/info01.asp",
+  "verifiedAt": "2026-09-28",
+  "year": 2026,
+  "status": "official",
+  "note": "현장시험: 8·7급 25문항 40분(18문항 이상), 6~3급 50문항 40분(35), 준2·2급 100문항 60분(70), 준1·1급·사범 150문항 90분(105), 대사범 100문항 60분(70). 8~3급 객관식."
+ },
+ {
+  "provider": "daehan",
   "sourceName": "대한검정회 등급별 검정과목 출제형식",
   "sourceUrl": "https://www.hanja.ne.kr/jupsu/info01.asp",
   "verifiedAt": "2026-09-28",
   "year": 2026,
   "status": "partial",
-  "note": "페이지 표가 인코딩 문제로 일부만 판독됨. 급수별 선정한자 수·문항 수는 판독값이며 공식 원문 대조 필요."
+  "note": "급수별 선정한자 누적 수(8급 30 ~ 사범 5,000) 확인. 표 일부는 인코딩 문제로 판독 제한."
  },
  {
   "provider": "daehan",
@@ -31,7 +40,16 @@
   "verifiedAt": "2026-09-28",
   "year": 2026,
   "status": "image-only",
-  "note": "선정한자 목록이 이미지로 게시되어 텍스트 추출 불가. 8급 30자는 나무위키 전사본(2차 자료) 기준이며 공식 대조 필요."
+  "note": "페이지 본문은 8·7·6급 제목과 누적 구성(30/50/70자)만 텍스트로 제공. 한자 목록은 자료실 게시판(/board/board/list.asp?tb=inno_12)에 있으며 이 개발 환경에서는 robots.txt 차단으로 원문 확보 불가 → 공식 자료 확인 필요."
+ },
+ {
+  "provider": "daehan",
+  "sourceName": "대한검정회 공식 기출문제 (최근 2회분, 무단 복제·배포 금지)",
+  "sourceUrl": "https://www.hanja.ne.kr/jupsu/jupsu07.asp",
+  "verifiedAt": "2026-09-28",
+  "year": 2026,
+  "status": "official",
+  "note": "앱에는 저장하지 않고 링크로만 연결."
  },
  {
   "provider": "daehan",

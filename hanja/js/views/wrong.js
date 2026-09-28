@@ -26,7 +26,7 @@ export default async function (view, { ctx: c, params }) {
     <div class="tabs">${CATS.map((k) => `<button class="${cat === k ? 'on' : ''}" data-cat="${k}" type="button">${k} ${counts[k]}</button>`).join('')}</div>
     ${types.length ? `<select data-type aria-label="문제유형"><option value="">문제유형 전체</option>${types.map((t) => `<option ${t === type ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select>` : ''}
     <div class="btns fill" style="margin:12px 0">
-      <button class="btn accent" data-retry type="button" ${retryable.length ? '' : 'disabled'}>다시 풀기 (${Math.min(20, retryable.length)}문제)</button>
+      <button class="btn accent" data-retry type="button" ${retryable.length ? '' : 'disabled'}>오답만 다시 풀기 (${Math.min(20, retryable.length)}문제)</button>
       <a class="btn" href="${q({ resolved: showResolved ? '' : '1' })}">${showResolved ? '해결한 문제 숨기기' : '해결한 문제 보기'}</a>
     </div>
     <div class="card">${list.map((w) => `
@@ -34,7 +34,10 @@ export default async function (view, { ctx: c, params }) {
         <span class="hz">${esc(String(w.q.prompt || ansText(w.q)).slice(0, 8))}</span>
         <div class="grow"><div class="row"><b>${esc(w.q.typeLabel)}</b><span class="badge ${w.count >= 2 ? 'missing' : ''}">${w.count}회 틀림</span>${w.resolved ? '<span class="badge official">해결</span>' : ''}<span class="badge">${esc(w.cat)}</span></div>
           <div class="small">${esc(w.q.question)}</div>
-          <div class="small">정답: <b>${esc(ansText(w.q))}</b>${w.picked != null && w.q.choices && w.q.choices[w.picked] ? ` · 내 답: ${esc(w.q.choices[w.picked])}` : ''}</div>
+          ${w.q.prompt ? `<div class="small">문제: <span class="hanzi">${esc(w.q.prompt)}</span></div>` : ''}
+          <div class="small">정답: <b>${esc(ansText(w.q))}</b> · 내 답: ${w.picked != null && w.q.choices && w.q.choices[w.picked] != null ? esc(w.q.choices[w.picked]) : (typeof w.picked === 'string' && w.picked ? esc(w.picked) : '무응답/필기')}</div>
+          ${w.q.explanation ? `<div class="tiny">해설: ${esc(w.q.explanation)}</div>` : ''}
+          <div class="tiny">틀린 날짜: ${w.t ? new Date(w.t).toLocaleDateString('ko-KR') : '-'} · ${esc(c.provider.short || c.provider.name)} ${esc(((c.levels || []).find((l) => l.id === w.q.level) || {}).name || '')}</div>
           ${w.q.type === 'idiom-write' || w.q.type === 'idiom-arrange' ? `<a class="small" href="#/idioms?mode=${w.q.type === 'idiom-write' ? 'write' : 'arrange'}&id=${esc(w.q.idiom)}">다시 연습 →</a>` : ''}
           ${w.q.type === 'word-write' || w.q.type === 'word-combine' ? `<a class="small" href="#/words?mode=write&w=${encodeURIComponent(w.q.word)}">다시 연습 →</a>` : ''}
         </div></div>`).join('') || '<div class="empty">저장된 오답이 없어요.</div>'}</div>`;

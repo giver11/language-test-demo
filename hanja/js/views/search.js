@@ -9,6 +9,19 @@ export default async function (view, { params, ctx }) {
   const words = await D.words();
   const idioms = await D.idioms();
   const chars = Object.values(dict);
+  // 검색 결과에 기관별 급수 표시 (현재 기관 + 대한검정회)
+  const pids = [...new Set([ctx && ctx.pid, 'daehan'].filter(Boolean))];
+  const maps = {};
+  for (const pid of pids) {
+    const pv = await D.provider(pid).catch(() => null);
+    if (pv) maps[pid] = { name: pv.name, m: await D.mapping(pid) };
+  }
+  const levelLine = (c) => Object.values(maps).map(({ name, m }) => {
+    const it = m.byChar.get(c);
+    if (!it) return '';
+    const L = m.levels.find((l) => l.id === it.l);
+    return L ? `<div class="lvl">${esc(name)} ${esc(L.name)} 신출 / ${esc(L.name)} 이상 포함</div>` : '';
+  }).join('');
   view.innerHTML = `
     <h1>한자 검색</h1>
     <form data-form class="row" style="flex-wrap:nowrap" action="#" onsubmit="return false">
@@ -40,9 +53,10 @@ export default async function (view, { params, ctx }) {
       for (const w of words.values()) if (w.w.includes(q)) { wHits.push(w); if (wHits.length > 60) break; }
       iHits = [...idioms.values()].filter((it) => it.w.includes(q));
     } else {
-      cHits = chars.filter((d) => d.r === q || d.m.some(([h, e]) => e === q || matchHun(h, q)));
+      cHits = chars.filter((d) => d.r === q || [...d.m, ...(d.dh || [])].some(([h, e]) => e === q || matchHun(h, q)));
       // 현재 기관 배정 한자 → 획순 데이터 있는 한자 순으로 정렬
-      cHits.sort((a, b) => (b.src === 'eomunhoe-xls') - (a.src === 'eomunhoe-xls') || (b.so - a.so));
+      const pm = maps[pids[0]] ? maps[pids[0]].m.byChar : new Map();
+      cHits.sort((a, b) => pm.has(b.c) - pm.has(a.c) || (b.src === 'eomunhoe-xls') - (a.src === 'eomunhoe-xls') || (b.so - a.so));
       cHits = cHits.slice(0, 120);
       for (const w of words.values()) if (w.r === q || w.r.startsWith(q)) { wHits.push(w); if (wHits.length > 60) break; }
       iHits = [...idioms.values()].filter((it) => it.r.includes(q) || it.mean.includes(q));
@@ -50,7 +64,7 @@ export default async function (view, { params, ctx }) {
     // 현재 기관 배정 한자 우선
     res.innerHTML = `
       <h3>한자 (${cHits.length})</h3>
-      <div class="hgrid">${cHits.map((d) => `<button class="hcell" data-c="${esc(d.c)}" type="button"><span class="z">${esc(d.c)}</span><span class="e">${esc(D.heStr(d))}</span></button>`).join('') || '<span class="small">없음</span>'}</div>
+      <div class="card">${cHits.map((d) => `<div class="list-row srow" data-c="${esc(d.c)}" style="cursor:pointer"><span class="hz">${esc(d.c)}</span><div class="grow"><b>${esc(d.c)} ${esc(D.heStr(d))}</b>${levelLine(d.c) || '<div class="lvl tiny">시험 배정 범위 밖(사전 한자)</div>'}</div></div>`).join('') || '<span class="small">없음</span>'}</div>
       <h3>한자어 (${wHits.length}${wHits.length > 60 ? '+' : ''})</h3>
       <div class="card">${wHits.slice(0, 60).map((w) => `<div class="list-row"><span class="hz">${esc(w.w)}</span><div class="grow"><b>${esc(w.r)}</b><div class="small">${[...w.w].map((ch) => `${ch}(${esc(D.heStr(dict[ch]))})`).join(' + ')}</div></div><button class="star ${S.isFav('words', w.w) ? 'on' : ''}" data-fw="${esc(w.w)}" type="button" aria-label="즐겨찾기">★</button></div>`).join('') || '<span class="small">없음</span>'}</div>
       <h3>사자성어 (${iHits.length})</h3>

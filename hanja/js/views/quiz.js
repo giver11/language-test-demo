@@ -1,6 +1,6 @@
 import * as D from '../data.js';
 import * as S from '../store.js';
-import { esc, shuffle } from '../ui.js';
+import { esc, shuffle, daehanFooter } from '../ui.js';
 import { renderQuestion } from '../qrender.js';
 
 export default async function (view, { ctx: c, params }) {
@@ -19,7 +19,7 @@ export default async function (view, { ctx: c, params }) {
   const draw = () => {
     view.innerHTML = `
       <h1>문제 풀이</h1>
-      <p class="sub">${esc(c.provider.name)} ${esc(c.level.name)} · <b>기출유형 연습 · 실전 유사문제</b></p>
+      <p class="sub">${esc(c.provider.name)} ${esc(c.level.name)} · <b>기출유형 연습문제 · 예상문제</b></p>
       <div class="notice info">공식 배정한자와 공식 문제유형을 기준으로 이 앱에서 새로 만든 문제예요 (실제 기출문제가 아니에요). 문제은행 ${qs.length.toLocaleString()}문항.</div>
       <h3>문제 유형</h3>
       <div class="chips">${['전체', ...Object.keys(types)].map((t) => `<button class="chip ${sel.type === t ? 'sel' : ''}" data-t="${esc(t)}" type="button">${esc(t)}${t !== '전체' ? ` <span class="small">${types[t]}</span>` : ''}</button>`).join('')}</div>
@@ -29,7 +29,8 @@ export default async function (view, { ctx: c, params }) {
       <button class="btn accent block" data-start type="button" style="margin-top:18px;min-height:56px">풀기 시작</button>
       <div class="btns" style="margin-top:12px"><a class="btn sm" href="#/wrong">오답노트</a><a class="btn sm" href="#/mock">모의시험</a>
         <a class="btn sm" href="${esc(c.provider.pastExamUrl)}" target="_blank" rel="noopener">공식 기출문제 보기 ↗</a></div>
-      <p class="tiny">${esc(c.provider.pastExamPolicy)}</p>`;
+      <p class="tiny">${esc(c.provider.pastExamPolicy)}</p>
+      ${c.pid === 'daehan' ? daehanFooter() : ''}`;
     view.querySelectorAll('[data-t]').forEach((b) => (b.onclick = () => { sel.type = b.dataset.t; draw(); }));
     view.querySelectorAll('[data-n]').forEach((b) => (b.onclick = () => { sel.n = +b.dataset.n; draw(); }));
     view.querySelector('[data-start]').onclick = () => {

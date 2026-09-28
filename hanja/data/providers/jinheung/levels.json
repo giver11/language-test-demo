@@ -1,0 +1,410 @@
+{
+ "provider": "jinheung",
+ "levels": [
+  {
+   "id": "8",
+   "name": "8급",
+   "order": 0,
+   "category": "등록",
+   "readCount": 50,
+   "writeCount": null,
+   "newCount": null,
+   "dataCount": 0,
+   "hasData": false,
+   "exam": {
+    "questionCount": 50,
+    "subjective": 20,
+    "writing": 0,
+    "objective": 30,
+    "pointEach": 2,
+    "fullScore": 100,
+    "timeMin": 60,
+    "passCount": null,
+    "passRule": "만점의 70% 이상",
+    "passRatio": 0.7,
+    "mockSupported": false,
+    "mockBlockedReason": "배정한자 데이터 없음"
+   },
+   "notes": [
+    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
+   ],
+   "status": {
+    "levels": "official",
+    "hanja": "missing",
+    "examFormat": "official"
+   }
+  },
+  {
+   "id": "7",
+   "name": "7급",
+   "order": 1,
+   "category": "등록",
+   "readCount": 120,
+   "writeCount": null,
+   "newCount": null,
+   "dataCount": 0,
+   "hasData": false,
+   "exam": {
+    "questionCount": 50,
+    "subjective": 20,
+    "writing": 0,
+    "objective": 30,
+    "pointEach": 2,
+    "fullScore": 100,
+    "timeMin": 60,
+    "passCount": null,
+    "passRule": "만점의 70% 이상",
+    "passRatio": 0.7,
+    "mockSupported": false,
+    "mockBlockedReason": "배정한자 데이터 없음"
+   },
+   "notes": [
+    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
+   ],
+   "status": {
+    "levels": "official",
+    "hanja": "missing",
+    "examFormat": "official"
+   }
+  },
+  {
+   "id": "6",
+   "name": "6급",
+   "order": 2,
+   "category": "등록",
+   "readCount": 170,
+   "writeCount": null,
+   "newCount": null,
+   "dataCount": 0,
+   "hasData": false,
+   "exam": {
+    "questionCount": 80,
+    "subjective": 50,
+    "writing": 10,
+    "objective": 30,
+    "pointEach": 1.25,
+    "fullScore": 100,
+    "timeMin": 60,
+    "passCount": null,
+    "passRule": "만점의 70% 이상",
+    "passRatio": 0.7,
+    "mockSupported": false,
+    "mockBlockedReason": "배정한자 데이터 없음"
+   },
+   "notes": [
+    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
+   ],
+   "status": {
+    "levels": "official",
+    "hanja": "missing",
+    "examFormat": "official"
+   }
+  },
+  {
+   "id": "5-j",
+   "name": "준5급",
+   "order": 3,
+   "category": "등록",
+   "readCount": 250,
+   "writeCount": null,
+   "newCount": null,
+   "dataCount": 0,
+   "hasData": false,
+   "exam": {
+    "questionCount": 100,
+    "subjective": 70,
+    "writing": 20,
+    "objective": 30,
+    "pointEach": 1,
+    "fullScore": 100,
+    "timeMin": 60,
+    "passCount": null,
+    "passRule": "만점의 70% 이상",
+    "passRatio": 0.7,
+    "mockSupported": false,
+    "mockBlockedReason": "배정한자 데이터 없음"
+   },
+   "notes": [
+    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
+   ],
+   "status": {
+    "levels": "official",
+    "hanja": "missing",
+    "examFormat": "official"
+   }
+  },
+  {
+   "id": "5",
+   "name": "5급",
+   "order": 4,
+   "category": "등록",
+   "readCount": 450,
+   "writeCount": null,
+   "newCount": null,
+   "dataCount": 0,
+   "hasData": false,
+   "exam": {
+    "questionCount": 100,
+    "subjective": 70,
+    "writing": 20,
+    "objective": 30,
+    "pointEach": 1,
+    "fullScore": 100,
+    "timeMin": 60,
+    "passCount": null,
+    "passRule": "만점의 70% 이상",
+    "passRatio": 0.7,
+    "mockSupported": false,
+    "mockBlockedReason": "배정한자 데이터 없음"
+   },
+   "notes": [
+    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
+   ],
+   "status": {
+    "levels": "official",
+    "hanja": "missing",
+    "examFormat": "official"
+   }
+  },
+  {
+   "id": "4-j",
+   "name": "준4급",
+   "order": 5,
+   "category": "등록",
+   "readCount": 700,
+   "writeCount": null,
+   "newCount": null,
+   "dataCount": 0,
+   "hasData": false,
+   "exam": {
+    "questionCount": 100,
+    "subjective": 70,
+    "writing": 20,
+    "objective": 30,
+    "pointEach": 1,
+    "fullScore": 100,
+    "timeMin": 60,
+    "passCount": null,
+    "passRule": "만점의 70% 이상",
+    "passRatio": 0.7,
+    "mockSupported": false,
+    "mockBlockedReason": "배정한자 데이터 없음"
+   },
+   "notes": [
+    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
+   ],
+   "status": {
+    "levels": "official",
+    "hanja": "missing",
+    "examFormat": "official"
+   }
+  },
+  {
+   "id": "4",
+   "name": "4급",
+   "order": 6,
+   "category": "등록",
+   "readCount": 900,
+   "writeCount": null,
+   "newCount": null,
+   "dataCount": 0,
+   "hasData": false,
+   "exam": {
+    "questionCount": 100,
+    "subjective": 70,
+    "writing": 20,
+    "objective": 30,
+    "pointEach": 1,
+    "fullScore": 100,
+    "timeMin": 60,
+    "passCount": null,
+    "passRule": "만점의 70% 이상",
+    "passRatio": 0.7,
+    "mockSupported": false,
+    "mockBlockedReason": "배정한자 데이터 없음"
+   },
+   "notes": [
+    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
+   ],
+   "status": {
+    "levels": "official",
+    "hanja": "missing",
+    "examFormat": "official"
+   }
+  },
+  {
+   "id": "3-j",
+   "name": "준3급",
+   "order": 7,
+   "category": "등록",
+   "readCount": 1350,
+   "writeCount": null,
+   "newCount": null,
+   "dataCount": 0,
+   "hasData": false,
+   "exam": {
+    "questionCount": 100,
+    "subjective": 70,
+    "writing": 20,
+    "objective": 30,
+    "pointEach": 1,
+    "fullScore": 100,
+    "timeMin": 60,
+    "passCount": null,
+    "passRule": "만점의 70% 이상",
+    "passRatio": 0.7,
+    "mockSupported": false,
+    "mockBlockedReason": "배정한자 데이터 없음"
+   },
+   "notes": [
+    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)",
+    "공식 다운로드 목록 표기: 선정한자 1,000자 + 교과서한자어 350 (급수표 합계 1,350)"
+   ],
+   "status": {
+    "levels": "official",
+    "hanja": "missing",
+    "examFormat": "official"
+   }
+  },
+  {
+   "id": "3",
+   "name": "3급",
+   "order": 8,
+   "category": "공인",
+   "readCount": 1800,
+   "writeCount": null,
+   "newCount": null,
+   "dataCount": 0,
+   "hasData": false,
+   "exam": {
+    "questionCount": 100,
+    "subjective": 70,
+    "writing": 20,
+    "objective": 30,
+    "pointEach": 2,
+    "fullScore": 200,
+    "timeMin": 60,
+    "passCount": null,
+    "passRule": "만점의 70% 이상",
+    "passRatio": 0.7,
+    "mockSupported": false,
+    "mockBlockedReason": "배정한자 데이터 없음"
+   },
+   "notes": [
+    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)",
+    "공식 다운로드 목록 표기: 선정한자 1,300자 + 교과서한자어 500 (급수표 합계 1,800)"
+   ],
+   "status": {
+    "levels": "official",
+    "hanja": "missing",
+    "examFormat": "official"
+   }
+  },
+  {
+   "id": "2",
+   "name": "2급",
+   "order": 9,
+   "category": "공인",
+   "readCount": 2300,
+   "writeCount": null,
+   "newCount": null,
+   "dataCount": 0,
+   "hasData": false,
+   "exam": {
+    "questionCount": 100,
+    "subjective": 70,
+    "writing": 25,
+    "objective": 30,
+    "pointEach": 2,
+    "fullScore": 200,
+    "timeMin": 60,
+    "passCount": null,
+    "passRule": "만점의 70% 이상",
+    "passRatio": 0.7,
+    "mockSupported": false,
+    "mockBlockedReason": "배정한자 데이터 없음"
+   },
+   "notes": [
+    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
+   ],
+   "status": {
+    "levels": "official",
+    "hanja": "missing",
+    "examFormat": "official"
+   }
+  },
+  {
+   "id": "1",
+   "name": "1급",
+   "order": 10,
+   "category": "공인",
+   "readCount": 3500,
+   "writeCount": null,
+   "newCount": null,
+   "dataCount": 0,
+   "hasData": false,
+   "exam": {
+    "questionCount": 150,
+    "subjective": 100,
+    "writing": 25,
+    "objective": 50,
+    "pointEach": 2,
+    "fullScore": 300,
+    "timeMin": 80,
+    "passCount": null,
+    "passRule": "만점의 70% 이상",
+    "passRatio": 0.7,
+    "mockSupported": false,
+    "mockBlockedReason": "배정한자 데이터 없음"
+   },
+   "notes": [
+    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
+   ],
+   "status": {
+    "levels": "official",
+    "hanja": "missing",
+    "examFormat": "official"
+   }
+  },
+  {
+   "id": "sa",
+   "name": "사범",
+   "order": 11,
+   "category": "공인",
+   "readCount": 5000,
+   "writeCount": null,
+   "newCount": null,
+   "dataCount": 0,
+   "hasData": false,
+   "exam": {
+    "questionCount": 200,
+    "subjective": 150,
+    "writing": 25,
+    "objective": 50,
+    "pointEach": 2,
+    "fullScore": 400,
+    "timeMin": 120,
+    "passCount": null,
+    "passRule": "만점의 80% 이상",
+    "passRatio": 0.8,
+    "mockSupported": false,
+    "mockBlockedReason": "배정한자 데이터 없음"
+   },
+   "notes": [
+    "급수별 선정한자 목록 공식 자료 확인 필요 (공식 .hwp/.exe 파일, 이 환경에서 다운로드 불가)"
+   ],
+   "status": {
+    "levels": "official",
+    "hanja": "missing",
+    "examFormat": "official"
+   }
+  }
+ ],
+ "testTime": "매회 전 급수(사범~8급) 오후 3시",
+ "sourceRefs": [
+  "https://www.hanja114.org/common/intro/examInfoList.do",
+  "https://web.hanja114.org/common/intro/exam.do",
+  "https://web.hanja114.org/common/intro/examGrade.do",
+  "https://web.hanja114.org/common/intro/examGuide.do"
+ ]
+}

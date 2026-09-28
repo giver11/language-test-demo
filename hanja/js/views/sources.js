@@ -1,5 +1,5 @@
 import * as D from '../data.js';
-import { esc, statusBadge } from '../ui.js';
+import { esc, statusBadge, daehanFooter } from '../ui.js';
 
 export default async function (view) {
   const provs = await D.providers();
@@ -18,6 +18,7 @@ export default async function (view) {
         ${lv.levels.map((l) => `<tr><td>${esc(l.name)}</td><td>${l.readCount ? l.readCount.toLocaleString() : '확인 필요'}${l.writeCount ? ` / 쓰기 ${l.writeCount.toLocaleString()}` : ''}</td><td>${l.dataCount ? l.dataCount.toLocaleString() : 0}자</td>
           <td>${l.exam.questionCount != null ? l.exam.questionCount : '-'}</td><td>${l.exam.timeMin ? l.exam.timeMin + '분' : '-'}</td><td class="small">${esc(l.exam.passRule || '-')}</td><td>${statusBadge(l.hasData ? l.status.hanja : 'missing')}</td></tr>`).join('')}
       </tbody></table></div>
+      ${p.id === 'daehan' ? daehanFooter() : ''}
       <h3>출처</h3><div class="src-list">${src.map((s) => `<div style="margin-bottom:8px">${statusBadge(s.status === 'unreachable' ? 'missing' : s.status === 'image-only' ? 'partial' : s.status)} <a href="${esc(s.sourceUrl)}" target="_blank" rel="noopener">${esc(s.sourceName)}</a> · 확인 ${esc(s.verifiedAt)}${s.note ? `<br><span class="small">${esc(s.note)}</span>` : ''}</div>`).join('')}</div>
     </div>`);
   }

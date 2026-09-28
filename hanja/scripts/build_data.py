@@ -113,11 +113,122 @@ for r in rows:
 
 print("한국어문회 배정한자:", len(eom_map), Counter(x["level"] for x in eom_map))
 
-# 대한검정회 8급(2차 자료) — 사전에 없는 글자는 libhangul 훈음으로 보완
-for c, h, e in M.DAEHAN_8:
-    c = nfc(c)
-    if c not in dict_chars:
-        dict_chars[c] = {"c": c, "id": "U+%04X" % ord(c), "m": [[h, e]], "r": e, "rad": None, "st": None, "src": "libhangul"}
+# 대한검정회 공식 선정한자(8급~사범 5,000자) + 공식 훈음표
+#   src/daehan_official_raw.txt : 「8급~사범 선정한자훈음표」 급수별 신출 한자 원문 순서 (SHA-256 대조 완료)
+#   src/daehan_hunum/part*.txt  : 같은 공식 PDF 의 훈음 (字|훈|음)
+DH_NAME2ID = {l[1]: l[0] for l in M.DAEHAN_LEVELS}
+DH_OFFICIAL_LIST = []   # [(字, level id)]
+for line in open(os.path.join(HERE, "src/daehan_official_raw.txt"), encoding="utf-8"):
+    if line.startswith("#") or not line.strip():
+        continue
+    name, chars = line.rstrip("\n").split("\t")
+    lid = DH_NAME2ID[name.strip()]
+    chars = list(chars.strip())
+    if lid == "sa" and chars[104] == "\u6c68" and chars[103] == "滾" and chars[105] == "鶻":
+        # 공식 PDF 원문 오류: '골'(滾·鶻 사이) 자리에 汨(멱)이 인쇄되어 '멱' 자리의 汨 과 중복 → 汩(다스릴 골)로 바로잡음
+        chars[104] = "\u6c69"
+    for ch in chars:
+        DH_OFFICIAL_LIST.append((ch, lid))
+# NFC 정규화. 단, 공식 목록이 호환용 한자(KS X 1001 다른 음)로 따로 싣은 글자는 정규화하면 중복이 되므로 원 코드포인트 유지
+#   예) 1급 輻(U+FA07, 바퀴살통 폭) ↔ 사범 輻(U+8F3B, 바퀴살 복)
+_nfc_count = Counter(nfc(c) for c, _ in DH_OFFICIAL_LIST)
+DH_COMPAT_KEEP = {c for c, _ in DH_OFFICIAL_LIST if nfc(c) != c and _nfc_count[nfc(c)] > 1}
+DH_OFFICIAL_LIST = [(c if c in DH_COMPAT_KEEP else nfc(c), l) for c, l in DH_OFFICIAL_LIST]
+print("호환용 한자 유지:", ["%s U+%04X" % (c, ord(c)) for c in DH_COMPAT_KEEP])
+_dup = [c for c, n in Counter(c for c, _ in DH_OFFICIAL_LIST).items() if n > 1]
+if _dup:
+    raise SystemExit("대한검정회 공식 선정한자 중복: %s" % _dup)
+print("대한검정회 공식 선정한자:", len(DH_OFFICIAL_LIST), Counter(l for _, l in DH_OFFICIAL_LIST))
+
+DUEUM = {"녀": "여", "뇨": "요", "뉴": "유", "니": "이", "닉": "익", "년": "연", "념": "염", "녕": "영", "라": "나", "락": "낙", "란": "난",
+         "람": "남", "랍": "납", "랑": "낭", "래": "내", "랭": "냉", "략": "약", "량": "양", "려": "여", "력": "역", "련": "연", "렬": "열",
+         "렴": "염", "렵": "엽", "령": "영", "례": "예", "로": "노", "록": "녹", "론": "논", "롱": "농", "뢰": "뇌", "료": "요", "룡": "용",
+         "루": "누", "류": "유", "륙": "육", "륜": "윤", "률": "율", "륭": "융", "륵": "늑", "름": "늠", "릉": "능", "리": "이", "린": "인",
+         "림": "임", "립": "입"}
+def eum_eq(a, b):
+    return a == b or DUEUM.get(a) == b or DUEUM.get(b) == a
+# PDF 텍스트 추출 과정에서 줄바꿈·괄호가 깨진 항목은 공식 훈음으로 쓰지 않고 사전 훈음으로 대체(검증 표시)
+DH_HUNUM_BROKEN = set("車籠率俊遵准埈浚焌儁栱薊偈泮寯驂苞晡偲")
+DH_HUNUM = {}        # 字 -> [[훈, 음], ...] (공식)
+DH_HUNUM_REJECT = []
+DH_HUNUM_DICT_DIFF = []
+DH_HUNUM_FROM_DICT = set()
+_hunum_raw = []
+for fn in ("part1.txt", "part2.txt", "part3.txt"):
+    for line in open(os.path.join(HERE, "src/daehan_hunum", fn), encoding="utf-8"):
+        line = line.rstrip("\n")
+        if line.count("|") != 2:
+            continue
+        c, h, e = line.split("|")
+        _hunum_raw.append((nfc(c), h.strip().rstrip(",").strip(), e.strip()))
+def _dict_eums(c):
+    out = set()
+    d = dict_chars.get(c)
+    if d:
+        out |= {m[1] for m in d["m"]} | {d["r"]}
+    out |= {p.split()[-1] for p in lh_char.get(c, []) if p.split()}
+    return out
+for c, h, e in _hunum_raw:
+    if c == "\u6c68" and e == "골":
+        c = "\u6c69"          # 汩(다스릴 골) — 위 원문 오류와 같은 글자
+    ok = (c not in DH_HUNUM_BROKEN and len(e) == 1 and "\uac00" <= e <= "\ud7a3" and h and
+          h.count("(") == h.count(")") and not re.search(r"^[,)\s]|[,(\s]$", h))
+    de = _dict_eums(c)
+    if ok and de and not any(eum_eq(e, x) for x in de):
+        DH_HUNUM_DICT_DIFF.append((c, h, e, sorted(de)))   # 형식이 정상인 공식 훈음은 사전과 달라도 공식 기준 채택(기록)
+    if not ok:
+        DH_HUNUM_REJECT.append((c, h, e))
+        continue
+    DH_HUNUM.setdefault(c, [])
+    if [h, e] not in DH_HUNUM[c]:
+        DH_HUNUM[c].append([h, e])
+# 汨(U+6C68)은 공식 목록 '멱' 자리의 글자 — 훈음표 추출본에서는 汩(골)과 같은 글꼴로 찍혀 음이 섞였으므로 사전(libhangul) 훈음 사용
+if "\u6c68" not in DH_HUNUM:
+    _m = [p.rsplit(" ", 1) for p in lh_char.get("\u6c68", []) if p.endswith(" \uba71")]
+    if _m:
+        DH_HUNUM["\u6c68"] = [list(_m[0])]
+        DH_HUNUM_FROM_DICT.add("\u6c68")
+_dh_set = {c for c, _ in DH_OFFICIAL_LIST}
+print("대한검정회 공식 훈음 채택:", sum(1 for c in _dh_set if c in DH_HUNUM), "/", len(_dh_set),
+      "제외(깨진 항목·음 불일치):", len(DH_HUNUM_REJECT), DH_HUNUM_REJECT[:40])
+print("공식 훈음 ↔ 사전 음 차이(공식 채택):", len(DH_HUNUM_DICT_DIFF), DH_HUNUM_DICT_DIFF[:30])
+HUNUM_SUPP = {}
+for line in open(os.path.join(HERE, "src/hunum_supplement.tsv"), encoding="utf-8"):
+    if line.startswith("#") or not line.strip():
+        continue
+    cc, hh, ee = line.rstrip("\n").split("\t")[:3]
+    HUNUM_SUPP[nfc(cc)] = [hh, ee]
+# 사전에 없는 대한검정회 한자 → 공식 훈음(없으면 libhangul)으로 공통 사전에 추가
+_no_hunum = []
+for c, _l in DH_OFFICIAL_LIST:
+    if c in dict_chars:
+        continue
+    if c in DH_COMPAT_KEEP:
+        # 호환용 한자: 정규 글자의 공식 훈음과 다른 음의 사전 훈음(libhangul)을 사용
+        base = nfc(c)
+        taken = {x[1] for x in DH_HUNUM.get(base, [])}
+        pcs = [p.rsplit(" ", 1) for p in lh_char.get(base, []) if " " in p]
+        m = [list(x) for x in pcs if x[1] not in taken]
+        if not m:
+            _no_hunum.append(c); continue
+        dict_chars[c] = {"c": c, "id": "U+%04X" % ord(c), "m": m, "r": m[0][1], "rad": None, "st": None, "src": "libhangul", "base": base}
+        continue
+    if c in DH_HUNUM:
+        m = DH_HUNUM[c]; src = "daehan-official"
+    elif c in HUNUM_SUPP:
+        m = [HUNUM_SUPP[c]]; src = "supplement"
+    elif lh_char.get(c):
+        m = [list(p.rsplit(" ", 1)) if " " in p else ["", p] for p in lh_char[c][:3]]; src = "libhangul"
+    else:
+        _no_hunum.append(c); continue
+    dict_chars[c] = {"c": c, "id": "U+%04X" % ord(c), "m": m, "r": m[0][1], "rad": None, "st": None, "src": src}
+if _no_hunum:
+    raise SystemExit("훈음을 찾을 수 없는 대한검정회 한자: %s" % _no_hunum)
+# 대한검정회 기준 훈음(공식)을 사전 항목에 별도 필드로 보관 → 앱에서 대한검정회 선택 시 우선 표시
+for c, _l in DH_OFFICIAL_LIST:
+    if c in DH_HUNUM and c not in DH_COMPAT_KEEP:
+        dict_chars[c]["dh"] = DH_HUNUM[c]
+print("사전 크기(대한검정회 추가 후):", len(dict_chars))
 
 # 훈음 교차검증: 한국어문회 음이 libhangul 훈음 문자열의 음과 일치하는지
 mismatch = []
@@ -144,7 +255,7 @@ if not args.skip_strokes:
     os.makedirs(stroke_out)
 n_stroke = 0
 for c, d in dict_chars.items():
-    fn = hw_have.get(c)
+    fn = hw_have.get(c) or hw_have.get(d.get("base", c))
     d["so"] = bool(fn)
     if fn:
         n_stroke += 1
@@ -174,11 +285,18 @@ for w, f in freq.items():
     words[w] = {"w": w, "r": reading, "f": f}
 print("한자어 후보:", len(words))
 
+HE_PREF = [None]   # 문제 생성 시 기관별 훈음 우선순위 (대한검정회: 공식 훈음 dh)
+def he_list(d):
+    if HE_PREF[0] == "daehan" and d.get("dh"):
+        return d["dh"]
+    return d["m"]
+
 def gloss(w):
     parts = []
     for ch in w:
         d = dict_chars[ch]
-        he = d["m"][0] if d["m"] else ["", d["r"]]
+        ml = he_list(d)
+        he = ml[0] if ml else ["", d["r"]]
         parts.append("%s(%s %s)" % (ch, he[0], he[1]))
     return " + ".join(parts)
 
@@ -343,27 +461,64 @@ dump("providers/eomunhoe/exam-types.json", {"provider": "eomunhoe", "status": "s
                            "약자": "정자의 약자", "필순": "획을 쓰는 순서", "한자쓰기": "제시된 훈음·한자어를 한자로 쓰기"}}, compact=False)
 
 # --- 대한검정회
+DH_ORDER = [l[0] for l in M.DAEHAN_LEVELS]
+DH_NAME = {l[0]: l[1] for l in M.DAEHAN_LEVELS}
+DH_EXPECT = {l[0]: l[3] for l in M.DAEHAN_LEVELS}
+# 공식 선정한자 (daehan_official_raw.txt, 위에서 적재·검증)
+dh_official = {c: l for c, l in DH_OFFICIAL_LIST}
+dh_level_of = dict(dh_official)
+dh_src = {c: "official" for c in dh_official}
+# 누적 개수 검증 → 공식 수와 일치하는 급수만 학습 가능(hasData)
 dh_levels = []
-for i, (lid, name, cat, cnt, q) in enumerate(M.DAEHAN_LEVELS):
-    has = lid == "8"
+cum = 0
+dh_valid_upto = True
+for i, (lid, name, cat, cnt, q, tm, ps, struct) in enumerate(M.DAEHAN_LEVELS):
+    new_n = sum(1 for l in dh_level_of.values() if l == lid)
+    cum += new_n
+    ok = bool(new_n) and cnt is not None and cum == cnt and dh_valid_upto
+    if new_n and cnt is not None and cum != cnt:
+        raise SystemExit("대한검정회 %s 누적 %d자 ≠ 공식 %d자 — 입력 데이터 확인 필요" % (name, cum, cnt))
+    if not ok:
+        dh_valid_upto = False
+    srcs = {dh_src[c] for c, l in dh_level_of.items() if l == lid}
+    status_h = ("official" if srcs == {"official"} else "secondary") if ok else "missing"
+    on = M.DAEHAN_ONLINE.get(lid)
+    notes = []
+    if ok and status_h == "secondary":
+        notes.append("%s 선정한자: 2차 자료(나무위키 전사본) 기준 — 공식 선정한자표와 대조 필요." % name)
+    if not ok:
+        notes.append("선정한자 목록 " + M.NEEDS + " (공식 자료실 원문 미확보)")
     dh_levels.append({"id": lid, "name": name, "order": i, "category": cat, "readCount": cnt, "writeCount": None,
-                      "newCount": 30 if has else None, "dataCount": 30 if has else 0, "hasData": has,
-                      "exam": {"questionCount": q, "passCount": None, "timeMin": None,
-                               "passRule": "70점 이상 (공식 출제형식 페이지 판독값 — 급수별 세부 확인 필요)", "mockSupported": False},
-                      "notes": (["8급 30자: 나무위키 전사본(2차 자료). 공식 선정한자표(이미지)와 대조 필요."] if has else
-                                ["선정한자 목록 " + M.NEEDS + " (공식 사이트에 이미지로만 게시)"]) + ["문항 수는 공식 페이지 판독값 — " + M.NEEDS],
-                      "status": {"levels": "partial", "hanja": "secondary" if has else "missing", "examFormat": "partial"}})
+                      "newCount": new_n if ok else None, "dataCount": cum if ok else 0, "hasData": ok,
+                      "exam": {"examMode": "offline", "questionCount": q, "timeMin": tm, "passCount": ps,
+                               "passRule": "%d문항 중 %d문항 이상 (70점 이상)" % (q, ps), "structure": struct, "mockSupported": ok,
+                               "mockBlockedReason": None if ok else "선정한자 데이터 없음"},
+                      "examOnline": ({"examMode": "online", "questionCount": on[0], "timeMin": on[1], "passCount": on[2],
+                                      "passRule": "%d문항 중 %d문항 이상 (70점 이상)" % (on[0], on[2]), "structure": "객관식 %d" % on[0]} if on else None),
+                      "notes": notes,
+                      "status": {"levels": "official", "hanja": status_h, "examFormat": "official"}})
 dump("providers/daehan/levels.json", {"provider": "daehan", "levels": dh_levels,
-      "testTimes": {"8급~2급": "13:40 입실, 14:00 시작 (공식 일정표 '오후 2시 정각 전국동시')", "note": "시험 시간 세부는 " + M.NEEDS},
-      "online": {"levels": ["8급", "7급", "6급", "준5급", "5급", "준4급", "4급", "준3급", "3급"], "format": "객관식",
-                 "items": {"8급·7급": "25문항 15분", "6급~3급": "50문항 25분"}, "pass": "70점 이상", "source": "https://www.hanja.ne.kr/info/info01_online.asp"},
+      "examModes": {"offline": "현장시험 (공식 시험안내 https://www.hanja.ne.kr/apply/info01.asp)",
+                    "online": "자기주도형 온라인 시험 — 8급~3급만, 객관식 (https://www.hanja.ne.kr/info/info01_online.asp)"},
+      "cumulative": "상위 급수 선정한자는 하위 급수 선정한자를 모두 포함하는 누적 구조 (공식)",
       "sourceRefs": [s["sourceUrl"] for s in M.SOURCES["daehan"]]}, compact=False)
-dump("providers/daehan/hanja-mapping.json", {"provider": "daehan", "status": "secondary",
-      "statusNote": "8급 30자만 2차 자료(나무위키 전사본) 기준으로 등록. 공식 선정한자와 대조 필요. 그 외 급수는 공식 자료 확인 필요.",
-      "items": [{"c": nfc(c), "l": "8", "w": None} for c, _h, _e in M.DAEHAN_8]})
-dump("providers/daehan/exam-types.json", {"provider": "daehan", "status": "unverified",
-      "statusNote": "급수별 출제 유형·문항 배분 " + M.NEEDS + ". 앱은 기본 한자 유형(훈음·독음)만 연습용으로 제공.",
-      "levels": {"8": {"훈음": None, "독음": None}}}, compact=False)
+dh_items = [{"c": c, "l": l, "w": None, "src": dh_src[c]} for c, l in sorted(dh_level_of.items(), key=lambda x: (DH_ORDER.index(x[1]), x[0]))]
+dump("providers/daehan/hanja-mapping.json", {"provider": "daehan",
+      "status": "official" if dh_official else "secondary",
+      "statusNote": "대한검정회 공식 「8급~사범 선정한자훈음표」(hanja.ne.kr 자료실) 기준 5,000자. 사범 104번째 글자는 원문 인쇄 오류(汨 중복)를 汩(다스릴 골)로 바로잡음.",
+      "source": {"sourceName": "대한검정회 8급~사범 선정한자훈음표", "sourceUrl": "https://www.hanja.ne.kr/board/board/view.asp?tb=inno_12&num=15", "verifiedAt": M.VERIFIED_AT},
+      "items": dh_items})
+def dh_dist(n):
+    # 공식 총 문항 수(n)에 맞춘 앱 구성 비율 — 영역별 공식 배분표는 공개되지 않아 앱 구성으로 표시
+    if n <= 25:
+        return {"훈음": 13, "독음": 12}
+    w = {"훈음": 30, "독음": 30, "완성형": 12, "반의어": 5, "동의어": 5, "뜻풀이": 8, "동음이의어": 4, "부수": 3, "획수": 3}
+    out = {k: n * v // 100 for k, v in w.items()}
+    out["훈음"] += n - sum(out.values())
+    return out
+dump("providers/daehan/exam-types.json", {"provider": "daehan", "status": "app-composition",
+      "statusNote": "공식 기준: 급수별 총 문항 수·시간·합격 기준(시험안내). 영역별 세부 배분은 공식 공개 자료가 없어 앱 구성(훈음·독음 중심 + 완성형·반의어·동의어·뜻풀이·동음이의어·부수·획수)으로 공식 문항 수에 맞춤.",
+      "levels": {l[0]: dh_dist(l[4]) for l in M.DAEHAN_LEVELS}}, compact=False)
 
 # --- 한자교육진흥회
 jh_levels = []
@@ -453,14 +608,28 @@ dump("schedules/index.json", {"years": {"2026": [x for x in ["eomunhoe", "daehan
 # ------------------------------------------------------------------ 9. 문제은행 (한국어문회 · 대한검정회 8급)
 rng = random.Random(20260928)
 
+_he_cache = {}
 def he_str(c):
-    d = dict_chars[c]
-    if not d["m"]:
-        return d["r"]
-    return "%s %s" % (d["m"][0][0], d["m"][0][1])
+    k = (HE_PREF[0], c)
+    if k in _he_cache:
+        return _he_cache[k]
+    _he_cache[k] = v = _he_str(c)
+    return v
 
+def _he_str(c):
+    d = dict_chars[c]
+    ml = he_list(d)
+    if not ml:
+        return d["r"]
+    return "%s %s" % (ml[0][0], ml[0][1])
+
+_eum_cache = {}
 def all_eums(c):
-    return {m[1] for m in dict_chars[c]["m"]} | {dict_chars[c]["r"]}
+    v = _eum_cache.get(c)
+    if v is None:
+        d = dict_chars[c]
+        v = _eum_cache[c] = {m[1] for m in d["m"]} | {m[1] for m in d.get("dh", [])} | {d["r"]}
+    return v
 
 def pick(pool, k, exclude, key=lambda x: x):
     seen_k = set(key(e) for e in exclude)
@@ -548,18 +717,34 @@ def gen_bank(provider, level_ids, level_of, write_level_of, allowed, level_order
                     x = mcq(provider, L, "reading-char", "독음", "다음 한자의 음(소리)은?", c, ans, ds, [c], "%s의 음은 '%s'입니다 (%s)." % (c, ans, he_str(c)))
                     if x: q.append(x)
             rd_pool = [w["r"] for w in wscope]
+            wpat = defaultdict(list)
+            wbylen = defaultdict(list)
+            for v in wscope:
+                wbylen[len(v["w"])].append(v)
+                for k in range(len(v["w"])):
+                    wpat[v["w"][:k] + "?" + v["w"][k + 1:]].append(v)
+            rd_bylen = defaultdict(list)
+            for r in rd_pool:
+                rd_bylen[len(r)].append(r)
             for w in wnew:
                 ans = w["r"]
-                same_len = [r for r in rd_pool if len(r) == len(ans) and r != ans]
-                ds = pick(same_len, 3, [ans])
+                ds = pick(rd_bylen.get(len(ans), []), 3, [ans])
                 x = mcq(provider, L, "word-reading", "독음", "다음 한자어의 독음(읽는 소리)은?", w["w"], ans, ds, list(w["w"]),
                         "%s은(는) '%s'(으)로 읽습니다. 글자 풀이: %s" % (w["w"], ans, gloss(w["w"])))
                 if x: q.append(x)
                 # 음 → 한자어
-                cands = [v["w"] for v in wscope if len(v["w"]) == len(w["w"]) and v["w"] != w["w"] and v["r"] != ans]
-                # 한 글자만 다른 한자어 우선
-                near = [v for v in cands if sum(a != b for a, b in zip(v, w["w"])) == 1]
-                ds2 = pick(near, 3, [w["w"]]) if len(near) >= 3 else pick(cands, 3, [w["w"]])
+                # 한 글자만 다른 한자어 우선 (패턴 색인으로 탐색)
+                near = []
+                for k in range(len(w["w"])):
+                    for v in wpat.get(w["w"][:k] + "?" + w["w"][k + 1:], ()):
+                        if v["w"] != w["w"] and v["r"] != ans and v["w"] not in near:
+                            near.append(v["w"])
+                if len(near) >= 3:
+                    ds2 = pick(near, 3, [w["w"]])
+                else:
+                    pool = wbylen.get(len(w["w"]), [])
+                    cands = [v["w"] for v in (rng.sample(pool, min(len(pool), 200)) if len(pool) > 200 else pool) if v["w"] != w["w"] and v["r"] != ans]
+                    ds2 = pick(cands, 3, [w["w"]])
                 x = mcq(provider, L, "word-from-reading", "독음", "'%s'을(를) 한자로 바르게 쓴 것은?" % ans, "", w["w"], ds2, list(w["w"]),
                         "'%s' = %s (%s)" % (ans, w["w"], gloss(w["w"])))
                 if x: q.append(x)
@@ -593,7 +778,8 @@ def gen_bank(provider, level_ids, level_of, write_level_of, allowed, level_order
                     if x: q.append(x)
             for w in wnew[:60]:
                 ans = gloss(w["w"])
-                others = [gloss(v["w"]) for v in wscope if v["w"] != w["w"] and len(v["w"]) == len(w["w"])]
+                pool = [v for v in wscope if len(v["w"]) == len(w["w"])] if len(wscope) < 400 else [v for v in rng.sample(wscope, 400) if len(v["w"]) == len(w["w"])]
+                others = [gloss(v["w"]) for v in pool if v["w"] != w["w"]]
                 ds = pick(others, 3, [ans])
                 x = mcq(provider, L, "word-gloss", "뜻풀이", "다음 한자어를 이루는 글자의 뜻풀이로 알맞은 것은?", w["w"], ans, ds, list(w["w"]),
                         "%s(%s) = %s" % (w["w"], w["r"], ans))
@@ -635,6 +821,29 @@ def gen_bank(provider, level_ids, level_of, write_level_of, allowed, level_order
                 ds = pick([x for x in rad_pool if x != r], 3, [r])
                 x = mcq(provider, L, "radical", "부수", "다음 한자의 부수는?", c, r, ds, [c], "%s(%s)의 부수는 %s입니다." % (c, he_str(c), r))
                 if x: q.append(x)
+        # --- 획수 (한국 자료 총획수가 있는 글자만)
+        if "획수" in types:
+            for c in focus:
+                st = dict_chars[c].get("st")
+                if not st:
+                    continue
+                cands = [n for n in (st - 2, st - 1, st + 1, st + 2) if n > 0]
+                if len(cands) < 3:
+                    continue
+                ds = ["%d획" % n for n in rng.sample(cands, 3)]
+                x = mcq(provider, L, "stroke-count", "획수", "다음 한자의 총 획수는?", c, "%d획" % st, ds, [c],
+                        "%s(%s)는 총 %d획입니다 (부수 %s)." % (c, he_str(c), st, dict_chars[c].get("rad") or "-"))
+                if x: q.append(x)
+        # --- 문장 속 한자 (사자성어 사용 예문 속 성어의 독음)
+        if "문장" in types:
+            for it in idioms:
+                if all(ch in scope_set for ch in it["w"]) and it["w"] in it["ex"]:
+                    others = [o["r"] for o in idioms if o["id"] != it["id"]]
+                    ds = pick(others, 3, [it["r"]])
+                    sent = it["ex"].replace(it["w"], "［" + it["w"] + "］", 1)
+                    x = mcq(provider, L, "sentence-reading", "문장 속 한자", "다음 문장에서 ［ ］ 안 한자어의 독음은?", "", it["r"], ds, list(it["w"]),
+                            "%s(%s): %s" % (it["w"], it["r"], it["mean"]), {"idiom": it["id"], "sentence": sent})
+                    if x: q.append(x)
         # --- 필순 (획순 데이터가 있는 글자만)
         if "필순" in types:
             for c in focus:
@@ -687,14 +896,17 @@ if os.path.isdir(qdir):
 bank_stats = {"eomunhoe": {}, "daehan": {}, "jinheung": {}, "korcham": {}}
 for L, qs in banks.items():
     dump("questions/eomunhoe/%s.json" % L, {"provider": "eomunhoe", "level": L, "sourceType": "original-practice",
-                                             "label": "기출유형 연습 · 실전 유사문제 (자체 제작, 실제 기출문제 아님)", "questions": qs})
+                                             "label": "기출유형 연습문제 · 예상문제 (자체 제작, 실제 기출문제 아님)", "questions": qs})
     bank_stats["eomunhoe"][L] = dict(Counter(q["typeLabel"] for q in qs), total=len(qs))
 
-dh_level_of = {nfc(c): "8" for c, _h, _e in M.DAEHAN_8}
-dh_banks = gen_bank("daehan", ["8"], dh_level_of, {}, {"8": {"훈음", "독음"}}, ["8"], None)
+DH_TYPES = {"훈음", "독음", "완성형", "뜻풀이", "반의어", "동의어", "동음이의어", "부수", "획수", "문장"}
+dh_data_levels = [L["id"] for L in dh_levels if L["hasData"]]
+HE_PREF[0] = "daehan"
+dh_banks = gen_bank("daehan", dh_data_levels, dh_level_of, {}, {l: DH_TYPES for l in dh_data_levels}, DH_ORDER, None)
+HE_PREF[0] = None
 for L, qs in dh_banks.items():
     dump("questions/daehan/%s.json" % L, {"provider": "daehan", "level": L, "sourceType": "original-practice",
-                                           "label": "기본 한자 연습 (자체 제작) — 대한검정회 출제유형 공식 확인 전", "questions": qs})
+                                           "label": "기출유형 연습문제 · 예상문제 (자체 제작, 실제 기출문제 아님) — 대한검정회 선정한자 범위", "questions": qs})
     bank_stats["daehan"][L] = dict(Counter(q["typeLabel"] for q in qs), total=len(qs))
 
 # 한자어/사자성어 기관·급수 매핑 (구성 한자 기준 산출)
@@ -713,7 +925,7 @@ def map_items(level_of, order):
             imap[L].append(it["id"])
     return wmap, imap
 
-for pid, lof, order in (("eomunhoe", eom_level_of, LEVEL_ORDER), ("daehan", dh_level_of, ["8"])):
+for pid, lof, order in (("eomunhoe", eom_level_of, LEVEL_ORDER), ("daehan", dh_level_of, DH_ORDER)):
     wmap, imap = map_items(lof, order)
     dump("providers/%s/words-mapping.json" % pid, {"provider": pid, "basis": "구성 한자가 모두 해당 기관 배정한자에 포함되는 한자어 (구성 한자 중 가장 높은 급수에 배치). 공식 출제 목록 아님.",
                                                    "levels": wmap})
@@ -726,6 +938,31 @@ for pid, lof, order in (("eomunhoe", eom_level_of, LEVEL_ORDER), ("daehan", dh_l
 for pid in ("jinheung", "korcham"):
     dump("providers/%s/words-mapping.json" % pid, {"provider": pid, "levels": {}, "statusNote": M.NEEDS})
     dump("providers/%s/idioms-mapping.json" % pid, {"provider": pid, "levels": {}, "statusNote": M.NEEDS})
+
+# 대한검정회 전용 한자 DB (기관 namespace 분리: providers/daehan/hanja.json)
+dh_scope_levels = {c: DH_ORDER[DH_ORDER.index(l):] for c, l in dh_level_of.items()}
+dh_set = set(dh_level_of)
+dh_db = []
+_dh_words_by_char = defaultdict(list)
+for w in wlist:
+    if all(ch in dh_set for ch in w["w"]):
+        for ch in set(w["w"]):
+            if len(_dh_words_by_char[ch]) < 6:
+                _dh_words_by_char[ch].append(w["w"])
+for c, l in sorted(dh_level_of.items(), key=lambda x: (DH_ORDER.index(x[1]), x[0])):
+    d = dict_chars[c]
+    ml = d.get("dh") or d["m"]
+    ws = _dh_words_by_char.get(c, [])
+    ids = [it["id"] for it in idioms if c in it["w"] and all(ch in dh_set for ch in it["w"])][:4]
+    dh_db.append({"character": c, "grade": l, "gradeName": DH_NAME[l],
+                  "cumulativeGrades": [DH_NAME[x] for x in dh_scope_levels[c]],
+                  "meaning": ml[0][0] if ml else "", "reading": ml[0][1] if ml else d["r"],
+                  "meanings": ml, "hunumSource": "대한검정회 공식 훈음표" if d.get("dh") and c not in DH_HUNUM_FROM_DICT else "사전(libhangul/한국어문회 자료) — 공식 훈음표 추출 불가 항목", "strokes": d.get("st"), "radical": d.get("rad"),
+                  "words": ws, "idioms": ids, "source": "대한검정회",
+                  "verification": "official"})
+dump("providers/daehan/hanja.json", {"provider": "daehan", "count": len(dh_db),
+      "fields": "character, grade(신출 급수), cumulativeGrades(포함되는 급수), meaning(훈), reading(음), strokes, radical, words, idioms, source",
+      "items": dh_db}, compact=False)
 
 used_words = set()
 for L in list(banks.values()) + list(dh_banks.values()):

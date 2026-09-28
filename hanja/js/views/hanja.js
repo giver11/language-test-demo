@@ -1,7 +1,7 @@
 import * as D from '../data.js';
 import * as S from '../store.js';
 import * as P from '../progress.js';
-import { esc, openSheet, toast, shuffle } from '../ui.js';
+import { esc, openSheet, toast, shuffle, daehanFooter } from '../ui.js';
 import { renderSteps, animate } from '../strokes.js';
 
 export default async function (view, r) {
@@ -34,7 +34,7 @@ async function list(view, { ctx: c, params }) {
   view.innerHTML = `
     <h1>${esc(c.provider.name)} ${esc(c.level.name)} 한자</h1>
     <p class="sub">배정 ${c.level.readCount ? c.level.readCount.toLocaleString() + '자' : ''} · 이번 급수 신출 ${newChars.length}자 · 암기 ${known}/${all.length}
-      ${c.level.status.hanja === 'official-file' ? '<span class="badge official">공식 xls 변환</span>' : '<span class="badge secondary">2차 자료 · 공식 대조 필요</span>'}</p>
+      ${c.level.status.hanja === 'official-file' ? '<span class="badge official">공식 xls 변환</span>' : c.level.status.hanja === 'official' ? '<span class="badge official">공식 선정한자</span>' : '<span class="badge secondary">2차 자료 · 공식 대조 필요</span>'}</p>
     ${c.level.notes.length ? `<div class="notice">${c.level.notes.map(esc).join('<br>')}</div>` : ''}
     <div class="tabs">${[['new', `이번 급수 신출 ${newChars.length}`], ['all', `누적 전체 ${all.length}`], ['todo', `안 외운 한자 ${sets.todo.length}`], ['fav', `⭐ ${sets.fav.length}`]]
       .map(([k, l]) => `<button class="${tab === k ? 'on' : ''}" data-tab="${k}" type="button">${l}</button>`).join('')}</div>
@@ -49,7 +49,8 @@ async function list(view, { ctx: c, params }) {
     }).join('')}</div>
     ${items.length > 800 ? `<p class="small center">처음 800자만 표시합니다. 검색으로 전체를 찾을 수 있어요.</p>` : ''}
     ${!items.length ? '<div class="empty">표시할 한자가 없어요.</div>' : ''}
-    <p class="tiny" style="margin-top:12px">색상: 초록 알아요 · 노랑 헷갈려요 · 빨강 몰라요</p>`;
+    <p class="tiny" style="margin-top:12px">색상: 초록 알아요 · 노랑 헷갈려요 · 빨강 몰라요</p>
+    ${c.pid === 'daehan' ? daehanFooter() : ''}`;
   view.querySelectorAll('[data-tab]').forEach((b) => (b.onclick = () => (location.hash = `#/hanja?tab=${b.dataset.tab}`)));
   view.querySelectorAll('[data-c]').forEach((b) => (b.onclick = () => openHanjaDetail(b.dataset.c, c)));
 }
@@ -77,7 +78,7 @@ export async function openHanjaDetail(ch, c) {
     <div class="spread"><div class="hanzi" style="font-size:72px;line-height:1">${esc(ch)}</div>
       <div style="text-align:right"><button class="star ${fav ? 'on' : ''}" data-fav type="button" aria-label="즐겨찾기">★</button><br><button class="btn sm" data-close type="button">닫기</button></div></div>
     <div style="font-size:22px;font-weight:800">${esc(D.heAll(d))}</div>
-    <dl class="kv"><dt>음</dt><dd>${esc([...new Set(d.m.map((x) => x[1]))].join(', ') || d.r)}</dd><dt>뜻</dt><dd>${esc([...new Set(d.m.map((x) => x[0]))].join(', '))}</dd>
+    <dl class="kv"><dt>음</dt><dd>${esc([...new Set(D.heList(d).map((x) => x[1]))].join(', ') || d.r)}</dd><dt>뜻</dt><dd>${esc([...new Set(D.heList(d).map((x) => x[0]))].join(', '))}</dd>
       <dt>부수</dt><dd>${esc(d.rad || '-')}</dd><dt>총획수</dt><dd>${esc(d.st || '-')}획${d.sc && d.st && d.sc !== d.st ? ` <span class="small">(획순 데이터 ${d.sc}획 — 중국 표준 기반 차이)</span>` : ''}</dd>
       <dt>코드</dt><dd class="small">${esc(d.id)}</dd></dl>
     ${ex ? `<h3>관련 한자어</h3><div class="row">${ex}</div>` : ''}
@@ -152,8 +153,8 @@ async function cards(view, { ctx: c, params }) {
           <div class="z">${esc(ch)}</div>
           <div class="he">${esc(D.heStr(d))}</div>
           <dl class="kv">
-            <dt>음</dt><dd>${esc([...new Set(d.m.map((x) => x[1]))].join(', '))}</dd>
-            <dt>뜻</dt><dd>${esc([...new Set(d.m.map((x) => x[0]))].join(', '))}</dd>
+            <dt>음</dt><dd>${esc([...new Set(D.heList(d).map((x) => x[1]))].join(', '))}</dd>
+            <dt>뜻</dt><dd>${esc([...new Set(D.heList(d).map((x) => x[0]))].join(', '))}</dd>
             <dt>획수</dt><dd>${esc(d.st || '-')}획</dd>
             <dt>부수</dt><dd>${esc(d.rad || '-')}</dd>
             <dt>범위</dt><dd>${esc(c.provider.short)} ${esc(c.level.name)} ${lvInfo}</dd>
@@ -166,13 +167,16 @@ async function cards(view, { ctx: c, params }) {
         <button class="btn warn" data-k="unsure" type="button">헷갈려요</button>
         <button class="btn bad" data-k="dont" type="button">몰라요</button>
       </div>
-      <div class="btns" style="justify-content:center;margin-top:12px"><button class="btn sm ghost" data-detail type="button">획순·상세 보기</button><a class="btn sm ghost" href="#/write?c=${encodeURIComponent(ch)}">✎ 써 보기</a></div>`;
+      <div class="btns fill" style="margin-top:10px"><button class="btn sm" data-prev type="button" ${i ? '' : 'disabled'}>← 이전</button><button class="btn sm" data-next type="button">다음 →</button></div>
+      <div class="btns" style="justify-content:center;margin-top:8px"><button class="btn sm ghost" data-detail type="button">획순·상세 보기</button><a class="btn sm ghost" href="#/write?c=${encodeURIComponent(ch)}">✎ 써 보기</a></div>`;
     const flash = view.querySelector('.flash');
     const flip = () => flash.classList.toggle('flip');
     view.querySelector('[data-flip]').onclick = flip;
     view.querySelector('[data-flip]').onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } };
     view.querySelector('[data-fav]').onclick = (e) => { const on = S.toggleFav('hanja', ch); e.currentTarget.classList.toggle('on', on); };
     view.querySelector('[data-detail]').onclick = () => openHanjaDetail(ch, c);
+    view.querySelector('[data-prev]').onclick = () => { if (i > 0) { i--; draw(); } };
+    view.querySelector('[data-next]').onclick = () => { i++; draw(); };
     view.querySelectorAll('[data-k]').forEach((b) => (b.onclick = () => {
       const k = b.dataset.k;
       S.recordCard(c.pid, ch, k);
