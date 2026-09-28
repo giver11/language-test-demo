@@ -27,7 +27,7 @@ console.log('baseline tests passed');
 
 const shell = read('v2/shell.js');
 assert.ok(shell.includes('runtime-config.js?v=217'));
-assert.ok(shell.includes('patch-216.js?v=222'));
+assert.ok(shell.includes('patch-216.js?v=223'));
 const patch = read('v2/patch-216.js');
 assert.ok(patch.includes('AI_GATEWAY_NOT_CONFIGURED'));
 assert.ok(patch.includes('conversation-records'));
@@ -48,3 +48,11 @@ assert.ok(!/OPENAI_API_KEY|api\.openai\.com/i.test(wrangler), 'no paid OpenAI AP
 assert.match(wrangler, /AI_MODEL = "@cf\//, 'model must be a Cloudflare-hosted Workers AI model');
 assert.ok(patch.includes('priorHistory(userText)'), 'current user turn must be sent once');
 assert.ok(!read('v2/runtime-config.js').includes('sk-'));
+
+// Shared TTS: one voice per language, no male/female switching anywhere in the V2 apps.
+const tts = read('v2/tts.js');
+new vm.Script(tts);
+assert.ok(tts.includes('getBestVoice') && tts.includes('voiceschanged'));
+assert.ok(shell.includes('tts.js?v='));
+for (const file of ['v2/core.js', 'v2/shell.js', 'v2/patch-216.js', 'v2/topik/index.html', 'v2/hsk/index.html', 'v2/ielts/index.html'])
+  assert.doesNotMatch(read(file), /data-voice|word-gender|voiceHints|pickVoice\(|남성|여성/, file);

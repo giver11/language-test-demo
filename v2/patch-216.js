@@ -24,33 +24,5 @@
  /* Show the target exam's D-day in the header pill so a saved date is visible on every screen. */
  const renderBeforeDday=render;render=function(){renderBeforeDday();const t=targetExam(),pill=q('#goalText');if(t&&t.date&&pill&&!pill.textContent.includes('D-'))pill.textContent+=` · ${t.date} D-${Math.max(0,seoulDayDiff(t.date))}`};render();
 
- /* Reliable pronunciation audio for every app.
-    - Chrome silently drops speak() issued right after cancel(), and can garbage-collect a live utterance.
-    - iOS/Safari only allows speech after a user gesture, so AI replies (spoken after a network wait) were silent.
-    - Phones without a Korean/Chinese/English voice produced no sound at all.
-    Fix: keep the utterance referenced, wait a tick after cancel(), unlock audio on the first tap,
-    and fall back to online TTS audio when the device voice does not start. */
- const synth='speechSynthesis' in window?window.speechSynthesis:null;let keepUtter=null,speakSeq=0,unlocked=false,fallbackAudio=null;
- const ttsLang=()=>C.id==='hsk'?'zh-CN':C.id==='topik'?'ko':'en';
- function unlockAudio(){if(unlocked)return;unlocked=true;try{if(synth){const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang=C.lang;synth.speak(u)}}catch(e){}}
- ['pointerdown','touchend','keydown'].forEach(t=>document.addEventListener(t,unlockAudio,{capture:true,passive:true}));
- function speechOnly(text){let lines=String(text||'').split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('💡')&&!/^Estimated practice feedback/i.test(l));
-  if(C.id==='hsk'){const zh=lines.filter(l=>/[一-鿿]/.test(l)&&!/[가-힯]/.test(l));lines=zh.length?zh:lines;return cleanChinese(lines.join('，'))}
-  return lines.join(' ').replace(/\s+/g,' ').trim()}
- function stopFallback(){if(fallbackAudio){try{fallbackAudio.pause()}catch(e){}fallbackAudio=null}}
- function onlineSpeak(text,slow,my){const parts=(text.match(/[^.!?。！？]+[.!?。！？]?/g)||[text]).reduce((a,p)=>{p=p.trim();if(!p)return a;const last=a[a.length-1];if(last&&(last+' '+p).length<=180)a[a.length-1]=last+' '+p;else a.push(p.slice(0,190));return a},[]);let i=0;
-  const next=()=>{if(my!==speakSeq||i>=parts.length){fallbackAudio=null;return}const a=new Audio('https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl='+ttsLang()+'&q='+encodeURIComponent(parts[i++]));a.playbackRate=slow?.75:1;fallbackAudio=a;a.onended=next;a.onerror=()=>status('소리를 재생하지 못했습니다. 기기 볼륨과 무음 모드를 확인해 주세요.');a.play().then(()=>status('온라인 음성으로 재생합니다.')).catch(()=>status('🔊 버튼을 한 번 더 눌러 주세요. 브라우저가 자동 재생을 막았습니다.'))};next()}
- window.localSpeak=function(text,slow){text=String(text||'').trim();if(!text)return;const my=++speakSeq;stopFallback();
-  if(!synth||typeof SpeechSynthesisUtterance==='undefined'){onlineSpeak(text,slow,my);return}
-  const busy=synth.speaking||synth.pending;synth.cancel();
-  const run=()=>{if(my!==speakSeq)return;const chosen=(C.id==='topik'||C.id==='hsk')?'female':voice,u=new SpeechSynthesisUtterance(text);u.lang=C.lang;u.rate=slow?.62:(chosen==='male'?.86:.92);u.pitch=chosen==='female'?1:.78;const v=pickVoice(chosen);if(v)u.voice=v;let started=false;
-   u.onstart=()=>{started=true};u.onend=()=>{if(keepUtter===u)keepUtter=null};
-   u.onerror=e=>{if(my!==speakSeq||started||e.error==='interrupted'||e.error==='canceled')return;onlineSpeak(text,slow,my)};
-   keepUtter=u;try{synth.resume()}catch(e){}synth.speak(u);
-   status(((C.id==='topik')?'한국어 여성':(C.id==='hsk')?'중국어 여성':chosen==='female'?'여성':'남성')+' '+C.name+' 발음을 재생합니다.');
-   setTimeout(()=>{if(my===speakSeq&&!started&&!synth.speaking){synth.cancel();onlineSpeak(text,slow,my)}},2500)};
-  busy?setTimeout(run,120):run()};
- window.speakText=function(text,slow=false){const t=speechOnly(text);if(t)localSpeak(t,slow)};
- window.addEventListener('pagehide',()=>{speakSeq++;stopFallback();try{synth&&synth.cancel()}catch(e){}});
  setTimeout(loadExamSchedule,100);
 })();
