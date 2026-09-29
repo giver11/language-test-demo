@@ -44,9 +44,9 @@ export default async function (view, { ctx: c, params }) {
     <div class="spread"><h1 class="mt0" style="margin:0">한자 쓰기</h1><span class="small" data-count></span></div>
     ${scopeNote ? `<div class="notice info">${esc(scopeNote)}</div>` : ''}
     <div class="levels3" style="margin:10px 0">
-      <button class="chip" data-lv="1" type="button">1단계<br>따라 쓰기</button>
-      <button class="chip" data-lv="2" type="button">2단계<br>희미하게</button>
-      <button class="chip" data-lv="3" type="button">3단계<br>외워 쓰기</button>
+      <button class="chip" data-lv="1" type="button" aria-label="1단계 보고 쓰기">1단계<br>보고 쓰기</button>
+      <button class="chip" data-lv="2" type="button" aria-label="2단계 흐리게 보고 쓰기">2단계<br>흐리게 보고 쓰기</button>
+      <button class="chip" data-lv="3" type="button" aria-label="3단계 안 보고 쓰기">3단계<br>안 보고 쓰기</button>
     </div>
     <div class="write-wrap">
       <div class="card target-card" style="width:100%;max-width:440px"><div><div class="small" data-lvlabel></div><div class="he" data-he></div></div><div class="hanzi" data-show style="font-size:44px;min-width:50px;text-align:right"></div></div>
@@ -93,13 +93,25 @@ export default async function (view, { ctx: c, params }) {
     view.querySelector('[data-he]').textContent = D.heStr(d);
     view.querySelector('[data-show]').textContent = level === 3 || test ? '?' : ch;
     if (test) view.querySelector('[data-count]').textContent = `시험 ${test.n + 1} / ${test.list.length}`;
-    view.querySelector('[data-lvlabel]').textContent = level === 1 ? '보고 따라 쓰세요' : level === 2 ? '희미한 가이드 위에 쓰세요' : '뜻과 음을 보고 외워서 쓰세요';
+    view.querySelector('[data-lvlabel]').textContent = (level === 1 ? '보고 쓰기: 글자를 보고 따라 쓰세요' : level === 2 ? '흐리게 보고 쓰기: 희미한 가이드 위에 쓰세요' : '안 보고 쓰기: 뜻과 음만 보고 외워서 쓰세요') + modeCount(ch);
     view.querySelectorAll('[data-lv]').forEach((b) => b.classList.toggle('sel', +b.dataset.lv === level));
     await pad.setGuide(ch, guideMode());
     if (!view.querySelector('[data-count]')) return;
     if (!medians) setFb('near', '이 글자는 공개 획순 데이터가 없어 자동 판정·획순 보기가 지원되지 않아요. 쓰고 나서 “정답 보기”로 비교하세요.');
   }
 
+  // 단계별 연습 횟수 (완료 여부·횟수만 저장, 필기 이미지는 저장하지 않음)
+  function modeCount(ch) {
+    const wm = c.p.writeModes && c.p.writeModes[ch];
+    if (!wm) return '';
+    return ` · 연습 기록 보고 ${wm[1] || 0} / 흐리게 ${wm[2] || 0} / 안 보고 ${wm[3] || 0}회`;
+  }
+  function todayBack() {
+    if (params.from !== 'today') return '';
+    const start = new Date(S.today() + 'T00:00:00').getTime();
+    const left = items.filter((x) => !(c.p.writing[x] && c.p.writing[x].t >= start)).length;
+    return left ? `<div class="tiny">오늘의 학습 쓰기 남은 글자 ${left}자</div>` : `<a class="btn accent block" href="#/today?run=1" style="margin-top:8px">오늘의 학습으로 돌아가기 →</a>`;
+  }
   function guideMode() { return test || guideOff || level === 3 ? 'none' : level === 1 ? 'solid' : 'faint'; }
   function doJudge() {
     const ch = items[idx];
@@ -110,7 +122,8 @@ export default async function (view, { ctx: c, params }) {
     setFb(r.verdict, `${esc(r.text)}${r.messages.length ? '<ul>' + r.messages.map((m) => `<li>${esc(m)}</li>`).join('') + '</ul>' : ''}`);
     if (!judged) {
       judged = true;
-      S.recordWriting(c.pid, ch, r.verdict === 'good' ? 'good' : r.verdict === 'near' ? 'near' : 'retry');
+      S.recordWriting(c.pid, ch, r.verdict === 'good' ? 'good' : r.verdict === 'near' ? 'near' : 'retry', { mode: test ? 3 : level, v: r.verdict });
+      const tb = todayBack(); if (tb) fb.insertAdjacentHTML('beforeend', tb);
       if (test) { if (r.verdict === 'good' || r.verdict === 'near') test.ok++; test.res.push([ch, r.verdict]); }
       if (r.verdict !== 'good' && r.verdict !== 'near') {
         const e = c.p.writing[ch]; if (e) e.last = r.verdict;

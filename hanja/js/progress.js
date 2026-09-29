@@ -39,14 +39,14 @@ export async function dailyQuest(c, sum) {
   const minutes = st.minutes || 20;
   const dLeft = daysUntil(c.p.examDate);
   const key = `${c.pid}|${c.lid}|${minutes}|${c.p.examDate}`;
-  if (st.quest && st.quest.date === today && st.quest.key === key && st.quest.v === 2) return st.quest;
+  if (st.quest && st.quest.date === today && st.quest.key === key && st.quest.v === 3) return st.quest;
   // Exam Coach: mastery·남은 기간·어제 수행률로 오늘 학습량 계산
   const cs = await Coach.status(c);
   const tp = await Coach.todayPlan(c, cs);
   const plan = tp.plan;
   if (!c.level || !c.level.hasData) { plan.hanja = 0; plan.review = 0; plan.writing = 0; }
   const prev = st.quest && st.quest.date === today ? st.quest.done : {};
-  const q = { v: 2, date: today, key, plan, done: prev || {}, near: tp.near, dLeft, minutes, adj: tp.adj, ratio: tp.ratio };
+  const q = { v: 3, date: today, key, plan, done: prev || {}, near: tp.near, dLeft, minutes, adj: tp.adj, ratio: tp.ratio };
   st.quest = q;
   c.p.dailyLog[today] = { plan, done: { ...q.done } };
   S.save();

@@ -60,14 +60,17 @@ export async function todayPlan(c, st) {
   // 분당 비용(대략): 신규 0.8, 복습 0.35, 쓰기 1, 한자어 0.5, 성어 1, 문제 0.6
   const budget = minutes;
   let newN = st.unseen ? Math.ceil((st.unseen / studyDays) * adj) : 0;
-  if (near) newN = Math.min(newN, Math.max(2, Math.round(budget * 0.1)));
+  // 시험이 가까워질수록 신규 비중 ↓ (D-30 0.7 · D-14 0.4 · D-7 0.15 · D-1 0)
+  const share = dLeft == null || dLeft < 0 || dLeft > 30 ? 1 : dLeft > 14 ? 0.7 : dLeft > 7 ? 0.4 : dLeft > 1 ? 0.15 : 0;
+  newN = Math.round(newN * share);
+  if (near) newN = Math.min(newN, Math.max(share ? 2 : 0, Math.round(budget * 0.1)));
   newN = Math.min(newN, Math.round(budget * 0.5 / 0.8) || 1, st.unseen);
-  let review = Math.min(st.due.length, Math.round((budget * (near ? 0.3 : 0.25)) / 0.35));
+  let review = Math.min(st.due.length, Math.round((budget * (0.25 + (1 - share) * 0.15)) / 0.35));
   if (st.due.length && review < 5) review = Math.min(st.due.length, 5);
   const hasWrite = true;
   const writing = hasWrite ? Math.max(3, Math.round((budget * (near ? 0.12 : 0.18)) / 1)) : 0;
   const words = Math.max(3, Math.round((budget * 0.1) / 0.5));
   const idioms = Math.max(1, Math.round((budget * 0.06) / 1));
-  const questions = Math.max(5, Math.round((budget * (near ? 0.4 : 0.2)) / 0.6));
-  return { plan: { hanja: newN, review, writing, words, idioms, questions }, near, dLeft, adj, ratio, minutes };
+  const questions = Math.max(5, Math.round((budget * (0.2 + (1 - share) * 0.2)) / 0.6));
+  return { plan: { hanja: newN, review, writing, words, idioms, questions }, near, dLeft, adj, ratio, minutes, share };
 }

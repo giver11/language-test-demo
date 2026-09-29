@@ -5,3 +5,54 @@
 @media(max-width:768px){.level-row{flex-direction:column;align-items:stretch!important;gap:8px!important}.level-row select{width:100%}.level-desc{width:100%;flex:none!important;white-space:normal;overflow-wrap:normal;word-break:keep-all}}
 /* Safety net: developer TTS diagnostics must never appear in the product UI (does not match any audio button). */
 .tts-debug,.tts-debug-panel,.tts-diagnostics,.tts-diagnostic,#tts-debug,#ttsDebug,#tts-diagnostics,#ttsDiagnostic,[data-tts-debug="true"],[data-tts-min],[data-tts-test]{display:none!important;visibility:hidden!important;pointer-events:none!important}
+
+/* ---- 2026.09.30 Adaptive Learning Engine ---- */
+.eng-card{margin-top:16px}
+.eng-card h3 small{color:var(--muted);font-weight:700}
+.dday-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.dday-num{font-size:34px;color:var(--blue);min-width:92px}
+.small-s{font-size:13px;color:var(--muted);line-height:1.55;margin:8px 0 0}
+.mission{list-style:none;padding:0;margin:12px 0 0}
+.mission li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.mission li.fin b{text-decoration:line-through;text-decoration-thickness:1px}
+.okmark{color:#0f8a63;font-weight:900}
+.wmap{display:grid;gap:8px;margin-top:10px}
+.wrow{display:grid;grid-template-columns:minmax(96px,150px) 1fr 44px auto;gap:10px;align-items:center;font-size:14px}
+.wrow.muted{opacity:.55}
+.wbar{height:10px;background:#e9edf4;border-radius:99px;overflow:hidden}
+.wbar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--mint))}
+.wval{text-align:right;font-weight:800}
+.wst{font-weight:850;font-size:13px;white-space:nowrap}
+.st-strong{color:#0f8a63}.st-ok{color:#9a6a00}.st-weak{color:#c2410c}.st-none{color:var(--muted)}
+.wk{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+.wk div{background:#f5f7fb;border-radius:12px;padding:10px}
+.wk span{display:block;font-size:12px;color:var(--muted)}
+.wk b{font-size:17px}
+.qmeta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.chip-s{background:#eef2fb;color:#34405a;border-radius:99px;padding:3px 10px;font-size:12px;font-weight:800}
+.linkbtn{border:0;background:none;color:var(--blue);font-weight:800;cursor:pointer;padding:0 2px;min-height:auto}
+.coach{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+.coach-steps{padding-left:20px;margin:8px 0}
+.coach-steps li{margin:6px 0;line-height:1.5}
+.option.good::after{content:"  ✓ 정답";font-weight:900;color:#0f8a63}
+.option.bad::after{content:"  ✗ 오답";font-weight:900;color:#c62828}
+html[lang=en] .option.good::after{content:"  ✓ Correct"}
+html[lang=en] .option.bad::after{content:"  ✗ Wrong"}
+.steps{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0;margin:0 0 12px}
+.steps li{border:1px solid var(--line);border-radius:99px;padding:5px 11px;font-size:12px;font-weight:800;color:var(--muted)}
+.steps li.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.steps li.done{color:#0f8a63;border-color:#9fe3cc}
+.steps li.done::after{content:" ✓"}
+.shadow-res dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:10px 0}
+.shadow-res dt{font-weight:850;color:var(--muted);font-size:13px}
+.shadow-res dd{margin:0}
+mark.ok{background:#d9f7ec;color:inherit;border-bottom:2px solid #2dd4a6;border-radius:3px}
+mark.miss{background:#ffe8e8;color:inherit;border-bottom:2px dashed #ef6b6b;border-radius:3px}
+.notice-s{background:#fff7e0;color:#6b4e00;border-radius:10px;padding:10px 12px;font-size:13px}
+.hz-big{display:block;font-size:48px}
+.py{display:block;font-size:20px;color:var(--muted);font-weight:700;margin-top:4px}
+.btn,.nav,.option,.voice{min-height:44px}
+:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+#convSummary h4{margin:14px 0 4px}
+#convSummary ul{margin:0;padding-left:20px;color:var(--ink);font-size:14px;line-height:1.6}
+@media(max-width:800px){.wk{grid-template-columns:repeat(2,1fr)}.wrow{grid-template-columns:minmax(80px,120px) 1fr 40px}.wrow .wst{grid-column:2/4}.dday-num{font-size:28px}}

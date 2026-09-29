@@ -1,0 +1,162 @@
+{
+ "base": "http://localhost:8765/hanja/",
+ "at": "2026-09-30T01:57:53.194510",
+ "results": [
+  {
+   "id": "H1",
+   "name": "홈 진입 → 4개 기관",
+   "ok": true,
+   "detail": "['한국어문회', '대한검정회', '한자교육진흥회', '대한상공회의소']"
+  },
+  {
+   "id": "H2-3",
+   "name": "기관(한국어문회)·급수(6급) 선택 저장",
+   "ok": true,
+   "detail": "2026-11-21"
+  },
+  {
+   "id": "A-1",
+   "name": "홈 상단 \"오늘의 한자 학습\" 카드 (목표·10분 학습 시작)",
+   "ok": true,
+   "detail": "오늘의 한자 학습 0/15 오늘의 목표 8자 새 한자 · 0/8 0자 복습 5자 쓰기 · 0/5 2개 사자성어 · 0/2 0문제 오답 10분 학습 시작 기초 다지기"
+  },
+  {
+   "id": "A-9",
+   "name": "D-Day 표시 + D-30/14/7/1 구간 표시",
+   "ok": true,
+   "detail": "한국어문회 6급 시험까지 D-52 제115회 · 2026.11.21(토) D-30 D-14 D-7 D-1 기초 다지기"
+  },
+  {
+   "id": "A-3a",
+   "name": "홈 \"완전 학습 N/M\" · 4단계",
+   "ok": true,
+   "detail": "완전 학습 0/300 자세히 → 300 새 한자 0 학습 중 0 복습 필요 0 완전 학습"
+  },
+  {
+   "id": "A-1b",
+   "name": "10분 학습 진행 → 새 한자 기록 · 오늘 학습 완료 +10 XP",
+   "ok": true,
+   "detail": "새 한자 8자 학습, 기록 8자, XP 24"
+  },
+  {
+   "id": "A-2",
+   "name": "한자별 간격복습 기록 {char,exam,level,correctCount,wrongCount,lastReviewed,nextReview,interval,mastery}",
+   "ok": true,
+   "detail": "感: {'char': '感', 'exam': 'eomunhoe', 'level': '6', 'correctCount': 1, 'wrongCount': 0, 'lastReviewed': 1790701024313, 'nextReview': 1790813344313, 'interval': 1.3, 'mastery': 57, 'stage': 'LEARNING'} / 強: interval 1일"
+  },
+  {
+   "id": "I6-7",
+   "name": "문제 정답·오답 저장 (quiz·wrong·mistakes)",
+   "ok": true,
+   "detail": "답 12 정답 4 오답노트 8 DNA 원자료 8"
+  },
+  {
+   "id": "A-4",
+   "name": "오답 DNA (원인별 % · 가장 취약한 영역부터 복습 버튼)",
+   "ok": true,
+   "detail": "나의 약점  한국어문회 6급 · 오답 8건을 원인별로 자동 분류했어요  오답 DNA 훈 혼동 75% (6건) 사자성어 25% (2건) 가장 취약한 영역부터 복습: 훈 혼동 "
+  },
+  {
+   "id": "A-4b",
+   "name": "약점 집중 복습 문제 자동 출제",
+   "ok": true,
+   "detail": "약점 복습 · 훈 혼동 · 1/10 맞힘 0 훈→한자 · 자체 제작 연습문제 '풀'이라는 뜻(훈)을 가진 한자는? 1 童 2 現 3 行 4 草"
+  },
+  {
+   "id": "A-5",
+   "name": "혼동쌍 영역 표시 (실제 오답 기록 기반)",
+   "ok": true,
+   "detail": "쌍 있음"
+  },
+  {
+   "id": "I8",
+   "name": "Smart Review 복습 대상 생성",
+   "ok": true,
+   "detail": "強 포함"
+  },
+  {
+   "id": "A-6",
+   "name": "쓰기 3단계(보고/흐리게 보고/안 보고) · 단계별 횟수 저장 · 획순 판정",
+   "ok": true,
+   "detail": "['1단계 보고 쓰기', '2단계 흐리게 보고 쓰기', '3단계 안 보고 쓰기'] {'1': 0, '2': 1, '3': 1, 'ok': 2, 't': 1790701037711} 판정=\"잘 썼어요\""
+  },
+  {
+   "id": "A-7",
+   "name": "3초 한자 10문제 → 정답률·평균 응답시간·가장 느린/많이 틀린 한자 저장",
+   "ok": true,
+   "detail": "{\"t\": 1790701060379, \"score\": 4, \"total\": 10, \"pct\": 40, \"avgRt\": 1397, \"slow\": \"市\", \"worst\": \"市\"}"
+  },
+  {
+   "id": "A-8",
+   "name": "사자성어 뜻 맞히기·빈칸 한자·순서 맞추기·직접 쓰기",
+   "ok": true,
+   "detail": "[('i2m', True), ('blank', True), ('arrange', True), ('write', True)]"
+  },
+  {
+   "id": "A-3b",
+   "name": "Mastery 화면 (단계별 목록 · 간격 · 다음 복습)",
+   "ok": true,
+   "detail": "한국어문회 6급 배정한자 300자"
+  },
+  {
+   "id": "A-10",
+   "name": "모의시험 \"연습문제\" 표시 · 기출 아님 안내",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "A-12",
+   "name": "주간 학습 리포트 (학습·완전학습·복습·정답률·쓰기·시간·취약영역·추천량)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "A-11",
+   "name": "Streak 기록 (1·3·7·14·30·100일) 표시",
+   "ok": true,
+   "detail": "{\"1\": \"2026-09-30\"}"
+  },
+  {
+   "id": "I13",
+   "name": "새로고침 후 진도·XP·오답·쓰기 기록 유지",
+   "ok": true,
+   "detail": "XP 56 mistakes 14"
+  },
+  {
+   "id": "I14",
+   "name": "모바일 360px 가로 넘침 없음 (새 화면)",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "H-a11y",
+   "name": "버튼 최소 터치 높이 44px",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "E",
+   "name": "localStorage v2→v3 migration (XP·진도·오답·즐겨찾기 보존, 백업 생성, 오답 DNA 원자료 변환)",
+   "ok": true,
+   "detail": "version 3, xp 77, mistakes 2, backup O"
+  },
+  {
+   "id": "A-5b",
+   "name": "혼동쌍: 실제 오답 기록(學→校)으로 동적 생성",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "PC",
+   "name": "PC Chrome 1280px 홈·약점 화면 렌더",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "J",
+   "name": "Console JS error / page error 없음",
+   "ok": true,
+   "detail": ""
+  }
+ ]
+}

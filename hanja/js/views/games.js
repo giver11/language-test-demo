@@ -7,6 +7,7 @@ import { esc, shuffle, toast } from '../ui.js';
 import { scopeIdioms } from './idioms.js';
 
 const GAMES = [
+  ['speed3', '3', '3초 한자', '3초 안에 음·훈·뜻 고르기 · 10문제'],
   ['quick60', '⏱', '60초 퀴즈', '60초 동안 최대한 많이 맞히기'],
   ['memory', '🃏', '짝맞추기', '뒤집힌 카드에서 한자와 훈음 짝 찾기'],
   ['match', '🔗', '훈음 매칭', '한자와 훈음을 줄 잇듯 연결'],
@@ -47,6 +48,83 @@ export default async function (view, { ctx: c, params }) {
     return;
   }
   if (scope.length < 8) { view.innerHTML = '<h1>한자 게임</h1><div class="notice">이 급수는 게임을 만들 한자 자료가 부족해요.</div>'; return; }
+
+  // ---------- 3초 한자: 한자를 보고 3초 안에 음 / 훈 / 뜻(훈음)을 고른다. 10문제 단위.
+  if (game === 'speed3') {
+    const LIMIT = 3000;
+    const heOk = (ch) => { const h = D.heList(dict[ch], c.pid)[0]; return h && h[0] && h[1]; };
+    const chars = priority().filter(heOk).slice(0, 10);
+    const KINDS = [['eum', '음(소리)', 'eum-char'], ['hun', '훈(뜻)', 'hun-char'], ['he', '훈과 음', 'hunum']];
+    const val = (ch, k) => { const [h, e] = D.heList(dict[ch], c.pid)[0]; return k === 'eum' ? e : k === 'hun' ? h : h + ' ' + e; };
+    const list = chars.map((ch, n) => {
+      const [k, label, type] = KINDS[n % 3];
+      const ans = val(ch, k);
+      const ds = shuffle([...new Set(scope.filter((x) => x !== ch && heOk(x)).map((x) => val(x, k)).filter((v) => v !== ans))]).slice(0, 3);
+      const choices = shuffle([ans, ...ds]);
+      return { ch, k, label, type, ans, choices };
+    }).filter((q) => q.choices.length === 4);
+    const stat = G.speed3stat || (G.speed3stat = {});
+    const res = [];
+    let i = 0, tmo = null, t0 = 0, answered = false;
+    const draw = () => {
+      if (i >= list.length) return end();
+      const q = list[i];
+      answered = false;
+      view.innerHTML = `<div class="spread"><h1 style="margin:0">3초 한자</h1><b aria-live="polite">${i + 1}/${list.length}</b></div>
+        <div class="speed-bar" aria-hidden="true"><i data-bar></i></div>
+        <div class="card center"><div class="q-text">이 한자의 <b>${q.label}</b>은?</div><div class="hanzi" style="font-size:80px">${esc(q.ch)}</div></div>
+        <div class="choices">${q.choices.map((x, k) => `<button class="choice" data-k="${k}" type="button"><span class="n">${k + 1}</span><span class="t">${esc(x)}</span></button>`).join('')}</div>
+        <p class="tiny center">3초가 지나면 시간 초과로 넘어가요 · 숫자 키 1~4로도 고를 수 있어요</p>`;
+      const b = view.querySelector('[data-bar]');
+      requestAnimationFrame(() => { b.style.transitionDuration = LIMIT + 'ms'; b.style.width = '0%'; });
+      t0 = performance.now();
+      view.querySelectorAll('[data-k]').forEach((btn) => (btn.onclick = () => pickAns(+btn.dataset.k)));
+      tmo = setTimeout(() => pickAns(null), LIMIT);
+      timers.push(tmo);
+    };
+    const pickAns = (k) => {
+      if (answered) return; answered = true;
+      clearTimeout(tmo);
+      const q = list[i];
+      const rt = k == null ? LIMIT : Math.min(LIMIT, Math.round(performance.now() - t0));
+      const ok = k != null && q.choices[k] === q.ans;
+      const btns = view.querySelectorAll('[data-k]');
+      btns.forEach((x) => (x.disabled = true));
+      if (k != null) btns[k].classList.add(ok ? 'correct' : 'wrong');
+      btns[q.choices.indexOf(q.ans)].classList.add('correct');
+      if (k == null) view.querySelector('.q-text').insertAdjacentHTML('beforeend', ' <span class="badge missing">시간 초과</span>');
+      hit(q.ch, ok, rt);
+      if (!ok) S.recordMistake(c.pid, { type: q.type, ans: q.ans, picked: k == null ? null : q.choices[k], ch: q.ch, rel: [q.ch], src: 'speed3', timeout: k == null, rt });
+      const e = stat[q.ch] || (stat[q.ch] = { n: 0, w: 0, rt: 0 });
+      e.n++; if (!ok) e.w++; e.rt = e.rt ? Math.round(e.rt * 0.6 + rt * 0.4) : rt;
+      res.push({ ch: q.ch, ok, rt, timeout: k == null });
+      i++;
+      timers.push(setTimeout(draw, ok ? 350 : 1100));
+    };
+    const onKey = (e) => { if (/^[1-4]$/.test(e.key) && !answered && view.querySelector('[data-k]')) pickAns(+e.key - 1); };
+    window.addEventListener('keydown', onKey);
+    let ended = false;
+    const end = () => {
+      if (ended) return; ended = true;
+      window.removeEventListener('keydown', onKey);
+      const score = res.filter((x) => x.ok).length;
+      const avg = res.length ? Math.round(res.reduce((a, x) => a + x.rt, 0) / res.length) : 0;
+      const slow = [...res].sort((a, b) => b.rt - a.rt)[0];
+      // 가장 많이 틀린 한자: 누적 기록(이번 판 포함)에서 오답 횟수 최다
+      const worst = Object.entries(stat).filter(([, v]) => v.w > 0).sort((a, b) => b[1].w - a[1].w || b[1].rt - a[1].rt)[0];
+      const pct = res.length ? Math.round((score * 100) / res.length) : 0;
+      finish('speed3', score, res.length, `<div class="report-grid" style="margin-top:10px">
+        <div><b>${pct}%</b><span>정답률</span></div>
+        <div><b>${(avg / 1000).toFixed(2)}초</b><span>평균 응답시간</span></div>
+        <div><b class="hanzi">${slow ? esc(slow.ch) : '-'}</b><span>가장 느린 한자${slow ? ` (${(slow.rt / 1000).toFixed(1)}초${slow.timeout ? ', 시간 초과' : ''})` : ''}</span></div>
+        <div><b class="hanzi">${worst ? esc(worst[0]) : '-'}</b><span>가장 많이 틀린 한자${worst ? ` (누적 ${worst[1].w}회)` : ''}</span></div></div>
+        <h3>문제별 결과</h3><div class="card">${res.map((x) => `<div class="list-row"><span class="hz">${esc(x.ch)}</span><div class="grow">${esc(he(x.ch))}</div><span class="small">${x.ok ? '✓ 정답' : x.timeout ? '⏱ 시간 초과' : '✗ 오답'} · ${(x.rt / 1000).toFixed(1)}초</span></div>`).join('')}</div>`);
+      const g = G.speed3; if (g && g.last) { g.last.pct = pct; g.last.avgRt = avg; g.last.slow = slow && slow.ch; g.last.worst = worst && worst[0]; S.save(true); }
+    };
+    if (list.length < 3) { view.innerHTML = '<h1>3초 한자</h1><div class="notice">이 급수는 문제를 만들 한자 자료가 부족해요.</div>'; return; }
+    draw();
+    return () => { clearAll(); window.removeEventListener('keydown', onKey); };
+  }
 
   // ---------- 60초 퀴즈 · 오늘의 한자왕 (객관식)
   if (game === 'quick60' || game === 'king') {

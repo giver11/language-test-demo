@@ -79,6 +79,7 @@ export function runSession(view, c, list, opts = {}) {
   const wrongs = [];
   const step = async () => {
     if (i >= list.length) {
+      if (opts.chain) return opts.chain({ correct, total: list.length, wrongs });
       const pct = list.length ? Math.round((correct * 100) / list.length) : 0;
       view.innerHTML = `<h1>채점 결과</h1>
         <div class="card center"><div class="cmp-num">${correct} / ${list.length}</div><div class="small">정답률 ${pct}%</div></div>
@@ -107,6 +108,7 @@ export function runSession(view, c, list, opts = {}) {
         const isWritingQuestion = q.type === 'write';
         if (isWritingQuestion) S.recordWriting(c.pid, q.answer, r.verdict === 'good' ? 'good' : r.verdict === 'near' ? 'near' : 'retry');
         S.recordAnswer(c.pid, q, r.correct, { picked: r.picked, rt: Date.now() - t0, writingRecorded: isWritingQuestion });
+        if (opts.onAnswer) opts.onAnswer(q, r.correct);
         const seen = c.p.quiz.seen || (c.p.quiz.seen = {});
         seen[q.id] = 1;
         if (q.word) { const e = c.p.words[q.word] || { ok: 0, fail: 0 }; if (r.correct) e.ok++; else e.fail++; e.t = Date.now(); c.p.words[q.word] = e; }

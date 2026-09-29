@@ -1,5 +1,5 @@
 {
- "v": "2026.09.29-3",
+ "v": "2026.09.30-1",
  "files": [
   "index.html",
   "css/app.css",
@@ -9,6 +9,7 @@
   "js/data.js",
   "js/flags.js",
   "js/judge.js",
+  "js/learn.js",
   "js/multiwrite.js",
   "js/pad.js",
   "js/progress.js",
@@ -27,6 +28,7 @@
   "js/views/hanja.js",
   "js/views/home.js",
   "js/views/idioms.js",
+  "js/views/mastery.js",
   "js/views/mock.js",
   "js/views/more.js",
   "js/views/onboard.js",
@@ -42,10 +44,13 @@
   "js/views/stats.js",
   "js/views/studio.js",
   "js/views/teacher.js",
+  "js/views/today.js",
+  "js/views/weak.js",
+  "js/views/weekly.js",
   "js/views/words.js",
   "js/views/write.js",
   "js/views/wrong.js",
   "js/worksheet.js",
-  "js/app.js?v=2026.09.29-3"
+  "js/app.js?v=2026.09.30-1"
  ]
 }

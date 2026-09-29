@@ -34,9 +34,13 @@ const routes = {
   camera: () => import('./views/camera.js'),
   share: () => import('./views/share.js'),
   assign: () => import('./views/assign.js'),
+  today: () => import('./views/today.js'),
+  weak: () => import('./views/weak.js'),
+  weekly: () => import('./views/weekly.js'),
+  mastery: () => import('./views/mastery.js'),
 };
 const TAB_OF = { home: 'home', hanja: 'hanja', cards: 'hanja', write: 'write', quiz: 'quiz' };
-const NEEDS_CTX = new Set(['home', 'hanja', 'cards', 'write', 'quiz', 'idioms', 'words', 'mock', 'wrong', 'review', 'stats', 'favorites', 'placement', 'confuse', 'games', 'share']);
+const NEEDS_CTX = new Set(['home', 'hanja', 'cards', 'write', 'quiz', 'idioms', 'words', 'mock', 'wrong', 'review', 'stats', 'favorites', 'placement', 'confuse', 'games', 'share', 'today', 'weak', 'weekly', 'mastery']);
 
 let cleanup = null;
 let navSeq = 0;
@@ -107,6 +111,9 @@ async function updateCtxButton() {
 }
 
 window.addEventListener('hashchange', render);
+// XP 보너스 알림 (하루 1번씩 지급되는 오늘 학습·복습·쓰기·목표 완료 보너스)
+const XP_LABEL = { study: '오늘 학습 완료', review: '복습 완료', write: '쓰기 완료', goal: '오늘의 목표 완료' };
+window.addEventListener('hanja:xp', (e) => import('./ui.js').then((u) => u.toast(`${XP_LABEL[e.detail.kind] || '보너스'} +${e.detail.xp} XP`)));
 render().then(() => {
   // 대한검정회 데이터 무결성 검사 (불일치 시 console.error)
   const st = S.get();

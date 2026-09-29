@@ -85,8 +85,8 @@ export default async function (view, { ctx: c, args, params }) {
       <p class="tiny">${esc((et && et.statusNote) || '')}</p>` : ''}`;
   }
   view.innerHTML = `
-    <h1>모의시험</h1>
-    <p class="sub">${esc(c.provider.name)} ${esc(L.name)} · 공식 시험 형식 기준</p>
+    <h1>모의시험 <span class="badge accent">연습문제</span></h1>
+    <p class="sub">${esc(c.provider.name)} ${esc(L.name)} · 공식 시험 형식 기준 · 자체 제작 연습문제 (공식 기출문제 아님)</p>
     ${L.examOnline ? `<div class="tabs" role="tablist"><button class="${mode === 'offline' ? 'on' : ''}" data-mode="offline" type="button">현장시험</button><button class="${mode === 'online' ? 'on' : ''}" data-mode="online" type="button">온라인 시험 (8~3급)</button></div>` : ''}
     ${ex.structure ? `<p class="small">시험 방식: ${esc(ex.examMode === 'online' ? '자기주도형 온라인 시험' : '현장시험')} · ${esc(ex.structure)}</p>` : ''}
     <div class="card">
@@ -148,7 +148,7 @@ async function run(view, c) {
         <span class="timer">--:--</span>
         <button class="btn sm accent" data-submit type="button">제출</button></div>
       <div class="progress-top"><i style="width:${(answered * 100) / R.questions.length}%"></i></div>
-      <div class="small">[${esc(q.section)}]</div>
+      <div class="small">[${esc(q.section)}] · <span class="badge accent">연습문제</span></div>
       <div class="qhost"></div>
       <div class="btns fill" style="margin-top:14px"><button class="btn" data-prev type="button" ${R.cur ? '' : 'disabled'}>← 이전</button><button class="btn primary" data-next type="button">${R.cur + 1 < R.questions.length ? '다음 →' : '마지막 문항'}</button></div>
       <details style="margin-top:14px"><summary class="small">문항 이동</summary><div class="qnav" style="margin-top:8px">${R.questions.map((x, k) => `<button data-go="${k}" class="${R.answers[k] ? 'ans' : ''} ${k === R.cur ? 'cur' : ''}" type="button">${k + 1}</button>`).join('')}</div></details>
@@ -233,7 +233,7 @@ async function showResult(view, c, i) {
   const idioms = await D.idioms();
   const top = (o) => Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, 20);
   view.innerHTML = `
-    <h1>모의시험 결과</h1>
+    <h1>모의시험 결과 <span class="badge accent">연습문제</span></h1>
     <p class="sub">${esc(c.provider.name)} ${esc((c.levels.find((l) => l.id === m.level) || {}).name || '')} ${m.mini ? '· 미니(1/5 축소)' : ''} · ${new Date(m.t).toLocaleString('ko-KR')}</p>
     <div class="card center"><div class="small">총점 (정답 문항)</div><div class="cmp-num" style="font-size:44px">${m.correct} / ${m.total}</div><div>정답률 <b>${m.pct}%</b> · 정답 ${m.correct} · 오답 ${m.wrong} · 소요 ${Math.floor(m.usedSec / 60)}분</div>${m.score != null ? `<div style="margin-top:6px">배점 합산 <b>${m.score}</b> / ${m.fullScore}점 (${Math.round((m.score * 100) / (m.fullScore || 1))}%)</div>` : ''}</div>
     ${m.score != null ? `<div class="notice ${m.pass ? 'ok' : 'bad'}">${m.pass ? '공식 합격 기준을 충족합니다' : '공식 합격 기준에 미달해요'} — ${esc(m.passRule || '')}<div class="tiny">영역별 배점과 과목별 최소 득점률로 판정했어요. 모의시험 결과는 실제 시험 합격을 보장하지 않습니다.</div></div>` : `<div class="notice ${m.pass ? 'ok' : 'bad'}">${m.pass

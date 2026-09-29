@@ -51,7 +51,7 @@ p{line-height:1.6}
 .btn.warn{background:var(--warn);border-color:var(--warn);color:#fff}
 .btn.bad{background:var(--bad);border-color:var(--bad);color:#fff}
 .btn.ghost{background:transparent}
-.btn.sm{min-height:38px;padding:0 12px;font-size:0.875rem;border-radius:10px}
+.btn.sm{min-height:44px;padding:0 12px;font-size:0.875rem;border-radius:10px}
 .btn.block{width:100%}
 .btn[disabled]{opacity:.45;pointer-events:none}
 .btns{display:flex;gap:8px;flex-wrap:wrap}
@@ -321,3 +321,41 @@ pre.report{white-space:pre-wrap;word-break:keep-all;background:#fff;border:1px s
   .ws-ch{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
 :focus-visible{outline:3px solid #2f6fed;outline-offset:2px}
+
+/* ---- 2026.09.30 학습 엔진 업그레이드 ---- */
+/* 정답/오답을 색만으로 구별하지 않도록 기호·글자를 함께 표시 */
+.choice.correct::after{content:"✓ 정답";margin-left:auto;font-size:.875rem;font-weight:800;color:var(--ok);white-space:nowrap}
+.choice.wrong::after{content:"✗ 오답";margin-left:auto;font-size:.875rem;font-weight:800;color:var(--bad);white-space:nowrap}
+.today-card{border:2px solid var(--accent);position:relative}
+.today-card h2{margin:0}
+.today-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;margin:12px 0}
+.today-grid>div{background:#faf6ec;border-radius:12px;padding:10px 8px;text-align:center}
+.today-grid b{display:block;font-size:1.375rem}
+.today-grid span{font-size:.8125rem;color:var(--muted,#6b665c)}
+.today-grid .done b::after{content:" ✓";font-size:.875rem;color:var(--ok)}
+.why{margin:6px 0 0;padding-left:18px;font-size:.8125rem;color:var(--muted,#6b665c)}
+.stage-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
+.stage-row a{display:block;text-align:center;border-radius:12px;padding:8px 4px;background:#f6f2e8;text-decoration:none;color:inherit;min-height:44px}
+.stage-row b{display:block;font-size:1.25rem}
+.stage-row span{font-size:.75rem}
+.stage-tag{display:inline-block;border-radius:8px;padding:1px 7px;font-size:.75rem;font-weight:800;border:1px solid currentColor}
+.stage-NEW{color:#6b665c}.stage-LEARNING{color:#a06a00}.stage-REVIEW{color:#b4432f}.stage-MASTERED{color:#2f7d4f}
+.dna-row{margin:10px 0}
+.dna-row .spread{font-size:.9375rem}
+.pair{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.pair .hz2{font-family:var(--serif);font-size:1.75rem;min-width:88px}
+.dmarks{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.dmarks span{border:1px solid rgba(255,255,255,.5);border-radius:999px;padding:2px 10px;font-size:.8125rem}
+.dmarks span.on{background:#fff;color:#1f2a44;font-weight:800}
+.speed-bar{height:8px;border-radius:6px;background:#ebe6db;overflow:hidden;margin:8px 0}
+.speed-bar i{display:block;height:100%;background:var(--accent);width:100%;transition:width linear}
+.newcard{text-align:center;padding:22px 14px}
+.newcard .hanzi{font-size:88px;line-height:1.1}
+.phase-list{list-style:none;padding:0;margin:10px 0}
+.phase-list li{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.phase-list li.cur{font-weight:800}
+.phase-list li.fin span:last-child::after{content:" ✓ 완료";color:var(--ok);font-weight:800}
+.report-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.report-grid>div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}
+.report-grid b{display:block;font-size:1.25rem}
+.report-grid span{font-size:.8125rem;color:var(--muted,#6b665c)}

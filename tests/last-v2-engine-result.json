@@ -1,0 +1,378 @@
+{
+ "base": "http://localhost:8765/v2/",
+ "at": "2026-09-30T01:49:22.789547",
+ "results": [
+  {
+   "id": "topik-1",
+   "name": "TOPIK 앱 진입 · D-Day/목표/준비도/오늘 학습량",
+   "ok": true,
+   "detail": "['', 'D-20', '목표: TOPIK II 4급 · 2026-10-20']"
+  },
+  {
+   "id": "topik-B2",
+   "name": "Daily Mission (시험·시험일·약점 기반)",
+   "ok": true,
+   "detail": "['현재 시험 준비도 0% · 오늘 학습량 10분 · 26개', '오늘의 10분 미션 0/26', '어휘 2분 · 0/6 단어', '읽기 2분 · 0/4 문제', '듣기 2분 · 0/4 문제', '오답복습 · 듣기 4분 · 0/12 항목']"
+  },
+  {
+   "id": "topik-B1",
+   "name": "공통 학습 기록 {id,exam,level,category,skill,correct,wrong,lastReviewed,nextReview,mastery,responseTime}",
+   "ok": true,
+   "detail": "{\"exam\": \"topik\", \"level\": \"1\", \"skill\": \"Vocabulary\", \"correct\": 1, \"wrong\": 0, \"mastery\": 64, \"responseTime\": 1817}"
+  },
+  {
+   "id": "topik-TTS",
+   "name": "TTS ko-KR · 재생 전 cancel() · 연속 탭 중복 재생 없음 · 화면에 코드/디버그 없음",
+   "ok": true,
+   "detail": "speak 1→2, lang=ko-KR, cancel=2"
+  },
+  {
+   "id": "topik-B6a",
+   "name": "오답 → 정답·왜 틀렸는지·핵심 개념·비슷한 예·새 연습문제 순서 피드백",
+   "ok": true,
+   "detail": "✗ 오답 · 스마트 복습에 추가했어요  정답 려고 (내 답: 거나) 왜 틀렸는지 문장 구조나 문법 표현의 기능을 헷갈렸어요. 핵심 개념 문법 표현은 앞뒤 문장의 관계(이유·대조·조건·목적)를 먼저 보고 고르세요. 비"
+  },
+  {
+   "id": "topik-B6b",
+   "name": "AI 코치: Workers AI 게이트웨이 요청 형식(language/exam/level/scenario) · 응답 표시",
+   "ok": true,
+   "detail": "{\"language\": \"ko\", \"exam\": \"TOPIK\", \"level\": \"1\", \"scenario\": \"coach\"}"
+  },
+  {
+   "id": "topik-B4",
+   "name": "Mistake DNA: 오답 원인 자동 분류 저장",
+   "ok": true,
+   "detail": "['Vocabulary', 'Grammar']"
+  },
+  {
+   "id": "topik-B5",
+   "name": "Smart Review (1·3·7·14·30 · 정답률·응답시간 반영) → 복습 시작 시 복습 문제 출제",
+   "ok": true,
+   "detail": "문법 Grammar\n복습 시기\n복습 간격 1일"
+  },
+  {
+   "id": "topik-L",
+   "name": "Listening: 문제 음성 재생",
+   "ok": true,
+   "detail": "1. [문법] ‘한국어를 잘하( ) 매일 연습해요.’에 알맞은 것은?"
+  },
+  {
+   "id": "topik-B9",
+   "name": "쉐도잉 듣기→녹음→음성 인식→원문 비교→다시 말하기",
+   "ok": true,
+   "detail": "62% 일치 · 문장을 천천히 끊어 다시 말해 보세요.  원문 저는한국어를공부합니다 인식된 문장 저는 한국어를 일치한 부분 저는한국어를 다시 연습할 부분 공부합니다 ▶ 원문 다시 듣기 🔊 틀린 부분 듣기 ● 다시 말하기"
+  },
+  {
+   "id": "topik-B7",
+   "name": "AI Conversation 3턴 (질문→응답→피드백→다음 질문) + 종료 후 종합 피드백 (로컬 게이트웨이 대체)",
+   "ok": true,
+   "detail": "턴 3, 요약: CONVERSATION FEEDBACK  대화 종합 피드백 잘한 점 3턴 동안 대화를 이어갔어요. 답의 길이가 충분해요(평균 4어절). 연결어를 사용해 생각을 이어 말했어요. 교정할 점 AI가 교정한 표현 1개를 다"
+  },
+  {
+   "id": "topik-B3",
+   "name": "Weakness Map (영역별 강함/보통/복습 필요 · 실제 기록)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "topik-B14",
+   "name": "\"시험 준비도\" 표기 · 합격 확률 표현 없음 · 진척도 안내",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "topik-B15",
+   "name": "Weekly Report (학습시간·lesson·정답률·복습량·streak·XP·발전/취약 영역)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "topik-B11",
+   "name": "TOPIK I(듣기·읽기)/II(듣기·읽기·쓰기) 구분 · 1~6급 학습 단계 유지 · PBT/IBT",
+   "ok": true,
+   "detail": "학습 급수 학습 단계 1급 (TOPIK I 목표) 학습 단계 2급 (TOPIK I 목표) 학습 단계 3급 (TOPIK II 목표) 학습 단계 4급 (TOPIK II 목표) 학습 단계 5급 (TOPIK II 목표) 학"
+  },
+  {
+   "id": "topik-R",
+   "name": "새로고침 후 학습 기록 유지 (engine · 기존 state)",
+   "ok": true,
+   "detail": "items 5, mistakes 3, xp 31"
+  },
+  {
+   "id": "topik-M",
+   "name": "모바일 390px 가로 넘침 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "topik-J",
+   "name": "Console error / page error 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "ielts-1",
+   "name": "IELTS 앱 진입 · D-Day/목표/준비도/오늘 학습량",
+   "ok": true,
+   "detail": "['', 'D-20', 'Goal: IELTS 6.5 · 2026-10-20']"
+  },
+  {
+   "id": "ielts-B2",
+   "name": "Daily Mission (시험·시험일·약점 기반)",
+   "ok": true,
+   "detail": "[\"Current readiness 0% · Today's load 10 min · 24 items\", \"Today's 10-minute mission 0/24\", 'Vocabulary 2 min · 0/6 words', 'Listening 3 min · 0/6 questions', 'Speaking 2 min · 0/4 sentences', 'Weak Point Review · Listening 4 min · 0/8 questions']"
+  },
+  {
+   "id": "ielts-B10",
+   "name": "Academic / General Training 분리 (Reading/Writing 콘텐츠)",
+   "ok": true,
+   "detail": "GT 샘플: 1. [Grammar] Complete: “The number of students ___ / AC 샘플: 1. You hear: “The seminar will now begin at half p"
+  },
+  {
+   "id": "ielts-B1",
+   "name": "공통 학습 기록 {id,exam,level,category,skill,correct,wrong,lastReviewed,nextReview,mastery,responseTime}",
+   "ok": true,
+   "detail": "{\"exam\": \"ielts\", \"level\": \"academic-listening\", \"skill\": \"Vocabulary\", \"correct\": 1, \"wrong\": 0, \"mastery\": 64, \"responseTime\": 1799}"
+  },
+  {
+   "id": "ielts-TTS",
+   "name": "TTS en-US · 재생 전 cancel() · 연속 탭 중복 재생 없음 · 화면에 코드/디버그 없음",
+   "ok": true,
+   "detail": "speak 1→2, lang=en-US, cancel=2"
+  },
+  {
+   "id": "ielts-B6a",
+   "name": "오답 → 정답·왜 틀렸는지·핵심 개념·비슷한 예·새 연습문제 순서 피드백",
+   "ok": true,
+   "detail": "✗ Incorrect · added to Smart Review  Answer surged (your answer: dipped) Why it was wrong The exact meaning or use of th"
+  },
+  {
+   "id": "ielts-B6b",
+   "name": "AI 코치: Workers AI 게이트웨이 요청 형식(language/exam/level/scenario) · 응답 표시",
+   "ok": true,
+   "detail": "{\"language\": \"en\", \"exam\": \"IELTS\", \"level\": \"academic-listening\", \"scenario\": \"coach\"}"
+  },
+  {
+   "id": "ielts-B4",
+   "name": "Mistake DNA: 오답 원인 자동 분류 저장",
+   "ok": true,
+   "detail": "['Vocabulary', 'Vocabulary']"
+  },
+  {
+   "id": "ielts-B5",
+   "name": "Smart Review (1·3·7·14·30 · 정답률·응답시간 반영) → 복습 시작 시 복습 문제 출제",
+   "ok": true,
+   "detail": "Listening\nDue for review\nInterval 1.2d"
+  },
+  {
+   "id": "ielts-L",
+   "name": "Listening: 문제 음성 재생",
+   "ok": true,
+   "detail": "2. You hear: “The seminar will now begin at half past nine r"
+  },
+  {
+   "id": "ielts-B9",
+   "name": "쉐도잉 듣기→녹음→음성 인식→원문 비교→다시 말하기",
+   "ok": true,
+   "detail": "95% match · Very accurate.  Original the seminar has been moved from room 12 to room 20 Recognised The seminar has been moved from Room 12 t"
+  },
+  {
+   "id": "ielts-B7",
+   "name": "AI Conversation 3턴 (질문→응답→피드백→다음 질문) + 종료 후 종합 피드백 (로컬 게이트웨이 대체)",
+   "ok": true,
+   "detail": "턴 3, 요약: CONVERSATION FEEDBACK  Conversation feedback AI 학습 피드백 · Estimated practice feedback (not an official IELTS band) Fluenc"
+  },
+  {
+   "id": "ielts-B3",
+   "name": "Weakness Map (영역별 강함/보통/복습 필요 · 실제 기록)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "ielts-B14",
+   "name": "\"시험 준비도\" 표기 · 합격 확률 표현 없음 · 진척도 안내",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "ielts-B15",
+   "name": "Weekly Report (학습시간·lesson·정답률·복습량·streak·XP·발전/취약 영역)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "ielts-R",
+   "name": "새로고침 후 학습 기록 유지 (engine · 기존 state)",
+   "ok": true,
+   "detail": "items 6, mistakes 2, xp 45"
+  },
+  {
+   "id": "ielts-M",
+   "name": "모바일 390px 가로 넘침 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "ielts-J",
+   "name": "Console error / page error 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "hsk-1",
+   "name": "HSK 앱 진입 · D-Day/목표/준비도/오늘 학습량",
+   "ok": true,
+   "detail": "['', 'D-20', '목표: HSK 4급 · 2026-10-20']"
+  },
+  {
+   "id": "hsk-B2",
+   "name": "Daily Mission (시험·시험일·약점 기반)",
+   "ok": true,
+   "detail": "['현재 시험 준비도 0% · 오늘 학습량 10분 · 30개', '오늘의 10분 미션 0/30', '단어 2분 · 0/6 단어', '듣기 2분 · 0/4 문제', '문장 2분 · 0/4 문제', '발음 2분 · 0/4 문장']"
+  },
+  {
+   "id": "hsk-1",
+   "name": "단어: 汉字 · 拼音 · 뜻 · 예문",
+   "ok": true,
+   "detail": "你好 / nǐhǎo"
+  },
+  {
+   "id": "hsk-B1",
+   "name": "공통 학습 기록 {id,exam,level,category,skill,correct,wrong,lastReviewed,nextReview,mastery,responseTime}",
+   "ok": true,
+   "detail": "{\"exam\": \"hsk\", \"level\": \"1\", \"skill\": \"Vocabulary\", \"correct\": 1, \"wrong\": 0, \"mastery\": 64, \"responseTime\": 1951}"
+  },
+  {
+   "id": "hsk-TTS",
+   "name": "TTS zh-CN · 재생 전 cancel() · 연속 탭 중복 재생 없음 · 화면에 코드/디버그 없음",
+   "ok": true,
+   "detail": "speak 1→2, lang=zh-CN, cancel=2"
+  },
+  {
+   "id": "hsk-B6a",
+   "name": "오답 → 정답·왜 틀렸는지·핵심 개념·비슷한 예·새 연습문제 순서 피드백",
+   "ok": true,
+   "detail": "✗ 오답 · 스마트 복습에 추가했어요  정답 去 (내 답: 吃) 왜 틀렸는지 단어의 정확한 뜻이나 쓰임을 헷갈렸어요. 핵심 개념 단어는 한자·병음·뜻을 함께 기억하고 예문으로 쓰임을 확인하세요. 비슷한 예 [词汇] "
+  },
+  {
+   "id": "hsk-B6b",
+   "name": "AI 코치: Workers AI 게이트웨이 요청 형식(language/exam/level/scenario) · 응답 표시",
+   "ok": true,
+   "detail": "{\"language\": \"zh\", \"exam\": \"HSK\", \"level\": \"1\", \"scenario\": \"coach\"}"
+  },
+  {
+   "id": "hsk-B4",
+   "name": "Mistake DNA: 오답 원인 자동 분류 저장",
+   "ok": true,
+   "detail": "['Vocabulary', 'Vocabulary']"
+  },
+  {
+   "id": "hsk-B5",
+   "name": "Smart Review (1·3·7·14·30 · 정답률·응답시간 반영) → 복습 시작 시 복습 문제 출제",
+   "ok": true,
+   "detail": "어휘 Vocabulary\n복습 시기\n복습 간격 1일"
+  },
+  {
+   "id": "hsk-L",
+   "name": "Listening: 문제 음성 재생",
+   "ok": true,
+   "detail": "3. [阅读] “我在医院工作，每天帮助病人。” 他可能是做什么的？"
+  },
+  {
+   "id": "hsk-B9",
+   "name": "쉐도잉 듣기→녹음→음성 인식→원문 비교→다시 말하기",
+   "ok": true,
+   "detail": "60% 일치 · 문장을 천천히 끊어 다시 말해 보세요.  원문 我学习汉语 인식된 문장 我学习 일치한 부분 我学习 다시 연습할 부분 汉语 ▶ 원문 다시 듣기 🔊 틀린 부분 듣기 ● 다시 말하기"
+  },
+  {
+   "id": "hsk-B7",
+   "name": "AI Conversation 3턴 (질문→응답→피드백→다음 질문) + 종료 후 종합 피드백 (로컬 게이트웨이 대체)",
+   "ok": true,
+   "detail": "턴 3, 요약: CONVERSATION FEEDBACK  대화 종합 피드백 잘한 점 3턴 동안 대화를 이어갔어요. 답의 길이가 충분해요(평균 7자). 연결어를 사용해 생각을 이어 말했어요. 교정할 점 큰 오류 없이 대화했어요. 어휘"
+  },
+  {
+   "id": "hsk-B3",
+   "name": "Weakness Map (영역별 강함/보통/복습 필요 · 실제 기록)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "hsk-B14",
+   "name": "\"시험 준비도\" 표기 · 합격 확률 표현 없음 · 진척도 안내",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "hsk-B15",
+   "name": "Weekly Report (학습시간·lesson·정답률·복습량·streak·XP·발전/취약 영역)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "hsk-R",
+   "name": "새로고침 후 학습 기록 유지 (engine · 기존 state)",
+   "ok": true,
+   "detail": "items 6, mistakes 5, xp 31"
+  },
+  {
+   "id": "hsk-M",
+   "name": "모바일 390px 가로 넘침 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "hsk-J",
+   "name": "Console error / page error 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "E",
+   "name": "localStorage migration v1→v2 (기존 XP·오답 보존, 백업 키, scorestep_schema_version)",
+   "ok": true,
+   "detail": "kinds ['q', 'speech', 'w'], schema 2"
+  },
+  {
+   "id": "J-AI-502",
+   "name": "AI 오류 502: retry 1회 · fallback 문구 · 로딩 종료",
+   "ok": true,
+   "detail": "요청 2회, 표시: AI 코치에 연결하지 못했어요. 위의 기본 피드백을 참고하세요."
+  },
+  {
+   "id": "J-AI-429",
+   "name": "AI 오류 429: retry 0회 · fallback 문구 · 로딩 종료",
+   "ok": true,
+   "detail": "요청 1회, 표시: 오늘 AI 서버의 무료 사용량이 모두 소진되었습니다. 위의 기본 피드백을 참고하세요."
+  },
+  {
+   "id": "J-AI-badjson",
+   "name": "AI 오류 badjson: retry 1회 · fallback 문구 · 로딩 종료",
+   "ok": true,
+   "detail": "요청 2회, 표시: AI 코치에 연결하지 못했어요. 위의 기본 피드백을 참고하세요."
+  },
+  {
+   "id": "B9-unsupported",
+   "name": "음성 인식 미지원 → 안내문 표시 · 버튼 비활성",
+   "ok": true,
+   "detail": "이 브라우저는 음성 인식을 지원하지 않아요. 듣기와 따라 말하기 연습은 그대로 할 수 있고, 발음 비교는 Android Chrome 또는 PC "
+  },
+  {
+   "id": "B13",
+   "name": "D-7 이내 → 새 내용 ↓ 취약·실전 ↑ (집중 복습 단계)",
+   "ok": true,
+   "detail": "['현재 시험 준비도 0% · 오늘 학습량 10분 · 27개', '단어 1분 · 0/3 단어', '듣기 2분 · 0/4 문제', '문장 2분 · 0/4 문제', '발음 2분 · 0/4 문장']"
+  },
+  {
+   "id": "F-offline",
+   "name": "오프라인: AI 대화 → \"인터넷 연결이 필요한 기능입니다.\"",
+   "ok": true,
+   "detail": "인터넷 연결이 필요한 기능입니다."
+  },
+  {
+   "id": "PC",
+   "name": "PC Chrome 1280px 렌더 · 오류 없음",
+   "ok": true,
+   "detail": ""
+  }
+ ]
+}

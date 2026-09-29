@@ -32,13 +32,23 @@
 
   function normalizeLang(lang){ return String(lang || 'en-US').replace(/_/g, '-').toLowerCase(); }
 
-  /* exact locale → same language → null (browser default for utterance.lang). No voice names are hard-coded. */
+  /* exact locale → accepted aliases (zh-CN: cmn-Hans-CN / zh-Hans; en-US → en-GB) → same language → null
+     (browser default for utterance.lang). Among equal matches the device default / local voice wins.
+     No voice names are hard-coded. Traditional-Chinese (TW/HK) voices are used for zh-CN only as a last resort. */
+  var ALIASES = { 'zh-cn': ['zh-cn', 'cmn-hans-cn', 'zh-hans-cn', 'zh-hans', 'cmn-cn'], 'en-us': ['en-us', 'en-gb', 'en-au', 'en-ca'], 'en-gb': ['en-gb', 'en-us', 'en-au'], 'ko-kr': ['ko-kr', 'ko'] };
+  function rank(v){ return (v['default'] ? 2 : 0) + (v.localService ? 1 : 0); }
   function findVoice(lang){
     loadVoices();
     var wanted = normalizeLang(lang), base = wanted.split('-')[0];
-    var voice = availableVoices.find(function(v){ return normalizeLang(v.lang) === wanted; });
-    if (!voice) voice = availableVoices.find(function(v){ return normalizeLang(v.lang).split('-')[0] === base; });
-    return voice || null;
+    var list = ALIASES[wanted] || [wanted];
+    for (var i = 0; i < list.length; i++) {
+      var hits = availableVoices.filter(function(v){ return normalizeLang(v.lang) === list[i]; });
+      if (hits.length) return hits.sort(function(a, b){ return rank(b) - rank(a); })[0];
+    }
+    var same = availableVoices.filter(function(v){ var l = normalizeLang(v.lang); return l.split('-')[0] === base && !(base === 'zh' && /tw|hk|hant|yue/.test(l)); });
+    if (same.length) return same.sort(function(a, b){ return rank(b) - rank(a); })[0];
+    var any = availableVoices.find(function(v){ return normalizeLang(v.lang).split('-')[0] === base || (base === 'zh' && /^cmn|^yue/.test(normalizeLang(v.lang))); });
+    return any || null;
   }
 
   /* Speak only the app language: drop 💡 / IELTS feedback lines; for Chinese keep Hanzi only
@@ -56,11 +66,29 @@
     return t.replace(/\s+/g, ' ').replace(/^[，,\s]+|[，,\s]+$/g, '').trim();
   }
 
+  var lastReq = { text: '', at: 0 }, voicesWaited = false;
   function speak(text, options){
     options = options || {};
     var lang = options.lang || 'en-US', say = speechText(text, lang);
     if (!say) { log('SKIP', 'empty text for ' + lang); return false; }
     if (!supported) { log('ERROR', 'Web Speech API unsupported'); return false; }
+    /* 같은 문장을 연달아 두 번 누른 경우(더블탭) 중복 재생하지 않음 */
+    var nowMs = Date.now();
+    if (lastReq.text === say + '|' + lang && nowMs - lastReq.at < 600) { log('SKIP', 'duplicate tap'); return true; }
+    lastReq = { text: say + '|' + lang, at: nowMs };
+    /* 모바일 Chrome: 첫 재생 시점에 음성 목록이 아직 비어 있으면 voiceschanged 를 최대 1.2초 기다린 뒤 재생 */
+    if (!availableVoices.length && !options._waited && !voicesWaited) {
+      loadVoices();
+      if (!availableVoices.length) {
+        voicesWaited = true;   /* 한 번만 기다림: 음성이 끝내 없는 기기는 브라우저 기본 음성(utterance.lang)으로 즉시 재생 */
+        var token = {}; currentUtterance = token;
+        var done = false, go = function(){ if (done) return; done = true; if (synth.removeEventListener) synth.removeEventListener('voiceschanged', go); if (currentUtterance !== token) return; options._waited = true; lastReq.at = 0; speak(text, options); };
+        if (synth.addEventListener) synth.addEventListener('voiceschanged', go);
+        setTimeout(go, 1200);
+        log('EVENT', 'waiting for voices');
+        return true;
+      }
+    }
     diag.speakCalls++;
     try { synth.cancel(); } catch(e) {}
     var utterance = new SpeechSynthesisUtterance(say);

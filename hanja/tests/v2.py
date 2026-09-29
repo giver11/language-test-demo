@@ -62,7 +62,7 @@ async def main():
             txt = await pg.inner_text('#view')
             st = await pg.evaluate('JSON.parse(localStorage.getItem("hanjaPass.v1"))')
             mastery = len(st['byProvider']['daehan'].get('mastery', {}))
-            rec('T1', '첫 실행 → 진단평가 → 개인 학습계획', '오늘의 개인 학습계획' in txt and mastery >= 8 and st['version'] == 2, f'진단 {n}문항, mastery 기록 {mastery}자')
+            rec('T1', '첫 실행 → 진단평가 → 개인 학습계획', '오늘의 개인 학습계획' in txt and mastery >= 8 and st['version'] >= 2, f'진단 {n}문항, mastery 기록 {mastery}자')
             await pg.click('text=학습 계획 보기'); await pg.wait_for_selector('.coach', timeout=10000)
             coach = await pg.inner_text('.coach')
             rec('T2', 'Exam Coach 카드(목표/숙련/학습중/미학습·준비도·오늘 계획)', all(k in coach for k in ['숙련', '미학습']) and '%' in coach, coach.replace('\n', ' ')[:140])
@@ -78,7 +78,7 @@ async def main():
         st = await pg.evaluate('JSON.parse(localStorage.getItem("hanjaPass.v1"))')
         bk = await pg.evaluate('localStorage.getItem("hanjaPass.v1.backup.v1")')
         d = st['byProvider']['daehan']
-        rec('T3', 'v1 기록 → v2 migration (삭제 없음, 백업 보관)', st['version'] == 2 and d['cards']['學']['n'] == 3 and d['quiz']['answered'] == 12 and 'mastery' in d and '學' in d['mastery'] and bk is not None and st['favorites']['hanja'] == ['學'],
+        rec('T3', 'v1 기록 → v2 migration (삭제 없음, 백업 보관)', st['version'] >= 2 and d['cards']['學']['n'] == 3 and d['quiz']['answered'] == 12 and 'mastery' in d and '學' in d['mastery'] and bk is not None and st['favorites']['hanja'] == ['學'],
             f"mastery 學={d['mastery'].get('學', {}).get('m')} 校={d['mastery'].get('校', {}).get('m')}, backup={'있음' if bk else '없음'}")
         # T4 재접속 유지
         await pg.reload(); await pg.wait_for_selector('.coach')
