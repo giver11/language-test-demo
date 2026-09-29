@@ -1,6 +1,7 @@
 // 진도 계산 · Daily Quest · 배지
 import * as S from './store.js';
 import * as D from './data.js';
+import * as Coach from './coach.js';
 import { daysUntil } from './ui.js';
 
 export async function ctx() {
@@ -38,49 +39,44 @@ export async function dailyQuest(c, sum) {
   const minutes = st.minutes || 20;
   const dLeft = daysUntil(c.p.examDate);
   const key = `${c.pid}|${c.lid}|${minutes}|${c.p.examDate}`;
-  if (st.quest && st.quest.date === today && st.quest.key === key) return st.quest;
-  const remaining = Math.max(0, sum.total - sum.known);
-  const remainingW = Math.max(0, sum.writeTotal - sum.writeDone);
-  const days = dLeft != null && dLeft > 0 ? dLeft : 30;
-  const studyDays = Math.max(1, days - Math.min(7, Math.floor(days / 4))); // 마지막 구간은 복습 기간
-  const near = dLeft != null && dLeft <= 14;
-  // 분 단위 비용(대략): 카드 0.5, 쓰기 1, 한자어 0.5, 사자성어 1, 문제 0.6
-  const share = near ? { hanja: 0.12, writing: 0.15, words: 0.1, idioms: 0.08, questions: 0.55 }
-                     : { hanja: 0.35, writing: 0.2, words: 0.15, idioms: 0.1, questions: 0.2 };
-  const cost = { hanja: 0.5, writing: 1, words: 0.5, idioms: 1, questions: 0.6 };
-  const plan = {};
-  for (const k of Object.keys(share)) plan[k] = Math.max(1, Math.round((minutes * share[k]) / cost[k]));
-  // 남은 분량을 기간 안에 끝낼 수 있도록 필요량 반영(시간 예산의 1.5배까지)
-  const needH = Math.ceil(remaining / studyDays);
-  const needW = Math.ceil(remainingW / studyDays);
-  plan.hanja = Math.min(Math.max(plan.hanja, needH), Math.round(plan.hanja * 1.5));
-  if (sum.writeTotal) plan.writing = Math.min(Math.max(plan.writing, needW), Math.round(plan.writing * 1.5)); else plan.writing = Math.min(plan.writing, 5);
-  if (!c.level || !c.level.hasData) { plan.hanja = 0; plan.writing = 0; }
-  if (remaining === 0) plan.hanja = Math.max(5, Math.round(plan.hanja / 2));
-  const q = { date: today, key, plan, done: {}, near, dLeft, minutes, needH, remaining };
+  if (st.quest && st.quest.date === today && st.quest.key === key && st.quest.v === 2) return st.quest;
+  // Exam Coach: mastery·남은 기간·어제 수행률로 오늘 학습량 계산
+  const cs = await Coach.status(c);
+  const tp = await Coach.todayPlan(c, cs);
+  const plan = tp.plan;
+  if (!c.level || !c.level.hasData) { plan.hanja = 0; plan.review = 0; plan.writing = 0; }
+  const prev = st.quest && st.quest.date === today ? st.quest.done : {};
+  const q = { v: 2, date: today, key, plan, done: prev || {}, near: tp.near, dLeft, minutes, adj: tp.adj, ratio: tp.ratio };
   st.quest = q;
+  c.p.dailyLog[today] = { plan, done: { ...q.done } };
   S.save();
   return q;
 }
 
 export const BADGES = [
-  { id: 'h100', name: '첫 100자 마스터', icon: '字', test: (c) => c.knownAll >= 100 },
-  { id: 'write50', name: '한자 쓰기왕', icon: '✎', test: (c) => c.writeGood >= 50 },
-  { id: 'idiom30', name: '사자성어 마스터', icon: '成', test: (c) => c.idiomOk >= 30 },
-  { id: 'streak7', name: '7일 연속 공부', icon: '日', test: (c) => c.bestStreak >= 7 },
-  { id: 'mockpass', name: '모의시험 합격기준 달성', icon: '合', test: (c) => c.mockPass },
+  { id: 'h100', name: '첫 100자', icon: '字', desc: '암기 완료 100자', test: (c) => c.knownAll >= 100 },
+  { id: 'study500', name: '500자 학습', icon: '學', desc: '학습한 한자 500자', test: (c) => c.studiedAll >= 500 },
+  { id: 'write50', name: '쓰기왕', icon: '✎', desc: '쓰기 통과 50회', test: (c) => c.writeGood >= 50 },
+  { id: 'streak7', name: '7일 연속', icon: '日', desc: '7일 연속 학습', test: (c) => c.bestStreak >= 7 },
+  { id: 'streak30', name: '30일 연속', icon: '月', desc: '30일 연속 학습', test: (c) => c.bestStreak >= 30 },
+  { id: 'mock90', name: '모의시험 90점', icon: '優', desc: '실전 모의시험 90% 이상', test: (c) => c.mockBest >= 90 },
+  { id: 'idiom100', name: '사자성어 100개', icon: '成', desc: '맞힌 사자성어 100개', test: (c) => c.idiomOk >= 100 },
+  { id: 'idiom30', name: '사자성어 30개', icon: '語', desc: '맞힌 사자성어 30개', test: (c) => c.idiomOk >= 30 },
+  { id: 'mockpass', name: '모의시험 합격선', icon: '合', desc: '모의시험 합격 기준 충족', test: (c) => c.mockPass },
 ];
 
 export function evalBadges() {
   const st = S.get();
-  let knownAll = 0, writeGood = 0, idiomOk = 0, mockPass = false;
+  let knownAll = 0, writeGood = 0, idiomOk = 0, mockPass = false, studiedAll = 0, mockBest = 0;
   for (const p of Object.values(st.byProvider)) {
     knownAll += Object.values(p.cards).filter((x) => x.s === 'know').length;
+    studiedAll += Object.keys(p.mastery || {}).length;
+    for (const m of p.mocks) if (!m.mini) mockBest = Math.max(mockBest, m.pct || 0);
     writeGood += Object.values(p.writing).reduce((a, x) => a + (x.ok || 0), 0);
     idiomOk += Object.values(p.idioms).filter((x) => x.ok > 0).length;
     if (p.mocks.some((m) => m.pass)) mockPass = true;
   }
-  const c = { knownAll, writeGood, idiomOk, mockPass, bestStreak: S.streak().best };
+  const c = { knownAll, writeGood, idiomOk, mockPass, studiedAll, mockBest, bestStreak: S.streak().best };
   const newly = [];
   for (const b of BADGES) {
     if (!st.badges[b.id] && b.test(c)) { st.badges[b.id] = S.today(); newly.push(b); }
@@ -96,6 +92,10 @@ export async function reviewItems(c) {
   const score = new Map();
   const why = new Map();
   const add = (ch, s, reason) => { score.set(ch, (score.get(ch) || 0) + s); if (!why.has(ch)) why.set(ch, new Set()); why.get(ch).add(reason); };
+  // 간격 반복: 복습 시기가 된 한자(mastery 낮을수록 우선)
+  for (const [ch, e] of Object.entries(p.mastery || {})) {
+    if (e.due && e.due <= now) add(ch, 4 + (100 - S.masteryValue(e, now)) / 25, '복습 시기');
+  }
   for (const [ch, e] of Object.entries(p.cards)) {
     if (e.s === 'dont') add(ch, 5, '몰라요');
     else if (e.s === 'unsure') add(ch, 3, '헷갈려요');

@@ -33,7 +33,13 @@ export default async function (view) {
         <p><b>한국어문회 배정한자</b> — 한국어문회 홈페이지 학습자료 xls를 CSV로 변환한 공개 데이터셋 <a href="https://github.com/rycont/hanja-grade-dataset" target="_blank" rel="noopener">rycont/hanja-grade-dataset</a> (데이터 저작권: 한국어문회).</p>
         <p><b>훈음·한자어 독음·빈도</b> — <a href="https://github.com/libhangul/libhangul" target="_blank" rel="noopener">libhangul</a> data/hanja (BSD 3-Clause, Choe Hwanjin).</p>
         <p><b>획순</b> — <a href="https://github.com/chanind/hanzi-writer-data" target="_blank" rel="noopener">hanzi-writer-data</a> / Make Me a Hanzi (Arphic Public License). ${esc(meta.strokeNote || '')}</p>
-        <p><b>사자성어 뜻풀이·예문, 반의/유의 한자 쌍, 모든 문제</b> — 이 앱에서 직접 작성한 자료(original-practice). 실제 기출문제를 복제하지 않았습니다.</p>
+        <p><b>사자성어 뜻풀이·예문, 반의/유의 한자 쌍, 모든 문제</b> — 이 앱에서 직접 작성한 자료(sourceType: original). 실제 기출문제를 복제하지 않았습니다.</p>
+        <p><b>한자 예문 · 부수 이야기 · 진단/게임/시험지 문항</b> — 이 앱에서 직접 작성하거나 공식 배정한자·훈음으로 즉석 생성(sourceType: original).</p>
+        <p><b>헷갈리는 한자(모양 유사)</b> — Make Me a Hanzi 획순 중심선을 이미지로 바꿔 계산한 유사도(외부 문제·해설 미사용).</p>
+        <p><b>상공회의소 일부 희귀자 훈음</b> — 대법원 인명용 한자 조회(공공 서비스) 결과로 보완.</p>
+        <p><b>카메라 검색(실험)</b> — Tesseract.js(Apache-2.0)를 기기 안에서 실행. 사진은 서버로 보내지 않음.</p>
+        <p><b>출처 구분</b> — original(자체 제작) · official-fact(기관 공식 사실 정보: 배정한자·급수·일정·문항 수·합격 기준) · public-domain(공개 라이선스/공공 자료).</p>
+        <p><b>저작권 때문에 넣지 않은 자료</b> — 기관 공식 기출문제 원문(링크만 제공), 출판사 문제집·교재 문제, 다른 한자 앱·블로그의 문제·해설·예문, 시중 사전의 뜻풀이 문장. 출처·권리가 불분명한 자료는 넣지 않았습니다.</p>
         <p><b>필기 판정</b> — 브라우저에서 입력 획 좌표와 획순 데이터의 중심선을 비교(획수·순서·시작/끝 위치·경로 거리). 유료 API·AI 채점 없음.</p>
       </div>
     </div>`;

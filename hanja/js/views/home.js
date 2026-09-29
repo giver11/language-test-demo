@@ -2,15 +2,18 @@ import * as P from '../progress.js';
 import * as S from '../store.js';
 import * as D from '../data.js';
 import { esc, daysUntil, ddayText, fmtDate, bar, daehanFooter } from '../ui.js';
+import * as Coach from '../coach.js';
 
 export default async function (view, { ctx: c }) {
   const sum = await P.summary(c);
   const q = await P.dailyQuest(c, sum);
+  const L = c.level;
+  const cs = L.hasData ? await Coach.status(c) : null;
   const n = daysUntil(c.p.examDate);
   const badges = P.evalBadges();
-  const L = c.level;
   const questItems = [
-    ['hanja', '한자', '자', '#/cards?set=quest'],
+    ['hanja', '신규 한자', '자', '#/cards?set=quest'],
+    ['review', '복습', '자', '#/cards?set=review'],
     ['writing', '쓰기', '자', '#/write'],
     ['words', '한자어', '개', '#/words'],
     ['idioms', '사자성어', '개', '#/idioms'],
@@ -31,6 +34,20 @@ export default async function (view, { ctx: c }) {
     ${!L.hasData ? `<div class="notice bad"><b>${esc(c.provider.name)} ${esc(L.name)} 배정한자: 공식 자료 확인 필요</b><br>${esc(L.notes[0] || '')}<br>
        일정·시험형식·D-Day·사자성어 학습은 사용할 수 있어요. <a href="#/sources">데이터 출처 보기</a></div>` : ''}
     ${L.hasData && L.status && L.status.hanja === 'secondary' ? `<div class="notice">이 급수의 배정한자는 2차 자료 기준이에요 (공식 대조 필요).</div>` : ''}
+    ${cs ? `<section class="card coach" aria-label="Exam Coach">
+      <div class="spread"><h2 class="mt0" style="margin:0">Exam Coach</h2><span class="badge blue">${esc(c.provider.short || c.provider.name)} ${esc(L.name)}${n != null && n >= 0 ? ` · ${ddayText(n)}` : ''}</span></div>
+      <div class="coach-grid">
+        <div><div class="v">${cs.target.toLocaleString()}</div><div class="k">목표 한자</div></div>
+        <div><div class="v ok">${cs.mastered.toLocaleString()}</div><div class="k">숙련</div></div>
+        <div><div class="v warn">${cs.learning.toLocaleString()}</div><div class="k">학습 중</div></div>
+        <div><div class="v muted">${cs.unseen.toLocaleString()}</div><div class="k">미학습</div></div>
+      </div>
+      <div class="stack-bar" role="img" aria-label="숙련 ${cs.mastered}, 학습 중 ${cs.learning}, 미학습 ${cs.unseen}">
+        <i class="ok" style="width:${(cs.mastered * 100) / Math.max(1, cs.target)}%"></i><i class="warn" style="width:${(cs.learning * 100) / Math.max(1, cs.target)}%"></i></div>
+      <div class="spread" style="margin-top:8px"><b>현재 준비도 ${cs.readiness}%</b><span class="small">복습 시기 ${cs.due.length}자</span></div>
+      <div class="btns" style="margin-top:8px"><a class="btn sm" href="#/confuse">헷갈리는 한자</a><a class="btn sm" href="#/games">게임</a><a class="btn sm" href="#/share">공유 카드</a>${S.get().placement && S.get().placement[c.pid + ':' + c.lid] ? '' : '<a class="btn sm" href="#/placement">진단평가</a>'}</div>
+      <p class="tiny" style="margin:4px 0 0">준비도 = 한자 숙련도 평균${cs.basis.quiz ? ' + 문제 정답률' : ''}${cs.basis.mock ? ' + 모의시험' : ''} 기준의 참고 지표예요. ${q.adj && q.adj !== 1 ? `어제 학습량 달성률에 맞춰 오늘 신규 분량을 ${q.adj > 1 ? '늘렸어요' : '줄였어요'}.` : ''}</p>
+    </section>` : ''}
     <div class="card" style="margin-top:12px">
       <div class="spread"><h2 class="mt0" style="margin:0">오늘의 학습</h2><span class="badge ${q.near ? 'accent' : 'blue'}">${q.near ? '시험 임박 · 복습/문제 위주' : `하루 ${q.minutes}분`}</span></div>
       <div style="margin:10px 0 4px" class="spread"><span class="small">진행률 ${pct}%</span><span class="small">${totalDone}/${totalPlan}</span></div>

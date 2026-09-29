@@ -109,14 +109,16 @@ export default async function (view, { params, go }) {
           <div style="font-size:18px;font-weight:800;margin-top:4px">${esc(prov.name)} ${esc(L.name)}</div>
           <div class="small">${state.date ? `${esc(state.round || '')} ${fmtDate(state.date)} · ${ddayText(daysUntil(state.date))}` : '시험일 미정'}</div>
         </div>
-        <button class="btn accent block" data-go type="button" style="margin-top:16px;min-height:56px;font-size:18px">학습 시작</button>`;
+        ${L.hasData ? `<button class="btn accent block" data-go="placement" type="button" style="margin-top:16px;min-height:56px;font-size:18px">간단 진단평가 후 시작 (약 2분)</button>
+        <button class="btn block" data-go="skip" type="button" style="margin-top:8px">진단 없이 바로 시작</button>
+        <p class="tiny">진단 결과로 이미 아는 한자와 복습할 한자를 나눠 개인 학습계획(Exam Coach)을 만들어요.</p>` : `<button class="btn accent block" data-go type="button" style="margin-top:16px;min-height:56px;font-size:18px">학습 시작</button>`}`;
       view.querySelector('[data-back]').onclick = () => { state.step = 2; draw(); };
       view.querySelectorAll('[data-m]').forEach((b) => (b.onclick = () => { state.minutes = +b.dataset.m; draw(); }));
-      view.querySelector('[data-go]').onclick = () => {
+      view.querySelectorAll('[data-go]').forEach((btn) => (btn.onclick = () => {
         S.get().minutes = state.minutes;
         S.setCurrent(state.pid, { level: state.lid, examDate: state.date, examRound: state.round });
-        go('#/home');
-      };
+        go(btn.dataset.go === 'placement' ? '#/placement' : '#/home');
+      }));
     }
   };
   await draw();

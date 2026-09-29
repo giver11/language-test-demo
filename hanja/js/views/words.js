@@ -65,7 +65,7 @@ async function practice(view, c, sc, mode, dict, params) {
   const scopeChars = await D.scopeChars(c.pid, c.lid);
   const qs = round.map((w) => {
     const same = shuffle(pool.filter((x) => x.w !== w.w && x.w.length === w.w.length));
-    const base = { id: `word-${mode}-${w.w}`, provider: c.pid, level: c.lid, relatedHanja: [...w.w], sourceType: 'original-practice', word: w.w };
+    const base = { id: `word-${mode}-${w.w}`, provider: c.pid, level: c.lid, relatedHanja: [...w.w], sourceType: 'original', word: w.w };
     const mk = (question, prompt, ans, ds, type) => { const choices = shuffle([ans, ...ds.filter((d) => d !== ans).slice(0, 3)]); return { ...base, type, typeLabel: `한자어·${label}`, question, prompt, choices, answer: choices.indexOf(ans), explanation: `${w.w}(${w.r}) = ${gloss(w.w, dict)}` }; };
     if (mode === 'h2m') return mk('다음 한자어의 글자 풀이(뜻)로 알맞은 것은?', w.w, gloss(w.w, dict, false), same.map((x) => gloss(x.w, dict, false)), 'word-gloss');
     if (mode === 'm2h') return mk(`뜻 풀이 “${gloss(w.w, dict, false)}”에 알맞은 한자어는? (독음: ${w.r})`, '', w.w, same.map((x) => x.w), 'word-from-meaning');
@@ -132,7 +132,7 @@ function recordWord(c, w, ok, type, label, dict) {
   if (ok) e.ok++; else e.fail++;
   e.t = Date.now();
   c.p.words[w.w] = e;
-  S.recordAnswer(c.pid, { id: `${type}-${w.w}`, type, typeLabel: label, question: `'${w.r}'`, prompt: w.w, choices: [w.w], answer: 0, relatedHanja: [...w.w], word: w.w, explanation: `${w.w}(${w.r}) = ${gloss(w.w, dict)}`, sourceType: 'original-practice' }, ok);
+  S.recordAnswer(c.pid, { id: `${type}-${w.w}`, type, typeLabel: label, question: `'${w.r}'`, prompt: w.w, choices: [w.w], answer: 0, relatedHanja: [...w.w], word: w.w, explanation: `${w.w}(${w.r}) = ${gloss(w.w, dict)}`, sourceType: 'original' }, ok);
 }
 
 async function writeMode(view, c, sc, dict, params) {

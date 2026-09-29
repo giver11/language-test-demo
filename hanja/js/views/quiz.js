@@ -2,6 +2,7 @@ import * as D from '../data.js';
 import * as S from '../store.js';
 import { esc, shuffle, daehanFooter } from '../ui.js';
 import { renderQuestion } from '../qrender.js';
+import * as Q from '../qgen.js';
 
 export default async function (view, { ctx: c, params }) {
   const bank = c.level.hasData ? await D.bank(c.pid, c.lid) : null;
@@ -11,7 +12,11 @@ export default async function (view, { ctx: c, params }) {
       <div class="btns"><a class="btn" href="${esc(c.provider.pastExamUrl)}" target="_blank" rel="noopener">공식 기출문제 보기 ↗</a><a class="btn" href="#/idioms">사자성어 문제</a></div>`;
     return;
   }
-  const qs = bank.questions;
+  // 훈→한자 · 음→한자 문항은 배정한자 범위에서 즉석 생성(자체 제작, 공식 훈음 자료 기준)
+  const dict = await D.dict();
+  const scope = await D.scopeChars(c.pid, c.lid);
+  const gen = Q.mixed(scope, dict, c.pid, Math.min(240, scope.length * 2), ['hun-char', 'eum-char']);
+  const qs = bank.questions.concat(gen);
   // 진흥회·상공회의소는 공식 출제 영역(area) 기준으로 묶어 보여 줌
   const keyOf = (q) => (c.pid === 'jinheung' || c.pid === 'korcham') && q.area ? q.area : q.typeLabel;
   const types = {};
@@ -27,7 +32,8 @@ export default async function (view, { ctx: c, params }) {
       <div class="notice info">공식 배정한자와 공식 문제유형을 기준으로 이 앱에서 새로 만든 문제예요 (실제 기출문제가 아니에요). 문제은행 ${qs.length.toLocaleString()}문항.</div>
       <details class="card flat" style="margin:10px 0"><summary><b>문제은행 구성 · 출처 구분</b></summary>
         <div class="table-wrap" style="margin-top:8px"><table><tbody>
-          <tr><th>이 앱의 문제</th><td>자체 제작 연습문제 ${qs.length.toLocaleString()}문항 <span class="badge">original-practice</span><div class="tiny">공식 배정/선정한자 범위와 공식 출제 유형을 기준으로 만든 문제예요. 실제 기출문제가 아니에요.</div></td></tr>
+          <tr><th>이 앱의 문제</th><td>자체 제작 연습문제 ${qs.length.toLocaleString()}문항 <span class="badge">original</span><div class="tiny">공식 배정/선정한자 범위와 공식 출제 유형을 기준으로 만든 문제예요. 실제 기출문제가 아니에요.</div></td></tr>
+          <tr><th>공식 자료</th><td>배정한자·급수·훈음·문항 수·합격 기준 <span class="badge">official-fact</span> · 사전/획순 <span class="badge">public-domain</span></td></tr>
           <tr><th>공식 기출문제</th><td>저작권 보호 — 앱에 저장하지 않고 공식 사이트로만 연결 <a href="${esc(c.provider.pastExamUrl)}" target="_blank" rel="noopener">공식 기출 ↗</a></td></tr>
           <tr><th>모의시험</th><td>공식 문항 수·시간·합격 기준에 맞춰 자체 제작 문항으로 구성</td></tr>
         </tbody></table></div>
@@ -74,11 +80,11 @@ export function runSession(view, c, list, opts = {}) {
       const pct = list.length ? Math.round((correct * 100) / list.length) : 0;
       view.innerHTML = `<h1>채점 결과</h1>
         <div class="card center"><div class="cmp-num">${correct} / ${list.length}</div><div class="small">정답률 ${pct}%</div></div>
-        ${wrongs.length ? `<h3>틀린 문제 (${wrongs.length}) — 오답노트에 저장됨</h3><div class="card">${wrongs.map((q) => `<div class="list-row"><span class="hz">${esc(q.prompt || q.answer || '')}</span><div class="grow"><b>${esc(q.typeLabel)}</b><div class="small">${esc(q.question)}</div><div class="small">정답: ${esc(q.type === 'write' ? q.answer : q.choices[q.answer])}</div></div></div>`).join('')}</div>` : '<p class="center">모두 맞혔어요! 🎉</p>'}
+        ${wrongs.length ? `<h3>틀린 문제 (${wrongs.length}) — 오답노트에 저장됨</h3><div class="card">${wrongs.map((q) => `<div class="list-row"><span class="hz">${esc(q.prompt || (q.type === 'write' ? q.answer : q.choices[q.answer]) || '')}</span><div class="grow"><b>${esc(q.typeLabel)}</b><div class="small">${esc(q.question)}</div><div class="small">정답: ${esc(q.type === 'write' ? q.answer : q.choices[q.answer])}</div></div></div>`).join('')}</div>` : '<p class="center">모두 맞혔어요! 🎉</p>'}
         <div class="btns fill" style="margin-top:14px">${opts.again !== false ? '<button class="btn accent" data-again type="button">다시 풀기</button>' : ''}<a class="btn" href="#/wrong">오답노트</a><a class="btn" href="#/home">홈</a></div>`;
       const a = view.querySelector('[data-again]');
       if (a) a.onclick = () => location.reload();
-      if (opts.onDone) opts.onDone({ correct, total: list.length });
+      if (opts.onDone) opts.onDone({ correct, total: list.length, wrongs });
       return;
     }
     const q = list[i];
@@ -88,12 +94,13 @@ export function runSession(view, c, list, opts = {}) {
       <div class="qhost"></div>
       <button class="btn primary block" data-next type="button" style="margin-top:14px;display:none">${i + 1 < list.length ? '다음 문제' : '결과 보기'}</button>`;
     const next = view.querySelector('[data-next]');
+    const t0 = Date.now();
     await renderQuestion(view.querySelector('.qhost'), q, {
       mode: 'practice',
       onAnswer: (r) => {
         if (next.style.display === 'block') return;
         if (r.correct) correct++; else wrongs.push(q);
-        S.recordAnswer(c.pid, q, r.correct, { picked: r.picked });
+        S.recordAnswer(c.pid, q, r.correct, { picked: r.picked, rt: Date.now() - t0 });
         const seen = c.p.quiz.seen || (c.p.quiz.seen = {});
         seen[q.id] = 1;
         if (q.word) { const e = c.p.words[q.word] || { ok: 0, fail: 0 }; if (r.correct) e.ok++; else e.fail++; e.t = Date.now(); c.p.words[q.word] = e; }

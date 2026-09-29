@@ -154,15 +154,16 @@ async function run(view, c) {
       <details style="margin-top:14px"><summary class="small">문항 이동</summary><div class="qnav" style="margin-top:8px">${R.questions.map((x, k) => `<button data-go="${k}" class="${R.answers[k] ? 'ans' : ''} ${k === R.cur ? 'cur' : ''}" type="button">${k + 1}</button>`).join('')}</div></details>
       <div class="confirm-host"></div>`;
     tick();
+    R._t0 = Date.now();
     if (pad) { pad.destroy && pad.destroy(); pad = null; }
     const a = R.answers[R.cur];
     pad = await renderQuestion(view.querySelector('.qhost'), q, {
       mode: 'exam', selected: a ? a.picked : undefined, savedStrokes: a && a.strokes,
       onAnswer: (r) => { R.answers[R.cur] = { picked: r.picked, correct: r.correct, verdict: r.verdict, strokes: r.strokes }; saveRun(R); view.querySelector('.small b').parentElement.innerHTML = `<b>${R.cur + 1}</b>/${R.questions.length} · 답한 문항 ${Object.keys(R.answers).length}`; },
     });
-    view.querySelector('[data-prev]').onclick = () => { R.cur--; saveRun(R); draw(); };
-    view.querySelector('[data-next]').onclick = () => { if (R.cur + 1 < R.questions.length) { R.cur++; saveRun(R); draw(); } };
-    view.querySelectorAll('[data-go]').forEach((b) => (b.onclick = () => { R.cur = +b.dataset.go; saveRun(R); draw(); }));
+    view.querySelector('[data-prev]').onclick = () => { lap(); R.cur--; saveRun(R); draw(); };
+    view.querySelector('[data-next]').onclick = () => { if (R.cur + 1 < R.questions.length) { lap(); R.cur++; saveRun(R); draw(); } };
+    view.querySelectorAll('[data-go]').forEach((b) => (b.onclick = () => { lap(); R.cur = +b.dataset.go; saveRun(R); draw(); }));
     view.querySelector('[data-submit]').onclick = () => {
       const left = R.questions.length - Object.keys(R.answers).length;
       const host = view.querySelector('.confirm-host');
@@ -172,7 +173,10 @@ async function run(view, c) {
       host.querySelector('[data-no]').onclick = () => (host.innerHTML = '');
     };
   };
+  // 문항별 체류 시간(시간 분석용)
+  const lap = () => { R.spent = R.spent || {}; const now = Date.now(); R.spent[R.cur] = (R.spent[R.cur] || 0) + Math.max(0, now - (R._t0 || now)); R._t0 = now; };
   const submit = () => {
+    lap();
     clearInterval(timer);
     const byType = {};
     const weak = {}, weakWrite = {}, weakIdiom = {};
@@ -188,7 +192,9 @@ async function run(view, c) {
         if (q.type === 'write') weakWrite[q.answer] = (weakWrite[q.answer] || 0) + 1;
         if (q.idiom) weakIdiom[q.idiom] = (weakIdiom[q.idiom] || 0) + 1;
       }
-      S.recordAnswer(c.pid, q, ok, { picked: a ? a.picked : null });
+      const ms = (R.spent || {})[k] || 0;
+      t.ms = (t.ms || 0) + ms;
+      S.recordAnswer(c.pid, q, ok, { picked: a ? a.picked : null, rt: ms || undefined });
       if (q.type === 'write' && a && a.verdict) S.recordWriting(c.pid, q.answer, a.verdict === 'good' ? 'good' : a.verdict === 'near' ? 'near' : 'retry');
     });
     const total = R.questions.length;
@@ -204,7 +210,9 @@ async function run(view, c) {
       if (!fullScore || score / fullScore < R.scoring.passTotalRatio) weightedPass = false;
     }
     const rec = { t: Date.now(), level: R.lid, mini: R.mini, total, correct, wrong: total - correct, pct: Math.round((correct * 100) / total), passCount: R.passCount,
-      pass: weightedPass != null ? weightedPass : correct >= R.passCount, score, fullScore, passRule: R.passRule, officialPass: R.officialPass, officialTotal: R.officialTotal, byType, weak, weakWrite, weakIdiom, notes: R.notes,
+      pass: weightedPass != null ? weightedPass : correct >= R.passCount, score, fullScore, passRule: R.passRule,
+      needScore: R.scoring && fullScore ? Math.ceil(fullScore * R.scoring.passTotalRatio) : null,
+      time: { allowedSec: R.timeMin * 60, slow: Object.entries(R.spent || {}).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, ms]) => ({ n: +k + 1, sec: Math.round(ms / 1000), section: R.questions[k].section, type: R.questions[k].typeLabel })) }, officialPass: R.officialPass, officialTotal: R.officialTotal, byType, weak, weakWrite, weakIdiom, notes: R.notes,
       usedSec: Math.round((Date.now() - R.start) / 1000) };
     c.p.mocks.push(rec);
     S.markStudy('mock', 20);
@@ -231,6 +239,13 @@ async function showResult(view, c, i) {
       ? `현재 모의시험 결과가 공식 합격 기준(${m.mini ? `축소 환산 ${m.passCount}/${m.total}, 공식 ${m.officialPass}/${m.officialTotal}` : `${m.officialTotal}문항 중 ${m.officialPass}문항 이상`})을 충족합니다.`
       : `공식 합격 기준(${m.mini ? `축소 환산 ${m.passCount}/${m.total}` : `${m.officialTotal}문항 중 ${m.officialPass}문항`})까지 ${m.passCount - m.correct}문항이 부족해요.`}
       <div class="tiny">모의시험 결과는 실제 시험 합격을 보장하지 않습니다.</div></div>`}
+    ${(() => {
+      const diff = m.score != null && m.needScore != null ? m.score - m.needScore : m.passCount != null ? m.correct - m.passCount : null;
+      return diff == null ? '' : `<div class="card flat center" data-margin><b>현재 모의시험 기준 합격선 대비 ${diff >= 0 ? '+' : ''}${diff}${m.score != null ? '점' : '문항'}</b><div class="tiny">합격선 ${m.score != null ? m.needScore + '점' : m.passCount + '문항'} · 실제 시험 결과를 보장하지 않는 참고 지표예요.</div></div>`;
+    })()}
+    ${m.time ? `<h3>시간 분석</h3><div class="card"><div class="small">사용 ${Math.floor(m.usedSec / 60)}분 ${m.usedSec % 60}초 / 제한 ${Math.round(m.time.allowedSec / 60)}분 · 문항당 평균 ${Math.round(m.usedSec / Math.max(1, m.total))}초 (시험 기준 ${Math.round(m.time.allowedSec / Math.max(1, m.total))}초)</div>
+      <div class="table-wrap" style="margin-top:6px"><table><thead><tr><th>영역</th><th>평균 시간</th></tr></thead><tbody>${Object.entries(m.byType).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${v.ms ? Math.round(v.ms / 1000 / v.a) + '초' : '-'}</td></tr>`).join('')}</tbody></table></div>
+      ${m.time.slow.length ? `<div class="small" style="margin-top:6px">오래 걸린 문항: ${m.time.slow.map((x) => `${x.n}번(${esc(x.section)}, ${x.sec}초)`).join(' · ')}</div>` : ''}</div>` : ''}
     ${m.notes && m.notes.length ? `<div class="notice info">${m.notes.map(esc).join('<br>')}</div>` : ''}
     <h3>유형별 정답률</h3>
     <div class="table-wrap"><table><thead><tr><th>유형</th><th>정답</th><th>정답률</th></tr></thead><tbody>${Object.entries(m.byType).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${v.c}/${v.a}</td><td>${Math.round((v.c * 100) / v.a)}%</td></tr>`).join('')}</tbody></table></div>

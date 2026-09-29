@@ -2,7 +2,9 @@
  "generatedAt": "2026-09-28",
  "policy": {
   "sourceType": {
-   "original-practice": "이 앱이 공식 배정/선정한자와 공식 출제 유형을 기준으로 자체 제작한 연습문제(실제 기출 아님)",
+   "original": "이 앱이 공식 배정/선정한자와 공식 출제 유형을 기준으로 자체 제작한 문제·예문·해설(실제 기출 아님)",
+   "official-fact": "기관 공식 자료에서 온 사실 정보(배정한자 목록·급수·훈음·시험 일정·문항 수·합격 기준) — 문제 문장은 포함하지 않음",
+   "public-domain": "공개 라이선스/공공 자료(libhangul 사전 BSD-3, Make Me a Hanzi 획순, 대법원 인명용 한자 조회)",
    "official-past-exam": "기관 공식 기출문제 — 저작권 보호로 앱에 저장하지 않고 공식 사이트 링크로만 연결"
   },
   "note": "모의시험은 공식 문항 수·시간·합격 기준(가능한 경우 영역 배분)에 맞춰 자체 제작 문항으로 구성합니다."
@@ -17,7 +19,7 @@
    "levels": {
     "8": {
      "count": 375,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "훈음": 100,
       "독음": 240,
@@ -26,7 +28,7 @@
     },
     "7-2": {
      "count": 652,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "훈음": 132,
       "독음": 240,
@@ -38,7 +40,7 @@
     },
     "7": {
      "count": 691,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "훈음": 132,
       "독음": 240,
@@ -50,7 +52,7 @@
     },
     "6-2": {
      "count": 884,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "훈음": 200,
       "독음": 240,
@@ -63,7 +65,7 @@
     },
     "6": {
      "count": 1146,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "훈음": 200,
       "독음": 240,
@@ -78,7 +80,7 @@
     },
     "5-2": {
      "count": 1372,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "훈음": 266,
       "독음": 300,
@@ -93,7 +95,7 @@
     },
     "5": {
      "count": 1464,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "훈음": 266,
       "독음": 300,
@@ -108,7 +110,7 @@
     },
     "4-2": {
      "count": 2421,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "훈음": 666,
       "독음": 300,
@@ -123,7 +125,7 @@
     },
     "4": {
      "count": 2595,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "훈음": 666,
       "독음": 300,
@@ -138,7 +140,7 @@
     },
     "3-2": {
      "count": 4430,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "훈음": 1332,
       "독음": 500,
@@ -153,7 +155,7 @@
     },
     "3": {
      "count": 3542,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "훈음": 844,
       "독음": 500,
@@ -168,7 +170,7 @@
     },
     "2": {
      "count": 5289,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "훈음": 1434,
       "독음": 500,
@@ -183,7 +185,7 @@
     },
     "1": {
      "count": 7918,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "훈음": 3052,
       "독음": 500,
@@ -198,7 +200,7 @@
     },
     "s2": {
      "count": 8094,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "훈음": 3066,
       "독음": 500,
@@ -213,7 +215,7 @@
     },
     "s": {
      "count": 9568,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "훈음": 3540,
       "독음": 240,
@@ -237,7 +239,7 @@
    "levels": {
     "8": {
      "count": 550,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한문지식(선정한자) · 훈음": 60,
       "한문지식(선정한자) · 독음": 240,
@@ -252,7 +254,7 @@
     },
     "7": {
      "count": 571,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한문지식(선정한자) · 훈음": 60,
       "한문지식(선정한자) · 독음": 240,
@@ -267,7 +269,7 @@
     },
     "6": {
      "count": 581,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한문지식(선정한자) · 훈음": 60,
       "한문지식(선정한자) · 독음": 240,
@@ -283,7 +285,7 @@
     },
     "5-j": {
      "count": 625,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한문지식(선정한자) · 훈음": 80,
       "한문지식(선정한자) · 독음": 240,
@@ -299,7 +301,7 @@
     },
     "5": {
      "count": 1510,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한문지식(선정한자) · 훈음": 400,
       "한문지식(선정한자) · 독음": 240,
@@ -315,7 +317,7 @@
     },
     "4-j": {
      "count": 1789,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한문지식(선정한자) · 훈음": 400,
       "한문지식(선정한자) · 독음": 300,
@@ -331,7 +333,7 @@
     },
     "4": {
      "count": 2290,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한문지식(선정한자) · 훈음": 532,
       "한문지식(선정한자) · 독음": 300,
@@ -347,7 +349,7 @@
     },
     "3-j": {
      "count": 2506,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한문지식(선정한자) · 훈음": 532,
       "한문지식(선정한자) · 독음": 300,
@@ -363,7 +365,7 @@
     },
     "3": {
      "count": 2690,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한문지식(선정한자) · 훈음": 532,
       "한문지식(선정한자) · 독음": 300,
@@ -379,7 +381,7 @@
     },
     "2-j": {
      "count": 5017,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한문지식(선정한자) · 훈음": 1332,
       "한문지식(선정한자) · 독음": 500,
@@ -395,7 +397,7 @@
     },
     "2": {
      "count": 5139,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한문지식(선정한자) · 훈음": 1332,
       "한문지식(선정한자) · 독음": 500,
@@ -411,7 +413,7 @@
     },
     "1-j": {
      "count": 5183,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한문지식(선정한자) · 훈음": 1332,
       "한문지식(선정한자) · 독음": 500,
@@ -427,7 +429,7 @@
     },
     "1": {
      "count": 8502,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한문지식(선정한자) · 훈음": 2666,
       "한문지식(선정한자) · 독음": 500,
@@ -443,7 +445,7 @@
     },
     "sa": {
      "count": 11532,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한문지식(선정한자) · 훈음": 4000,
       "한문지식(선정한자) · 독음": 500,
@@ -459,7 +461,7 @@
     },
     "dsa": {
      "count": 4580,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한문지식(선정한자) · 훈음": 1200,
       "한문지식(선정한자) · 독음": 240,
@@ -484,7 +486,7 @@
    "levels": {
     "8": {
      "count": 246,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "선정한자·훈음": 60,
       "선정한자·독음": 30,
@@ -497,7 +499,7 @@
     },
     "7": {
      "count": 352,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "선정한자·훈음": 60,
       "선정한자·독음": 30,
@@ -510,7 +512,7 @@
     },
     "6": {
      "count": 583,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "선정한자·훈음": 60,
       "선정한자·독음": 30,
@@ -524,7 +526,7 @@
     },
     "5-j": {
      "count": 1193,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "선정한자·훈음": 216,
       "선정한자·독음": 108,
@@ -538,7 +540,7 @@
     },
     "5": {
      "count": 1941,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "선정한자·훈음": 400,
       "선정한자·독음": 200,
@@ -552,7 +554,7 @@
     },
     "4-j": {
      "count": 2630,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "선정한자·훈음": 532,
       "선정한자·독음": 266,
@@ -566,7 +568,7 @@
     },
     "4": {
      "count": 2787,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "선정한자·훈음": 532,
       "선정한자·독음": 266,
@@ -580,7 +582,7 @@
     },
     "3-j": {
      "count": 3886,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "선정한자·훈음": 800,
       "선정한자·독음": 400,
@@ -594,7 +596,7 @@
     },
     "3": {
      "count": 3995,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "선정한자·훈음": 800,
       "선정한자·독음": 400,
@@ -608,7 +610,7 @@
     },
     "2": {
      "count": 10517,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "선정한자·훈음": 2666,
       "선정한자·독음": 1333,
@@ -622,7 +624,7 @@
     },
     "1": {
      "count": 12029,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "선정한자·훈음": 3200,
       "선정한자·독음": 1600,
@@ -636,7 +638,7 @@
     },
     "sa": {
      "count": 14149,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "선정한자·훈음": 4000,
       "선정한자·독음": 2000,
@@ -659,7 +661,7 @@
    "levels": {
     "9": {
      "count": 658,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한자": 238,
       "어휘": 360,
@@ -668,7 +670,7 @@
     },
     "8": {
      "count": 1194,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한자": 708,
       "어휘": 360,
@@ -677,7 +679,7 @@
     },
     "7": {
      "count": 1758,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한자": 1194,
       "어휘": 360,
@@ -686,7 +688,7 @@
     },
     "6": {
      "count": 1948,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한자": 1294,
       "어휘": 360,
@@ -695,7 +697,7 @@
     },
     "5": {
      "count": 2125,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한자": 1345,
       "어휘": 360,
@@ -704,7 +706,7 @@
     },
     "4": {
      "count": 3674,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한자": 2633,
       "어휘": 420,
@@ -713,7 +715,7 @@
     },
     "3": {
      "count": 8719,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한자": 7471,
       "어휘": 420,
@@ -722,7 +724,7 @@
     },
     "2": {
      "count": 13629,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한자": 12327,
       "어휘": 420,
@@ -731,7 +733,7 @@
     },
     "1": {
      "count": 14032,
-     "sourceType": "original-practice",
+     "sourceType": "original",
      "byArea": {
       "한자": 12721,
       "어휘": 420,

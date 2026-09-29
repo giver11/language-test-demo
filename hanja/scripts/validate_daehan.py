@@ -40,7 +40,7 @@ for l in order:
     qtot += len(qs)
     bad = []
     for q in qs:
-        if q["provider"] != "daehan" or q["level"] != l or q.get("sourceType") != "original-practice": bad.append(q["id"]); continue
+        if q["provider"] != "daehan" or q["level"] != l or q.get("sourceType") != "original": bad.append(q["id"]); continue
         for ch in q.get("relatedHanja", []):
             if ch not in lof or idx[lof[ch]] > idx[l]: bad.append(q["id"]); break
         if q["type"] in ("hunum-rev", "word-blank", "idiom-blank", "antonym", "synonym", "homophone-char"):

@@ -2,7 +2,7 @@
 """4개 기관 데이터 검증 (빌드 산출물 기준). 실패 시 종료코드 1.
 - 급수별 누적 수 = 공식 파일 수(진흥회 officialFileCount, 어문회 readCountGlyph, 그 외 readCount)
 - 중복 / 사전 누락 / 훈·음 빈 값(공식 자료 없음으로 표시된 글자는 경고) / 급수 범위 밖 항목
-- 문제의 정답·보기 한자가 해당 급수 범위 안인지, 모든 문제가 original-practice 인지"""
+- 문제의 정답·보기 한자가 해당 급수 범위 안인지, 모든 문제가 original 인지"""
 import json, os, sys
 D = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 def load(p): return json.load(open(os.path.join(D, p), encoding="utf-8"))
@@ -41,7 +41,7 @@ for pid in ("eomunhoe", "daehan", "jinheung", "korcham"):
         qs = load(f"questions/{pid}/{l}.json")["questions"]; qtot += len(qs)
         bad = []
         for q in qs:
-            if q["provider"] != pid or q["level"] != l or q.get("sourceType") != "original-practice": bad.append(q["id"]); continue
+            if q["provider"] != pid or q["level"] != l or q.get("sourceType") != "original": bad.append(q["id"]); continue
             for ch in q.get("relatedHanja", []):
                 if ch not in lof or idx[lof[ch]] > idx[l]: bad.append(q["id"] + ":" + ch); break
         if bad: fail.append(f"{pid} 문제 범위 {l} {bad[:3]}")

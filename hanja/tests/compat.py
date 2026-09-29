@@ -28,7 +28,7 @@ async def run():
                     still = await pg.inner_text('h1')
                     break
             await pg.goto(BASE + '#/onboard?p=daehan&r=x' + label[:2]); await pg.wait_for_selector('[data-l="8"]')
-            await pg.tap('[data-l="8"]'); await pg.tap('[data-skip]'); await pg.tap('[data-go]'); await pg.wait_for_selector('.dday')
+            await pg.tap('[data-l="8"]'); await pg.tap('[data-skip]'); await pg.tap('[data-go="skip"]'); await pg.wait_for_selector('.dday')
             await pg.goto(BASE+'#/cards?set=new'); await pg.wait_for_selector('.flash')
             fh = await pg.eval_on_selector('.flash .front', 'e=>{const r=e.getBoundingClientRect();return [Math.round(r.width),Math.round(r.height)]}')
             ch = await pg.inner_text('.flash .front .z')

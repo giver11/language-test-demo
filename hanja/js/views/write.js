@@ -37,7 +37,8 @@ export default async function (view, { ctx: c, params }) {
 
   let idx = 0;
   let level = +(localStorage.getItem('hanja.writeLevel') || 1);
-  let pad = null, anim = null, medians = null, judged = false, autoTimer = null;
+  let pad = null, anim = null, medians = null, judged = false, autoTimer = null, guideOff = false;
+  let test = null; // 직접 쓰기 시험: {n, ok, list}
 
   view.innerHTML = `
     <div class="spread"><h1 class="mt0" style="margin:0">한자 쓰기</h1><span class="small" data-count></span></div>
@@ -61,6 +62,8 @@ export default async function (view, { ctx: c, params }) {
         <button class="btn" data-act="retry" type="button">다시 쓰기</button>
         <button class="btn" data-act="clear" type="button">지우기</button>
         <button class="btn" data-act="answer" type="button">정답 보기</button>
+        <button class="btn" data-act="guide" type="button" aria-pressed="false">가이드 숨기기</button>
+        <button class="btn" data-act="test" type="button">직접 쓰기 시험</button>
         <button class="btn" data-act="next" type="button">다음 한자</button>
       </div>
       <form data-free class="free-form" style="margin-top:4px" onsubmit="return false">
@@ -88,14 +91,16 @@ export default async function (view, { ctx: c, params }) {
     if (!view.querySelector('[data-count]') || items[idx] !== ch) return;
     view.querySelector('[data-count]').textContent = `${idx + 1} / ${items.length}`;
     view.querySelector('[data-he]').textContent = D.heStr(d);
-    view.querySelector('[data-show]').textContent = level === 3 ? '?' : ch;
+    view.querySelector('[data-show]').textContent = level === 3 || test ? '?' : ch;
+    if (test) view.querySelector('[data-count]').textContent = `시험 ${test.n + 1} / ${test.list.length}`;
     view.querySelector('[data-lvlabel]').textContent = level === 1 ? '보고 따라 쓰세요' : level === 2 ? '희미한 가이드 위에 쓰세요' : '뜻과 음을 보고 외워서 쓰세요';
     view.querySelectorAll('[data-lv]').forEach((b) => b.classList.toggle('sel', +b.dataset.lv === level));
-    await pad.setGuide(ch, level === 1 ? 'solid' : level === 2 ? 'faint' : 'none');
+    await pad.setGuide(ch, guideMode());
     if (!view.querySelector('[data-count]')) return;
     if (!medians) setFb('near', '이 글자는 공개 획순 데이터가 없어 자동 판정·획순 보기가 지원되지 않아요. 쓰고 나서 “정답 보기”로 비교하세요.');
   }
 
+  function guideMode() { return test || guideOff || level === 3 ? 'none' : level === 1 ? 'solid' : 'faint'; }
   function doJudge() {
     const ch = items[idx];
     if (pad.isEmpty()) { setFb('retry', VERDICT_TEXT.empty); return; }
@@ -106,6 +111,7 @@ export default async function (view, { ctx: c, params }) {
     if (!judged) {
       judged = true;
       S.recordWriting(c.pid, ch, r.verdict === 'good' ? 'good' : r.verdict === 'near' ? 'near' : 'retry');
+      if (test) { if (r.verdict === 'good' || r.verdict === 'near') test.ok++; test.res.push([ch, r.verdict]); }
       if (r.verdict !== 'good' && r.verdict !== 'near') {
         const e = c.p.writing[ch]; if (e) e.last = r.verdict;
       }
@@ -120,10 +126,42 @@ export default async function (view, { ctx: c, params }) {
 
   view.querySelectorAll('[data-lv]').forEach((b) => (b.onclick = () => { level = +b.dataset.lv; localStorage.setItem('hanja.writeLevel', String(level)); load(); }));
   view.querySelector('[data-act=clear]').onclick = () => { pad.clear(); setFb(''); };
-  view.querySelector('[data-act=retry]').onclick = () => { judged = false; pad.clear(); setFb(''); pad.setGuide(items[idx], level === 1 ? 'solid' : level === 2 ? 'faint' : 'none'); };
+  view.querySelector('[data-act=retry]').onclick = () => { judged = false; pad.clear(); setFb(''); pad.setGuide(items[idx], guideMode()); };
   view.querySelector('[data-act=undo]').onclick = () => pad.undo();
   view.querySelector('[data-act=judge]').onclick = doJudge;
-  view.querySelector('[data-act=next]').onclick = () => { idx = (idx + 1) % items.length; load(); };
+  view.querySelector('[data-act=next]').onclick = () => {
+    if (test) {
+      if (!judged) test.res.push([items[idx], 'skip']);
+      test.n++;
+      if (test.n >= test.list.length) return showTest();
+      idx = items.indexOf(test.list[test.n]);
+      return load();
+    }
+    idx = (idx + 1) % items.length; load();
+  };
+  view.querySelector('[data-act=guide]').onclick = (e) => {
+    guideOff = !guideOff; e.target.textContent = guideOff ? '가이드 보이기' : '가이드 숨기기'; e.target.setAttribute('aria-pressed', String(guideOff));
+    pad.setGuide(items[idx], guideMode());
+  };
+  // 직접 쓰기 시험: 가이드·힌트 없이 뜻과 음만 보고 10자를 써서 실제 판정 결과만 집계
+  view.querySelector('[data-act=test]').onclick = () => {
+    const list = items.filter((x) => dict[x] && dict[x].so).slice(0, 10);
+    if (!list.length) { toast('자동 판정이 가능한 한자가 없어요'); return; }
+    test = { n: 0, ok: 0, list, res: [] };
+    ['hint', 'order', 'answer', 'guide'].forEach((a) => (view.querySelector(`[data-act=${a}]`).disabled = true));
+    idx = items.indexOf(list[0]);
+    toast('직접 쓰기 시험: 뜻·음만 보고 쓰세요. 채점 후 "다음 한자"');
+    load();
+  };
+  function showTest() {
+    const t = test; test = null;
+    ['hint', 'order', 'answer', 'guide'].forEach((a) => (view.querySelector(`[data-act=${a}]`).disabled = false));
+    const lab = { good: '정확', near: '거의 맞음', skip: '건너뜀' };
+    openSheet(`<div class="spread"><h2 class="mt0">직접 쓰기 시험 결과</h2><button class="btn sm" data-close type="button">닫기</button></div>
+      <div class="cmp-num center">${t.ok} / ${t.list.length}</div><p class="tiny center">획 수·순서·방향·위치를 실제로 판정한 결과만 집계했어요.</p>
+      <div class="table-wrap"><table><tbody>${t.res.map(([ch, v]) => `<tr><td class="hanzi">${esc(ch)}</td><td>${esc(D.heStr(dict[ch]))}</td><td>${esc(lab[v] || '다시 쓰기')}</td></tr>`).join('')}</tbody></table></div>`);
+    idx = (idx + 1) % items.length; load();
+  }
   view.querySelector('[data-act=answer]').onclick = async () => {
     const ch = items[idx];
     view.querySelector('[data-show]').textContent = ch;
@@ -148,12 +186,16 @@ export default async function (view, { ctx: c, params }) {
     const ch = items[idx];
     openSheet(`<div class="spread"><h2 class="mt0">획순 · <span class="hanzi">${esc(ch)}</span></h2><button class="btn sm" data-close type="button">닫기</button></div>
       <div class="anim" style="width:240px;max-width:64vw;margin:0 auto"></div>
-      <div class="btns" style="justify-content:center;margin:8px 0"><button class="btn sm" data-replay type="button">▶ 다시 보기</button></div>
+      <div class="btns" style="justify-content:center;margin:8px 0"><button class="btn sm" data-replay type="button">▶ 다시 보기</button>
+        <button class="chip" data-sp="0.4" type="button">느리게</button><button class="chip sel" data-sp="1" type="button">보통</button><button class="chip" data-sp="1.8" type="button">빠르게</button></div>
       <div class="steps-host"></div>`, async (panel) => {
       const ok = await renderSteps(panel.querySelector('.steps-host'), ch);
       if (!ok) { panel.querySelector('.steps-host').innerHTML = '<div class="notice">이 글자는 공개 획순 데이터가 없어 획순을 표시하지 않습니다.</div>'; panel.querySelector('[data-replay]').disabled = true; return; }
+      let sp = 1;
       anim = await animate(panel.querySelector('.anim'), ch);
-      panel.querySelector('[data-replay]').onclick = async () => { if (anim) anim.cancel(); anim = await animate(panel.querySelector('.anim'), ch); };
+      const replay = async () => { if (anim) anim.cancel(); anim = await animate(panel.querySelector('.anim'), ch, { speed: sp }); };
+      panel.querySelector('[data-replay]').onclick = replay;
+      panel.querySelectorAll('[data-sp]').forEach((b) => (b.onclick = () => { sp = +b.dataset.sp; panel.querySelectorAll('[data-sp]').forEach((x) => x.classList.toggle('sel', x === b)); replay(); }));
     });
     window.__sheetClose = () => anim && anim.cancel();
   };

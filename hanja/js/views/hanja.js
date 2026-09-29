@@ -121,9 +121,10 @@ async function cards(view, { ctx: c, params }) {
     const q = S.get().quest;
     const n = q ? q.plan.hanja : 15;
     const order = [...newChars, ...all.filter((x) => !newChars.includes(x))];
-    const todo = order.filter((ch) => !c.p.cards[ch]);
+    // 신규: mastery 기록이 없는 글자(이번 급수 신출 우선). 목표량을 채우면 약한 글자로 보충
+    const todo = order.filter((ch) => !(c.p.mastery[ch] && c.p.mastery[ch].n) && !c.p.cards[ch]);
     const weak = order.filter((ch) => c.p.cards[ch] && c.p.cards[ch].s !== 'know');
-    items = [...todo, ...weak].slice(0, n);
+    items = [...todo, ...weak].slice(0, Math.max(1, n));
   } else items = newChars.length ? newChars : all;
   if (!items.length) {
     view.innerHTML = `<h1>플래시카드</h1><div class="empty">학습할 카드가 없어요 🎉<br><a href="#/hanja">한자 목록으로</a></div>`;

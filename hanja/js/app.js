@@ -25,9 +25,18 @@ const routes = {
   favorites: () => import('./views/favorites.js'),
   sources: () => import('./views/sources.js'),
   diag: () => import('./views/diag.js'),
+  placement: () => import('./views/placement.js'),
+  confuse: () => import('./views/confuse.js'),
+  games: () => import('./views/games.js'),
+  parent: () => import('./views/parent.js'),
+  teacher: () => import('./views/teacher.js'),
+  studio: () => import('./views/studio.js'),
+  camera: () => import('./views/camera.js'),
+  share: () => import('./views/share.js'),
+  assign: () => import('./views/assign.js'),
 };
 const TAB_OF = { home: 'home', hanja: 'hanja', cards: 'hanja', write: 'write', quiz: 'quiz' };
-const NEEDS_CTX = new Set(['home', 'hanja', 'cards', 'write', 'quiz', 'idioms', 'words', 'mock', 'wrong', 'review', 'stats', 'favorites']);
+const NEEDS_CTX = new Set(['home', 'hanja', 'cards', 'write', 'quiz', 'idioms', 'words', 'mock', 'wrong', 'review', 'stats', 'favorites', 'placement', 'confuse', 'games', 'share']);
 
 let cleanup = null;
 let navSeq = 0;
@@ -56,7 +65,7 @@ async function render() {
     const lv = await D.level(st.current.provider, S.prov(st.current.provider).level);
     if (!lv || !lv.hasData) {
       hasCtx = false;
-      if (name !== 'onboard' && !['schedule', 'sources', 'search', 'compare', 'more', 'settings', 'diag'].includes(name)) {
+      if (name !== 'onboard' && !['schedule', 'sources', 'search', 'compare', 'more', 'settings', 'diag', 'assign', 'teacher', 'studio', 'camera', 'parent'].includes(name)) {
         name = 'onboard'; params = { p: st.current.provider };
       }
     }

@@ -1,4 +1,5 @@
 import * as D from '../data.js';
+import * as S from '../store.js';
 import { esc, fmtDate, daysUntil, ddayText, statusBadge } from '../ui.js';
 
 export default async function (view, { params }) {
@@ -8,6 +9,7 @@ export default async function (view, { params }) {
   const year = params.y || String(D.SCHEDULE_YEAR);
   const filter = params.p || 'all';
   const blocks = [];
+  const mine = (pid, x) => { const pp = S.get().byProvider && S.get().byProvider[pid]; return pp && pp.examDate === x.examDate && S.get().current && S.get().current.provider === pid; };
   for (const p of provs) {
     if (filter !== 'all' && filter !== p.id) continue;
     let s;
@@ -22,7 +24,8 @@ export default async function (view, { params }) {
           <dt>접수 시작</dt><dd>${fmtDate(x.applyStart)}</dd><dt>접수 마감</dt><dd>${fmtDate(x.applyEnd)}</dd>
           <dt>시험일</dt><dd><b>${fmtDate(x.examDate)}</b></dd><dt>결과 발표</dt><dd>${x.resultDate ? fmtDate(x.resultDate) : esc(x.resultNote || '공식 자료 확인 필요')}</dd>
           <dt>시험방식</dt><dd>${esc(x.mode)}</dd>
-          <dt>공식 출처</dt><dd><a href="${esc((x.source || s.source).sourceUrl)}" target="_blank" rel="noopener">${esc((x.source || s.source).sourceName)} ↗</a></dd></dl></div>`;
+          <dt>공식 출처</dt><dd><a href="${esc((x.source || s.source).sourceUrl)}" target="_blank" rel="noopener">${esc((x.source || s.source).sourceName)} ↗</a></dd></dl>
+        ${n >= 0 ? `<button class="btn sm ${mine(p.id, x) ? 'accent' : ''}" data-mine="${esc(p.id)}|${esc(x.examDate)}|${esc(x.round)}" type="button">${mine(p.id, x) ? '✓ 내 시험' : '내 시험으로 설정'}</button>` : ''}</div>`;
     }).join('');
     blocks.push(`<div class="card">
       <div class="spread"><h2 class="mt0" style="margin:0">${esc(p.name)}</h2>${statusBadge(s.status)}</div>
@@ -47,5 +50,13 @@ export default async function (view, { params }) {
     ${blocks.join('')}
     <p class="tiny">일정은 data/schedules/{기관}-{연도}.json 파일로 관리되어, 다음 해에는 파일만 추가하면 반영됩니다.</p>`;
   view.querySelectorAll('[data-p]').forEach((b) => (b.onclick = () => (location.hash = `#/schedule?p=${b.dataset.p}&y=${year}`)));
+  // 내 시험으로 설정 → 해당 기관을 현재 기관으로, 시험일을 D-Day·Exam Coach 기준으로 연결 (급수가 없으면 급수 선택으로)
+  view.querySelectorAll('[data-mine]').forEach((b) => (b.onclick = () => {
+    const [pid, date, round] = b.dataset.mine.split('|');
+    const pp = S.prov(pid);
+    S.setCurrent(pid, { examDate: date, examRound: round });
+    S.save(true);
+    location.hash = pp.level ? '#/home' : `#/onboard?p=${pid}`;
+  }));
   view.querySelectorAll('[data-y]').forEach((b) => (b.onclick = () => (location.hash = `#/schedule?p=${filter}&y=${b.dataset.y}`)));
 }

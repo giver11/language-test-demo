@@ -114,7 +114,7 @@ async def main():
         await shot(pg, 't02-date')
         await pg.click('.opt >> nth=0')
         await pg.click('[data-m="30"]')
-        await pg.click('[data-go]')
+        await pg.click('[data-go="skip"]')
         await pg.wait_for_selector('.dday')
 
         # ---------------- TEST 13 (D-Day)
@@ -390,7 +390,7 @@ async def main():
         before = (await ls(pg))['byProvider']['eomunhoe']
         await pg.goto(BASE + '#/onboard?switch=1')
         await pg.tap('[data-p=daehan]'); await pg.tap('[data-l="8"]'); await pg.wait_for_timeout(300)
-        await pg.tap('[data-skip]'); await pg.tap('[data-go]')
+        await pg.tap('[data-skip]'); await pg.tap('[data-go="skip"]')
         await pg.wait_for_selector('.dday')
         ctxbtn = await pg.inner_text('#ctxBtn')
         await pg.goto(BASE + '#/cards?set=new'); await pg.wait_for_selector('.flash'); await pg.tap('[data-k=know]')

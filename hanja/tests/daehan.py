@@ -43,8 +43,8 @@ async def choose(pg, pid, lid):
         await pg.click('[data-skip]')
     else:
         await pg.click('.opt >> nth=0')
-    await pg.wait_for_selector('[data-go]')
-    await pg.click('[data-go]')
+    await pg.wait_for_selector('[data-go="skip"]')
+    await pg.click('[data-go="skip"]')
     await pg.wait_for_selector('.dday')
 
 async def touch_line(cdp, box, pts):

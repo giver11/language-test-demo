@@ -486,7 +486,7 @@ for line in open(os.path.join(HERE, "src/idioms.tsv"), encoding="utf-8"):
     idioms.append({
         "id": "I%03d" % (len(idioms) + 1), "w": hj, "r": rd[0], "mean": mean, "ex": ex,
         "chars": [[ch, (dict_chars[ch]["m"][0][0] if dict_chars[ch]["m"] else ""), dict_chars[ch]["r"]] for ch in hj],
-        "sourceType": "original-practice",
+        "sourceType": "original",
     })
 print("사자성어:", len(idioms))
 
@@ -522,9 +522,9 @@ dump("dictionary/hanja.json", {"meta": {
 wlist = sorted(words.values(), key=lambda x: -x["f"])
 WORDS_ALL = wlist
 
-dump("dictionary/idioms.json", {"meta": {"description": "사자성어: 독음은 libhangul 사전과 대조, 뜻풀이·사용 예는 자체 작성(original-practice).",
+dump("dictionary/idioms.json", {"meta": {"description": "사자성어: 독음은 libhangul 사전과 대조, 뜻풀이·사용 예는 자체 작성(original).",
                                          "count": len(idioms)}, "idioms": idioms})
-dump("dictionary/pairs.json", {"meta": {"description": "반대/비슷한 뜻 한자 쌍 (자체 정리, original-practice)"}, **pairs})
+dump("dictionary/pairs.json", {"meta": {"description": "반대/비슷한 뜻 한자 쌍 (자체 정리, original)"}, **pairs})
 
 # ------------------------------------------------------------------ 7. 기관별 levels / mapping / exam-types
 def write_sources():
@@ -906,7 +906,7 @@ def mcq(provider, level, qtype, typeLabel, question, prompt, answer, distractors
     rng.shuffle(choices)
     q = {"provider": provider, "level": level, "type": qtype, "typeLabel": typeLabel, "question": question, "prompt": prompt,
          "choices": choices, "answer": choices.index(answer), "explanation": explanation, "relatedHanja": related,
-         "sourceType": "original-practice"}
+         "sourceType": "original"}
     if extra:
         q.update(extra)
     return q
@@ -1129,7 +1129,7 @@ def gen_bank(provider, level_ids, level_of, write_level_of, allowed, level_order
                     qtext = "'%s'에 해당하는 한자를 쓰세요." % he_str(c)
                 q.append({"provider": provider, "level": L, "type": "write", "typeLabel": "한자쓰기", "question": qtext, "prompt": "",
                           "choices": [], "answer": c, "explanation": "정답: %s (%s, %s획)" % (c, he_str(c), dict_chars[c].get("sc") or dict_chars[c].get("st")),
-                          "relatedHanja": [c], "sourceType": "original-practice"})
+                          "relatedHanja": [c], "sourceType": "original"})
         for i, x in enumerate(q):
             x["id"] = "%s-%s-%04d" % (provider, L, i + 1)
         banks[L] = q
@@ -1146,7 +1146,7 @@ if os.path.isdir(qdir):
 bank_stats = {"eomunhoe": {}, "daehan": {}, "jinheung": {}, "korcham": {}}
 def _dump_eom():
   for L, qs in banks.items():
-    dump("questions/eomunhoe/%s.json" % L, {"provider": "eomunhoe", "level": L, "sourceType": "original-practice",
+    dump("questions/eomunhoe/%s.json" % L, {"provider": "eomunhoe", "level": L, "sourceType": "original",
                                              "label": "기출유형 연습문제 · 예상문제 (자체 제작, 실제 기출문제 아님)", "questions": qs})
     bank_stats["eomunhoe"][L] = dict(Counter(q["typeLabel"] for q in qs), total=len(qs))
 
@@ -1157,7 +1157,7 @@ dh_banks = gen_bank("daehan", dh_data_levels, dh_level_of, {}, {l: DH_TYPES for 
 HE_PREF[0] = None
 def _dump_dh():
   for L, qs in dh_banks.items():
-    dump("questions/daehan/%s.json" % L, {"provider": "daehan", "level": L, "sourceType": "original-practice",
+    dump("questions/daehan/%s.json" % L, {"provider": "daehan", "level": L, "sourceType": "original",
                                            "label": "기출유형 연습문제 · 예상문제 (자체 제작, 실제 기출문제 아님) — 대한검정회 선정한자 범위", "questions": qs})
     bank_stats["daehan"][L] = dict(Counter(q["typeLabel"] for q in qs), total=len(qs))
 
@@ -1197,7 +1197,7 @@ for pid, bk, lab in (("jinheung", jh_banks, "한자교육진흥회 선정한자�
     for L, qs in bk.items():
         for x in qs:
             x["area"] = AREA_OF[pid].get(x["type"], x["typeLabel"])
-        dump("questions/%s/%s.json" % (pid, L), {"provider": pid, "level": L, "sourceType": "original-practice",
+        dump("questions/%s/%s.json" % (pid, L), {"provider": pid, "level": L, "sourceType": "original",
                                                  "label": "기출유형 연습문제 · 예상문제 (자체 제작, 실제 기출문제 아님) — " + lab, "questions": qs})
         bank_stats[pid][L] = dict(Counter(q["typeLabel"] for q in qs), total=len(qs))
 for bk, pid in ((banks, "eomunhoe"), (dh_banks, "daehan")):
@@ -1325,7 +1325,9 @@ dump("stats.json", {"builtAt": M.VERIFIED_AT, "dictionary": len(dict_chars), "st
 # ---- 문제은행 목록(manifest): 출처 구분 · 공식 영역 매핑 · 공식 기출 링크
 _prov = {p["id"]: p for p in M.PROVIDERS}
 manifest = {"generatedAt": M.VERIFIED_AT,
-            "policy": {"sourceType": {"original-practice": "이 앱이 공식 배정/선정한자와 공식 출제 유형을 기준으로 자체 제작한 연습문제(실제 기출 아님)",
+            "policy": {"sourceType": {"original": "이 앱이 공식 배정/선정한자와 공식 출제 유형을 기준으로 자체 제작한 문제·예문·해설(실제 기출 아님)",
+                                      "official-fact": "기관 공식 자료에서 온 사실 정보(배정한자 목록·급수·훈음·시험 일정·문항 수·합격 기준) — 문제 문장은 포함하지 않음",
+                                      "public-domain": "공개 라이선스/공공 자료(libhangul 사전 BSD-3, Make Me a Hanzi 획순, 대법원 인명용 한자 조회)",
                                       "official-past-exam": "기관 공식 기출문제 — 저작권 보호로 앱에 저장하지 않고 공식 사이트 링크로만 연결"},
                        "note": "모의시험은 공식 문항 수·시간·합격 기준(가능한 경우 영역 배분)에 맞춰 자체 제작 문항으로 구성합니다."},
             "providers": {}}
@@ -1333,7 +1335,7 @@ for pid, bk in (("eomunhoe", banks), ("daehan", dh_banks), ("jinheung", jh_banks
     pv = _prov[pid]
     manifest["providers"][pid] = {
         "officialPastExam": {"url": pv["pastExamUrl"], "policy": pv["pastExamPolicy"], "storedInApp": False},
-        "levels": {L: {"count": len(qs), "sourceType": "original-practice",
+        "levels": {L: {"count": len(qs), "sourceType": "original",
                        "byArea": dict(Counter(q.get("area", q["typeLabel"]) for q in qs))} for L, qs in bk.items()}}
 dump("questions/index.json", manifest, compact=False)
 print(json.dumps({k: v.get("total") for k, v in bank_stats["eomunhoe"].items()}, ensure_ascii=False))

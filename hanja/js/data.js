@@ -1,6 +1,6 @@
 // 정적 JSON 데이터 로더 (캐시). 모든 시험 정보는 data/ 파일에서만 읽는다 — 코드에 일정·급수를 하드코딩하지 않음.
 // 배포 버전 — 데이터·코드가 섞여 캐시되지 않도록 모든 데이터 요청에 붙임
-export const APP_VERSION = '2026.09.28-8';
+export const APP_VERSION = '2026.09.29-1';
 const cache = new Map();
 export const BASE = new URL('../data/', import.meta.url).href;
 
@@ -27,6 +27,9 @@ export async function idioms() {
   if (!_idioms) { const w = (await json('dictionary/idioms.json')).idioms; _idioms = new Map(w.map((x) => [x.id, x])); }
   return _idioms;
 }
+let _conf = null, _ex = null;
+export async function examples() { if (!_ex) _ex = (await json('dictionary/examples.json')).examples; return _ex; }
+export async function confusables() { if (!_conf) _conf = (await json('dictionary/confusables.json')).map; return _conf; }
 export async function pairs() { if (!_pairs) _pairs = await json('dictionary/pairs.json'); return _pairs; }
 export async function providers() { return (await json('providers/index.json')).providers; }
 export async function provider(pid) { return (await providers()).find((p) => p.id === pid); }

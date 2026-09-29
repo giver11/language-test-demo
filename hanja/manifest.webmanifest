@@ -1,0 +1,12 @@
+{
+  "name": "한자패스 · 한자 자격시험 학습",
+  "short_name": "한자패스",
+  "description": "한국어문회·대한검정회·한자교육진흥회·대한상공회의소 한자 시험 대비",
+  "start_url": "./#/home",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fbf7ee",
+  "theme_color": "#1f2a44",
+  "lang": "ko",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

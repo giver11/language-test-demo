@@ -4,12 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1f2a44">
-<meta name="description" content="한국어문회·대한검정회 한자 자격시험 대비 학습 앱 (무료 MVP)">
+<meta name="description" content="한국어문회·대한검정회·한자교육진흥회·대한상공회의소 한자 자격시험 대비 학습 앱">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>한자패스 · 한자 자격시험 학습</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=2026.09.28-8">
+<link rel="stylesheet" href="css/app.css?v=2026.09.29-1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23b4432f'/%3E%3Ctext x='32' y='46' font-size='38' text-anchor='middle' fill='white' font-family='serif'%3E漢%3C/text%3E%3C/svg%3E">
 </head>
 <body>
@@ -33,7 +36,7 @@
 <script>
 /* 오류가 나면 빈 화면 대신 화면에 원인을 표시 (모바일에서 확인 가능) */
 (function () {
-  var V = '2026.09.28-8';
+  var V = '2026.09.29-1';
   function show(msg) {
     var f = document.getElementById('fatal');
     if (!f) return;
@@ -41,6 +44,10 @@
     f.innerHTML = '앱 오류: ' + String(msg).replace(/[<>&]/g, '') + '<br><a href="#/diag" style="color:#fff;text-decoration:underline">진단 화면 열기</a> · <a href="javascript:location.reload()" style="color:#fff;text-decoration:underline">새로고침</a>';
   }
   window.__showFatal = show;
+  /* 글자 크기(접근성) */
+  try { var fs = localStorage.getItem('hanja.fontScale'); if (fs) document.documentElement.setAttribute('data-fs', fs); } catch (e) {}
+  /* 오프라인 캐시 (지원 브라우저만) */
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
   window.addEventListener('error', function (e) { if (e && e.message) show(e.message); });
   window.addEventListener('unhandledrejection', function (e) { show((e.reason && (e.reason.message || e.reason)) || '알 수 없는 오류'); });
   /* 오래된 캐시가 섞였을 때 자동 갱신: 배포 버전이 다르면 파일을 새로 받아 한 번 다시 연다 */
@@ -59,7 +66,7 @@
 })();
 </script>
 <script nomodule>document.getElementById('view').innerHTML = '<div class="notice bad">이 브라우저는 너무 오래되어 앱을 실행할 수 없어요. 최신 Chrome 또는 Safari에서 열어 주세요.</div>';</script>
-<script type="importmap">{"imports": {"./js/app.js": "./js/app.js?v=2026.09.28-8", "./js/data.js": "./js/data.js?v=2026.09.28-8", "./js/judge.js": "./js/judge.js?v=2026.09.28-8", "./js/multiwrite.js": "./js/multiwrite.js?v=2026.09.28-8", "./js/pad.js": "./js/pad.js?v=2026.09.28-8", "./js/progress.js": "./js/progress.js?v=2026.09.28-8", "./js/qrender.js": "./js/qrender.js?v=2026.09.28-8", "./js/store.js": "./js/store.js?v=2026.09.28-8", "./js/strokes.js": "./js/strokes.js?v=2026.09.28-8", "./js/ui.js": "./js/ui.js?v=2026.09.28-8", "./js/views/compare.js": "./js/views/compare.js?v=2026.09.28-8", "./js/views/diag.js": "./js/views/diag.js?v=2026.09.28-8", "./js/views/favorites.js": "./js/views/favorites.js?v=2026.09.28-8", "./js/views/hanja.js": "./js/views/hanja.js?v=2026.09.28-8", "./js/views/home.js": "./js/views/home.js?v=2026.09.28-8", "./js/views/idioms.js": "./js/views/idioms.js?v=2026.09.28-8", "./js/views/mock.js": "./js/views/mock.js?v=2026.09.28-8", "./js/views/more.js": "./js/views/more.js?v=2026.09.28-8", "./js/views/onboard.js": "./js/views/onboard.js?v=2026.09.28-8", "./js/views/quiz.js": "./js/views/quiz.js?v=2026.09.28-8", "./js/views/review.js": "./js/views/review.js?v=2026.09.28-8", "./js/views/schedule.js": "./js/views/schedule.js?v=2026.09.28-8", "./js/views/search.js": "./js/views/search.js?v=2026.09.28-8", "./js/views/settings.js": "./js/views/settings.js?v=2026.09.28-8", "./js/views/sources.js": "./js/views/sources.js?v=2026.09.28-8", "./js/views/stats.js": "./js/views/stats.js?v=2026.09.28-8", "./js/views/words.js": "./js/views/words.js?v=2026.09.28-8", "./js/views/write.js": "./js/views/write.js?v=2026.09.28-8", "./js/views/wrong.js": "./js/views/wrong.js?v=2026.09.28-8"}}</script>
-<script type="module" src="js/app.js?v=2026.09.28-8"></script>
+<script type="importmap">{"imports": {"./js/app.js": "./js/app.js?v=2026.09.29-1", "./js/card.js": "./js/card.js?v=2026.09.29-1", "./js/coach.js": "./js/coach.js?v=2026.09.29-1", "./js/data.js": "./js/data.js?v=2026.09.29-1", "./js/flags.js": "./js/flags.js?v=2026.09.29-1", "./js/judge.js": "./js/judge.js?v=2026.09.29-1", "./js/multiwrite.js": "./js/multiwrite.js?v=2026.09.29-1", "./js/pad.js": "./js/pad.js?v=2026.09.29-1", "./js/progress.js": "./js/progress.js?v=2026.09.29-1", "./js/qgen.js": "./js/qgen.js?v=2026.09.29-1", "./js/qrender.js": "./js/qrender.js?v=2026.09.29-1", "./js/store.js": "./js/store.js?v=2026.09.29-1", "./js/strokes.js": "./js/strokes.js?v=2026.09.29-1", "./js/ui.js": "./js/ui.js?v=2026.09.29-1", "./js/views/assign.js": "./js/views/assign.js?v=2026.09.29-1", "./js/views/camera.js": "./js/views/camera.js?v=2026.09.29-1", "./js/views/compare.js": "./js/views/compare.js?v=2026.09.29-1", "./js/views/confuse.js": "./js/views/confuse.js?v=2026.09.29-1", "./js/views/diag.js": "./js/views/diag.js?v=2026.09.29-1", "./js/views/favorites.js": "./js/views/favorites.js?v=2026.09.29-1", "./js/views/games.js": "./js/views/games.js?v=2026.09.29-1", "./js/views/hanja.js": "./js/views/hanja.js?v=2026.09.29-1", "./js/views/home.js": "./js/views/home.js?v=2026.09.29-1", "./js/views/idioms.js": "./js/views/idioms.js?v=2026.09.29-1", "./js/views/mock.js": "./js/views/mock.js?v=2026.09.29-1", "./js/views/more.js": "./js/views/more.js?v=2026.09.29-1", "./js/views/onboard.js": "./js/views/onboard.js?v=2026.09.29-1", "./js/views/parent.js": "./js/views/parent.js?v=2026.09.29-1", "./js/views/placement.js": "./js/views/placement.js?v=2026.09.29-1", "./js/views/quiz.js": "./js/views/quiz.js?v=2026.09.29-1", "./js/views/review.js": "./js/views/review.js?v=2026.09.29-1", "./js/views/schedule.js": "./js/views/schedule.js?v=2026.09.29-1", "./js/views/search.js": "./js/views/search.js?v=2026.09.29-1", "./js/views/settings.js": "./js/views/settings.js?v=2026.09.29-1", "./js/views/share.js": "./js/views/share.js?v=2026.09.29-1", "./js/views/sources.js": "./js/views/sources.js?v=2026.09.29-1", "./js/views/stats.js": "./js/views/stats.js?v=2026.09.29-1", "./js/views/studio.js": "./js/views/studio.js?v=2026.09.29-1", "./js/views/teacher.js": "./js/views/teacher.js?v=2026.09.29-1", "./js/views/words.js": "./js/views/words.js?v=2026.09.29-1", "./js/views/write.js": "./js/views/write.js?v=2026.09.29-1", "./js/views/wrong.js": "./js/views/wrong.js?v=2026.09.29-1", "./js/worksheet.js": "./js/worksheet.js?v=2026.09.29-1"}}</script>
+<script type="module" src="js/app.js?v=2026.09.29-1"></script>
 </body>
 </html>

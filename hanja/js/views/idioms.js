@@ -22,7 +22,7 @@ export async function idiomLevels(it) {
   return out;
 }
 
-async function scopeIdioms(c) {
+export async function scopeIdioms(c) {
   const all = [...(await D.idioms()).values()];
   if (!c.level.hasData) return { list: all, note: `${c.provider.name} 사자성어 출제범위: 공식 자료 확인 필요 — 전체 사자성어를 보여줘요.` };
   const im = await D.idiomsMapping(c.pid);
@@ -95,7 +95,7 @@ async function practice(view, c, list, mode, params) {
   const round = params.id ? [all.find((x) => x.id === params.id)] : pickRound(c, list);
   const qs = round.map((it) => {
     const others = shuffle(all.filter((x) => x.id !== it.id));
-    const base = { id: `idiom-${mode}-${it.id}`, provider: c.pid, level: c.lid, idiom: it.id, relatedHanja: [...it.w], sourceType: 'original-practice' };
+    const base = { id: `idiom-${mode}-${it.id}`, provider: c.pid, level: c.lid, idiom: it.id, relatedHanja: [...it.w], sourceType: 'original' };
     const mk = (question, prompt, ans, ds, type) => {
       const choices = shuffle([ans, ...ds.slice(0, 3)]);
       return { ...base, type, typeLabel: `사자성어·${label}`, question, prompt, choices, answer: choices.indexOf(ans), explanation: `${it.w}(${it.r}): ${it.mean}` };
@@ -142,7 +142,7 @@ function arrangeMode(view, c, list) {
           const ans = picked.map((x) => x.ch).join('');
           const ok = ans === it.w;
           if (ok) correct++;
-          S.recordAnswer(c.pid, { id: `idiom-arrange-${it.id}`, type: 'idiom-arrange', typeLabel: '사자성어·글자 배열', question: '글자 배열', prompt: it.w, choices: [it.w], answer: 0, relatedHanja: [...it.w], idiom: it.id, explanation: `${it.w}(${it.r}): ${it.mean}`, sourceType: 'original-practice' }, ok);
+          S.recordAnswer(c.pid, { id: `idiom-arrange-${it.id}`, type: 'idiom-arrange', typeLabel: '사자성어·글자 배열', question: '글자 배열', prompt: it.w, choices: [it.w], answer: 0, relatedHanja: [...it.w], idiom: it.id, explanation: `${it.w}(${it.r}): ${it.mean}`, sourceType: 'original' }, ok);
           draw(true);
           view.querySelector('.q-explain').innerHTML = `<div class="explain"><h4>${ok ? '✅ 정답입니다' : '❌ 오답입니다'}</h4><div class="hanzi" style="font-size:30px">${esc(it.w)}</div><div>${esc(it.r)} — ${esc(it.mean)}</div>${ok ? '' : `<div class="small">내가 배열: ${esc(ans)}</div>`}</div>`;
           return;
@@ -173,7 +173,7 @@ async function writeMode(view, c, list, params) {
       onDone: (results) => {
         const pass = results.every((r) => r.pass !== false);
         results.forEach((r) => { if (r.pass != null) S.recordWriting(c.pid, r.c, r.verdict === 'good' ? 'good' : r.verdict === 'near' ? 'near' : 'retry'); });
-        S.recordAnswer(c.pid, { id: `idiom-write-${it.id}`, type: 'idiom-write', typeLabel: '사자성어·직접 쓰기', question: `뜻: ${it.mean}`, prompt: '', choices: [], answer: it.w, relatedHanja: results.filter((r) => r.pass === false).map((r) => r.c), idiom: it.id, explanation: `${it.w}(${it.r}): ${it.mean}`, sourceType: 'original-practice' }, pass);
+        S.recordAnswer(c.pid, { id: `idiom-write-${it.id}`, type: 'idiom-write', typeLabel: '사자성어·직접 쓰기', question: `뜻: ${it.mean}`, prompt: '', choices: [], answer: it.w, relatedHanja: results.filter((r) => r.pass === false).map((r) => r.c), idiom: it.id, explanation: `${it.w}(${it.r}): ${it.mean}`, sourceType: 'original' }, pass);
       },
     });
   };

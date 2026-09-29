@@ -12,7 +12,7 @@ export async function renderQuestion(host, q, opts = {}) {
   wrap.className = 'qbox';
   const promptHtml = q.prompt ? `<div class="q-prompt">${esc(q.prompt)}</div>` : '';
   wrap.innerHTML = `
-    <div class="tag-label">${esc(q.area || q.typeLabel)}${q.sourceType === 'original-practice' ? ' · 자체 제작 연습문제' : ''}</div>
+    <div class="tag-label">${esc(q.area || q.typeLabel)}${q.sourceType === 'original-practice' || q.sourceType === 'original' ? ' · 자체 제작 연습문제' : ''}</div>
     <div class="q-text">${esc(q.question)}</div>
     ${q.type === 'stroke-order' ? '<div class="q-stroke" style="width:230px;max-width:62vw;margin:10px auto"></div>' : promptHtml}
     <div class="q-body"></div>
