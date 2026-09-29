@@ -2,7 +2,7 @@
 // - index.html · version.json: 네트워크 우선(새 배포를 바로 반영), 실패하면 캐시
 // - ?v=버전 이 붙은 코드·데이터: 캐시 우선(버전이 바뀌면 URL이 바뀌므로 오래된 파일이 섞이지 않음)
 // - 학습 기록(localStorage)은 건드리지 않는다
-const V = '2026.09.29-2';
+const V = '2026.09.29-3';
 const SHELL = 'hanja-shell-' + V;
 const DATA = 'hanja-data-' + V;
 self.addEventListener('install', (e) => {

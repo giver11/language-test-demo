@@ -1,6 +1,6 @@
 // 정적 JSON 데이터 로더 (캐시). 모든 시험 정보는 data/ 파일에서만 읽는다 — 코드에 일정·급수를 하드코딩하지 않음.
 // 배포 버전 — 데이터·코드가 섞여 캐시되지 않도록 모든 데이터 요청에 붙임
-export const APP_VERSION = '2026.09.29-2';
+export const APP_VERSION = '2026.09.29-3';
 const cache = new Map();
 export const BASE = new URL('../data/', import.meta.url).href;
 

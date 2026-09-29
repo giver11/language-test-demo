@@ -73,7 +73,9 @@ export default async function (view, { ctx: c, params }) {
 
 // 공용 문제 풀이 세션 (연습/오답 다시 풀기/복습)
 export function runSession(view, c, list, opts = {}) {
-  let i = 0, correct = 0;
+  const originalList = [...list];
+  let i = 0;
+  let correct = 0;
   const wrongs = [];
   const step = async () => {
     if (i >= list.length) {
@@ -83,7 +85,8 @@ export function runSession(view, c, list, opts = {}) {
         ${wrongs.length ? `<h3>틀린 문제 (${wrongs.length}) — 오답노트에 저장됨</h3><div class="card">${wrongs.map((q) => `<div class="list-row"><span class="hz">${esc(q.prompt || (q.type === 'write' ? q.answer : q.choices[q.answer]) || '')}</span><div class="grow"><b>${esc(q.typeLabel)}</b><div class="small">${esc(q.question)}</div><div class="small">정답: ${esc(q.type === 'write' ? q.answer : q.choices[q.answer])}</div></div></div>`).join('')}</div>` : '<p class="center">모두 맞혔어요! 🎉</p>'}
         <div class="btns fill" style="margin-top:14px">${opts.again !== false ? '<button class="btn accent" data-again type="button">다시 풀기</button>' : ''}<a class="btn" href="#/wrong">오답노트</a><a class="btn" href="#/home">홈</a></div>`;
       const a = view.querySelector('[data-again]');
-      if (a) a.onclick = () => location.reload();
+      // 다시 풀기: 방금 푼 같은 문제 세트를 새로고침 없이 다시 시작
+      if (a) a.onclick = () => runSession(view, c, [...originalList], opts);
       if (opts.onDone) opts.onDone({ correct, total: list.length, wrongs });
       return;
     }
@@ -100,11 +103,13 @@ export function runSession(view, c, list, opts = {}) {
       onAnswer: (r) => {
         if (next.style.display === 'block') return;
         if (r.correct) correct++; else wrongs.push(q);
-        S.recordAnswer(c.pid, q, r.correct, { picked: r.picked, rt: Date.now() - t0 });
+        // 직접 쓰기: recordWriting() 1회 → recordAnswer(writingRecorded) 순서 (mastery 이중 반영 방지)
+        const isWritingQuestion = q.type === 'write';
+        if (isWritingQuestion) S.recordWriting(c.pid, q.answer, r.verdict === 'good' ? 'good' : r.verdict === 'near' ? 'near' : 'retry');
+        S.recordAnswer(c.pid, q, r.correct, { picked: r.picked, rt: Date.now() - t0, writingRecorded: isWritingQuestion });
         const seen = c.p.quiz.seen || (c.p.quiz.seen = {});
         seen[q.id] = 1;
         if (q.word) { const e = c.p.words[q.word] || { ok: 0, fail: 0 }; if (r.correct) e.ok++; else e.fail++; e.t = Date.now(); c.p.words[q.word] = e; }
-        if (q.type === 'write') S.recordWriting(c.pid, q.answer, r.verdict === 'good' ? 'good' : r.verdict === 'near' ? 'near' : 'retry');
         S.save();
         next.style.display = 'block';
       },

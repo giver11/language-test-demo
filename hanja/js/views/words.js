@@ -83,7 +83,6 @@ async function practice(view, c, sc, mode, dict, params) {
     onDone: () => {},
   });
   // 한자어별 성취 기록
-  const origRecord = S.recordAnswer;
 }
 
 function combineMode(view, c, sc, dict) {
@@ -127,12 +126,12 @@ function combineMode(view, c, sc, dict) {
   step();
 }
 
-function recordWord(c, w, ok, type, label, dict) {
+function recordWord(c, w, ok, type, label, dict, opts = {}) {
   const e = c.p.words[w.w] || { ok: 0, fail: 0 };
   if (ok) e.ok++; else e.fail++;
   e.t = Date.now();
   c.p.words[w.w] = e;
-  S.recordAnswer(c.pid, { id: `${type}-${w.w}`, type, typeLabel: label, question: `'${w.r}'`, prompt: w.w, choices: [w.w], answer: 0, relatedHanja: [...w.w], word: w.w, explanation: `${w.w}(${w.r}) = ${gloss(w.w, dict)}`, sourceType: 'original' }, ok);
+  S.recordAnswer(c.pid, { id: `${type}-${w.w}`, type, typeLabel: label, question: `'${w.r}'`, prompt: w.w, choices: [w.w], answer: 0, relatedHanja: [...w.w], word: w.w, explanation: `${w.w}(${w.r}) = ${gloss(w.w, dict)}`, sourceType: 'original' }, ok, { writingRecorded: !!opts.writingRecorded });
 }
 
 async function writeMode(view, c, sc, dict, params) {
@@ -150,7 +149,7 @@ async function writeMode(view, c, sc, dict, params) {
     mw = await multiWrite(view.querySelector('.mw'), [...w.w], {
       onDone: (results) => {
         results.forEach((r) => { if (r.pass != null) S.recordWriting(c.pid, r.c, r.verdict === 'good' ? 'good' : r.verdict === 'near' ? 'near' : 'retry'); });
-        recordWord(c, w, results.every((r) => r.pass !== false), 'word-write', '한자어·직접 쓰기', dict);
+        recordWord(c, w, results.every((r) => r.pass !== false), 'word-write', '한자어·직접 쓰기', dict, { writingRecorded: true });
       },
     });
   };

@@ -173,7 +173,7 @@ async function writeMode(view, c, list, params) {
       onDone: (results) => {
         const pass = results.every((r) => r.pass !== false);
         results.forEach((r) => { if (r.pass != null) S.recordWriting(c.pid, r.c, r.verdict === 'good' ? 'good' : r.verdict === 'near' ? 'near' : 'retry'); });
-        S.recordAnswer(c.pid, { id: `idiom-write-${it.id}`, type: 'idiom-write', typeLabel: '사자성어·직접 쓰기', question: `뜻: ${it.mean}`, prompt: '', choices: [], answer: it.w, relatedHanja: results.filter((r) => r.pass === false).map((r) => r.c), idiom: it.id, explanation: `${it.w}(${it.r}): ${it.mean}`, sourceType: 'original' }, pass);
+        S.recordAnswer(c.pid, { id: `idiom-write-${it.id}`, type: 'idiom-write', typeLabel: '사자성어·직접 쓰기', question: `뜻: ${it.mean}`, prompt: '', choices: [], answer: it.w, relatedHanja: [...it.w], idiom: it.id, explanation: `${it.w}(${it.r}): ${it.mean}`, sourceType: 'original' }, pass, { writingRecorded: true });
       },
     });
   };

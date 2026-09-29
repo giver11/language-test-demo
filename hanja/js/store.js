@@ -304,10 +304,19 @@ export function recordAnswer(pid, q, correct, extra = {}) {
   bt.a++; if (correct) bt.c++;
   const cat = categoryOf(q);
   // mastery: 한 글자 문항은 대상 글자, 한자어·성어 문항은 구성 글자 모두 (가볍게)
-  const rel = q.relatedHanja || [];
-  const single = rel.length && ['hunum', 'hunum-rev', 'hun-char', 'eum-char', 'reading-char', 'radical', 'stroke-count', 'homophone-char', 'antonym', 'synonym', 'write'].includes(q.type);
-  if (single) touch(pid, q.type === 'hunum-rev' || q.type === 'hun-char' || q.type === 'eum-char' || q.type === 'write' ? (typeof q.answer === 'string' ? q.answer : q.choices && q.choices[q.answer]) || rel[0] : rel[0], correct, { src: q.type === 'write' ? 'write' : 'quiz', rt: extra.rt });
-  else for (const ch of rel) touch(pid, ch, correct, { src: 'quiz', rt: extra.rt, soft: true });
+  // 직접 쓰기에서 이미 recordWriting()으로 mastery를 기록했다면 여기서 다시 증가시키지 않는다(이중 반영 방지)
+  if (!extra.writingRecorded) {
+    const rel = q.relatedHanja || [];
+    const single = rel.length && ['hunum', 'hunum-rev', 'hun-char', 'eum-char', 'reading-char', 'radical', 'stroke-count', 'homophone-char', 'antonym', 'synonym', 'write'].includes(q.type);
+    if (single) {
+      const target = q.type === 'hunum-rev' || q.type === 'hun-char' || q.type === 'eum-char' || q.type === 'write'
+        ? (typeof q.answer === 'string' ? q.answer : q.choices && q.choices[q.answer]) || rel[0]
+        : rel[0];
+      touch(pid, target, correct, { src: q.type === 'write' ? 'write' : 'quiz', rt: extra.rt });
+    } else {
+      for (const ch of rel) touch(pid, ch, correct, { src: 'quiz', rt: extra.rt, soft: true });
+    }
+  }
   if (!correct && q.choices && typeof q.answer === 'number' && extra.picked != null) {
     const a = q.choices[q.answer], b = q.choices[extra.picked];
     if (typeof a === 'string' && typeof b === 'string' && [...a].length === 1 && [...b].length === 1) recordConfusion(pid, a, b);

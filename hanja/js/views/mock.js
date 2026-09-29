@@ -194,8 +194,9 @@ async function run(view, c) {
       }
       const ms = (R.spent || {})[k] || 0;
       t.ms = (t.ms || 0) + ms;
-      S.recordAnswer(c.pid, q, ok, { picked: a ? a.picked : null, rt: ms || undefined });
-      if (q.type === 'write' && a && a.verdict) S.recordWriting(c.pid, q.answer, a.verdict === 'good' ? 'good' : a.verdict === 'near' ? 'near' : 'retry');
+      const wrote = q.type === 'write' && a && a.verdict;
+      if (wrote) S.recordWriting(c.pid, q.answer, a.verdict === 'good' ? 'good' : a.verdict === 'near' ? 'near' : 'retry');
+      S.recordAnswer(c.pid, q, ok, { picked: a ? a.picked : null, rt: ms || undefined, writingRecorded: !!wrote });
     });
     const total = R.questions.length;
     // 대한상공회의소: 영역별 배점(한자4·어휘6·독해8) 합산 + 전체 득점 비율 + 과목별 최소 비율(공식 합격기준)
