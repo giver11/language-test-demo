@@ -71,10 +71,11 @@
     utterance.rate = options.slow ? 0.75 : 0.95;
     utterance.pitch = 1;
     utterance.volume = 1;
-    utterance.onstart = function(){ log('START', lang + ' · ' + (voice ? voice.name + ' (' + voice.lang + ')' : 'browser default')); emit('start', { lang: lang, voice: voice ? voice.name : '' }); };
-    utterance.onend = function(){ if (currentUtterance === utterance) currentUtterance = null; log('END', lang); emit('end', {}); };
+    utterance.onstart = function(){ document.body && document.body.classList.add('tts-speaking'); log('START', lang + ' · ' + (voice ? voice.name + ' (' + voice.lang + ')' : 'browser default')); emit('start', { lang: lang, voice: voice ? voice.name : '' }); };
+    utterance.onend = function(){ document.body && document.body.classList.remove('tts-speaking'); if (currentUtterance === utterance) currentUtterance = null; log('END', lang); emit('end', {}); };
     utterance.onerror = function(event){
       var err = event && event.error;
+      document.body && document.body.classList.remove('tts-speaking');
       if (currentUtterance === utterance) currentUtterance = null;
       if (err === 'interrupted' || err === 'canceled') { log('EVENT', 'utterance ' + err + ' (replaced by a newer one)'); return; }
       log('ERROR', 'onerror ' + err + ' · ' + lang);
@@ -83,7 +84,11 @@
     /* Android Chrome can ignore speak() issued in the same tick as cancel(). */
     setTimeout(function(){
       if (currentUtterance !== utterance) return;           /* a newer tap replaced this one */
-      try { synth.resume(); synth.speak(utterance); log('SPEAK', lang + ' "' + say.slice(0, 40) + '"'); }
+      try {
+        synth.resume(); synth.speak(utterance); log('SPEAK', lang + ' "' + say.slice(0, 40) + '"');
+        /* Some Android Chrome builds leave the engine paused after speak(). */
+        setTimeout(function(){ try { if (synth.paused) { synth.resume(); log('EVENT', 'resumed paused engine'); } } catch(e) {} }, 250);
+      }
       catch(error) { log('ERROR', 'speak failed ' + error); emit('error', { error: String(error), lang: lang }); }
     }, 100);
     return true;
@@ -97,6 +102,17 @@
     try { synth.resume(); loadVoices(); } catch(e) {}
   }, { once: true, capture: true });
   window.addEventListener('pagehide', stop);
+  document.addEventListener('visibilitychange', function(){ if (document.hidden) stop(); });
+
+  /* Any element with data-speak / data-tts plays its text in data-lang, or the app language. */
+  document.addEventListener('click', function(event){
+    var el = event.target && event.target.closest && event.target.closest('[data-speak], [data-tts]');
+    if (!el) return;
+    var text = el.getAttribute('data-speak') || el.getAttribute('data-tts') || el.getAttribute('data-text') || '';
+    if (!text) return;
+    event.preventDefault();
+    speak(text, { lang: el.getAttribute('data-lang') || (window.CONFIG && window.CONFIG.lang) || 'en-US', slow: el.hasAttribute('data-slow') });
+  }, true);
 
   /* ---------- developer diagnostics: console only (TTS.report()) ---------- */
   function report(){
@@ -116,6 +132,11 @@
       events: diag.events.slice(-25)
     };
   }
+  window.speakEnglish = function(text){ return speak(text, { lang: 'en-US' }); };
+  window.speakKorean = function(text){ return speak(text, { lang: 'ko-KR' }); };
+  window.speakChinese = function(text){ return speak(text, { lang: 'zh-CN' }); };
+  window.stopSpeech = stop;
+
   window.TTS = {
     speak: speak,
     stop: stop,
