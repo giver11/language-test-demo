@@ -1,152 +1,157 @@
-/* ScoreStep V2 shared text-to-speech.
-   One voice per language (IELTS en-US, TOPIK ko-KR, HSK zh-CN); no male/female switching.
-   Voice choice: exact locale -> same language -> browser default for that lang.
-   Handles: voices loading late (Android Chrome), speak() ignored right after cancel(),
-   Chrome's ~15s cut-off on long utterances, garbage-collected utterances,
-   iOS needing a first user gesture, and tab hide/resume. */
+/* ScoreStep V2 shared text-to-speech (browser Web Speech API only).
+   IELTS en-US · TOPIK ko-KR · HSK zh-CN. One voice per language, chosen automatically.
+   No external/unofficial TTS URLs, no paid TTS APIs, no silent autoplay.
+   Diagnostics: open any app with ?ttsdebug=1 to see engine/voice/event checks on the device. */
 (function(){
   'use strict';
   var synth = ('speechSynthesis' in window) ? window.speechSynthesis : null;
-  var Utter = window.SpeechSynthesisUtterance;
-  var voices = [], voiceListeners = [], eventListeners = [];
-  var seq = 0, live = [], fallbackAudio = null, unlocked = false;
+  var supported = !!synth && ('SpeechSynthesisUtterance' in window);
+  var availableVoices = [];
+  var currentUtterance = null;           /* keep a reference so Chrome does not garbage-collect it mid-speech */
+  var listeners = [];
+  var diag = { voicesChangedCount: 0, speakCalls: 0, events: [] };
 
-  function norm(lang){ return String(lang || '').replace(/_/g, '-').toLowerCase(); }
-  function baseOf(lang){ return norm(lang).split('-')[0]; }
-  function emit(type, detail){ eventListeners.forEach(function(f){ try{ f(type, detail || {}); }catch(e){ console.error('[TTS] listener', e); } }); }
+  function log(kind, msg){
+    var line = new Date().toISOString().slice(11, 23) + ' ' + kind + ' ' + msg;
+    diag.events.push(line); if (diag.events.length > 60) diag.events.shift();
+    if (kind === 'ERROR') console.error('[TTS]', msg); else console.log('[TTS]', kind, msg);
+    renderDebug();
+  }
+  function emit(type, detail){ listeners.forEach(function(f){ try { f(type, detail || {}); } catch(e) { console.error('[TTS] listener', e); } }); }
 
-  function readVoices(){ if (!synth) return; try { voices = synth.getVoices() || []; } catch(e) { voices = []; } }
   function loadVoices(){
-    if (!synth) return;
-    var had = voices.length;
-    readVoices();
-    if (!voices.length && !had) return;
-    voiceListeners.forEach(function(f){ try{ f(voices); }catch(e){ console.error('[TTS] voices listener', e); } });
+    if (!synth) return [];
+    try { availableVoices = synth.getVoices() || []; } catch(e) { availableVoices = []; }
+    return availableVoices;
   }
+  loadVoices();
   if (synth) {
+    var onChange = function(){ diag.voicesChangedCount++; loadVoices(); log('EVENT', 'voiceschanged → ' + availableVoices.length + ' voices'); };
+    if (synth.addEventListener) synth.addEventListener('voiceschanged', onChange);
+    else if ('onvoiceschanged' in synth) synth.onvoiceschanged = onChange;
+  }
+
+  function normalizeLang(lang){ return String(lang || 'en-US').replace(/_/g, '-').toLowerCase(); }
+
+  /* exact locale → same language → null (browser default for utterance.lang). No voice names are hard-coded. */
+  function findVoice(lang){
     loadVoices();
-    if (synth.addEventListener) synth.addEventListener('voiceschanged', loadVoices);
-    else synth.onvoiceschanged = loadVoices;
-    [300, 1000, 2500, 5000].forEach(function(t){ setTimeout(loadVoices, t); });
+    var wanted = normalizeLang(lang), base = wanted.split('-')[0];
+    var voice = availableVoices.find(function(v){ return normalizeLang(v.lang) === wanted; });
+    if (!voice) voice = availableVoices.find(function(v){ return normalizeLang(v.lang).split('-')[0] === base; });
+    return voice || null;
   }
 
-  /* Prefer on-device voices (start instantly, work offline), then the platform default. */
-  function rank(v){ return (v.localService === false ? 2 : 0) + (v.default ? 0 : 1); }
-  function getBestVoice(lang){
-    if (!voices.length) readVoices();   /* never notify listeners from here (they call getBestVoice) */
-    var want = norm(lang), base = baseOf(lang);
-    var exact = voices.filter(function(v){ return norm(v.lang) === want; });
-    var same = exact.length ? exact : voices.filter(function(v){ return baseOf(v.lang) === base; });
-    return same.slice().sort(function(a, b){ return rank(a) - rank(b); })[0] || null;
-  }
-
-  /* Only the target-language text is spoken: 💡 feedback, IELTS feedback lines,
-     and (for Chinese) Pinyin/Hangul are removed so zh is never read by another language. */
-  function clean(text, lang){
-    var lines = String(text || '').split('\n').map(function(l){ return l.trim(); })
-      .filter(function(l){ return l && l.indexOf('💡') !== 0 && !/^Estimated practice feedback/i.test(l); })
-      .map(function(l){ return l.replace(/💡.*$/, '').trim(); });
+  /* Speak only the app language: drop 💡 / IELTS feedback lines; for Chinese keep Hanzi only
+     (e.g. "你好 nǐhǎo" → "你好"), so Pinyin/Hangul are never read. The screen text is unchanged. */
+  function speechText(text, lang){
+    var lines = String(text || '').split('\n').map(function(l){ return l.replace(/💡.*$/, '').trim(); })
+      .filter(function(l){ return l && !/^Estimated practice feedback/i.test(l); });
     var t;
-    if (baseOf(lang) === 'zh') {
-      var han = lines.filter(function(l){ return /[一-鿿]/.test(l); });
-      t = (han.length ? han : lines).join('，')
-        .replace(/[가-힯㄰-㆏]+/g, ' ')
-        .replace(/[A-Za-zÀ-ɏ̀-ͯ]+/g, ' ');
+    if (normalizeLang(lang).split('-')[0] === 'zh') {
+      var han = lines.join(' ').match(/[㐀-鿿豈-﫿0-9，。！？、；：“”‘’（）《》]+/g) || [];
+      t = han.join('，').replace(/[（(]\s*[）)]/g, '，');
     } else {
-      t = lines.join(' ');
+      t = lines.join(' ').replace(/\(\s*\)|_{2,}/g, ' ');
     }
-    return t.replace(/\(\s*\)|_{2,}/g, ' ').replace(/\s+/g, ' ').replace(/^[，,\s]+|[，,\s]+$/g, '').trim();
+    return t.replace(/\s+/g, ' ').replace(/^[，,\s]+|[，,\s]+$/g, '').trim();
   }
 
-  function chunks(t){
-    var parts = t.match(/[^.!?。！？]+[.!?。！？]*/g) || [t], out = [];
-    parts.forEach(function(p){
-      p = p.trim(); if (!p) return;
-      var last = out[out.length - 1];
-      if (last && (last + ' ' + p).length <= 160) out[out.length - 1] = last + ' ' + p;
-      else while (p.length) { out.push(p.slice(0, 180)); p = p.slice(180); }
-    });
-    return out;
-  }
-
-  function stopAudio(){ if (fallbackAudio) { try{ fallbackAudio.pause(); }catch(e){} fallbackAudio = null; } }
-
-  /* Last resort when the device has no engine or reports a hard failure. */
-  function onlineSpeak(t, lang, opt, my){
-    var tl = baseOf(lang) === 'zh' ? 'zh-CN' : baseOf(lang), parts = chunks(t), i = 0;
-    function next(){
-      if (my !== seq || i >= parts.length) { fallbackAudio = null; if (my === seq) emit('end', {}); return; }
-      var a = new Audio('https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=' + tl + '&q=' + encodeURIComponent(parts[i++]));
-      a.playbackRate = opt.slow ? 0.75 : 1; fallbackAudio = a;
-      a.onended = next;
-      a.onerror = function(){ console.error('[TTS] online audio failed'); emit('error', { error: 'online-audio-failed' }); };
-      a.play().then(function(){ if (i === 1) emit('start', { online: true, lang: lang }); })
-        .catch(function(err){ console.error('[TTS] online audio blocked', err); emit('error', { error: 'autoplay-blocked' }); });
-    }
-    next();
-  }
-
-  function speak(text, opt){
-    opt = opt || {};
-    var lang = opt.lang || 'en-US', t = clean(text, lang);
-    if (!t) return false;
-    var my = ++seq;
-    stopAudio();
-    if (!synth || typeof Utter !== 'function') { onlineSpeak(t, lang, opt, my); return true; }
-    var busy = synth.speaking || synth.pending;
-    synth.cancel();
-    function go(){
-      if (my !== seq) return;
-      try { synth.resume(); } catch(e) {}
-      var v = getBestVoice(lang), parts = chunks(t), started = false;
-      live = parts.map(function(p, i){
-        var u = new Utter(p);
-        u.lang = lang;             /* always the app language, so the browser default is correct even without a voice */
-        if (v) u.voice = v;
-        u.rate = opt.slow ? 0.7 : (opt.rate || 0.9);
-        u.pitch = 1; u.volume = 1;
-        u.onstart = function(){ if (!started) { started = true; emit('start', { voice: v ? v.name : '', lang: lang }); } };
-        u.onend = function(){ if (i === parts.length - 1 && my === seq) { live = []; emit('end', {}); } };
-        u.onerror = function(e){
-          var err = e && e.error;
-          if (err === 'interrupted' || err === 'canceled') return;
-          console.error('[TTS] speech error:', err, lang, v ? v.name : '(default voice)');
-          emit('error', { error: err });
-          if (my === seq && !started && i === 0) onlineSpeak(t, lang, opt, my);
-        };
-        return u;
-      });
-      live.forEach(function(u){ synth.speak(u); });
-    }
-    /* Android Chrome ignores speak() issued in the same tick as cancel() while audio was playing. */
-    if (busy) setTimeout(go, 90); else go();
+  function speak(text, options){
+    options = options || {};
+    var lang = options.lang || 'en-US', say = speechText(text, lang);
+    if (!say) { log('SKIP', 'empty text for ' + lang); return false; }
+    if (!supported) { log('ERROR', 'Web Speech API unsupported'); return false; }
+    diag.speakCalls++;
+    try { synth.cancel(); } catch(e) {}
+    var utterance = new SpeechSynthesisUtterance(say);
+    currentUtterance = utterance;
+    utterance.lang = lang;
+    var voice = findVoice(lang);
+    if (voice) utterance.voice = voice;
+    utterance.rate = options.slow ? 0.75 : 0.95;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    utterance.onstart = function(){ log('START', lang + ' · ' + (voice ? voice.name + ' (' + voice.lang + ')' : 'browser default')); emit('start', { lang: lang, voice: voice ? voice.name : '' }); };
+    utterance.onend = function(){ if (currentUtterance === utterance) currentUtterance = null; log('END', lang); emit('end', {}); };
+    utterance.onerror = function(event){
+      var err = event && event.error;
+      if (currentUtterance === utterance) currentUtterance = null;
+      if (err === 'interrupted' || err === 'canceled') { log('EVENT', 'utterance ' + err + ' (replaced by a newer one)'); return; }
+      log('ERROR', 'onerror ' + err + ' · ' + lang);
+      emit('error', { error: err, lang: lang });
+    };
+    /* Android Chrome can ignore speak() issued in the same tick as cancel(). */
+    setTimeout(function(){
+      if (currentUtterance !== utterance) return;           /* a newer tap replaced this one */
+      try { synth.resume(); synth.speak(utterance); log('SPEAK', lang + ' "' + say.slice(0, 40) + '"'); }
+      catch(error) { log('ERROR', 'speak failed ' + error); emit('error', { error: String(error), lang: lang }); }
+    }, 100);
     return true;
   }
 
-  function stop(){ seq++; stopAudio(); live = []; if (synth) { try{ synth.cancel(); }catch(e){} } }
+  function stop(){ currentUtterance = null; if (!synth) return; try { synth.cancel(); } catch(e) {} }
 
-  /* iOS/Safari: allow later (non-gesture) speech, e.g. AI replies, after the first tap. */
-  var appleTouch = /iP(hone|ad|od)/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && 'ontouchend' in document);
-  function unlock(){
-    if (unlocked || !synth || !appleTouch) return; unlocked = true;
-    try { var u = new Utter(' '); u.volume = 0; synth.speak(u); } catch(e) {}
-  }
-  ['touchend', 'pointerdown'].forEach(function(t){ document.addEventListener(t, unlock, { capture: true, passive: true }); });
-
-  document.addEventListener('visibilitychange', function(){
+  /* First touch: wake the engine and refresh voices (no sound is played). */
+  document.addEventListener('pointerdown', function(){
     if (!synth) return;
-    if (document.hidden) stop(); else { try{ synth.resume(); }catch(e){} loadVoices(); }
-  });
+    try { synth.resume(); loadVoices(); } catch(e) {}
+  }, { once: true, capture: true });
   window.addEventListener('pagehide', stop);
+
+  /* ---------- on-device diagnostics (?ttsdebug=1) ---------- */
+  function report(){
+    loadVoices();
+    var pick = function(l){ var v = findVoice(l); return v ? v.name + ' (' + v.lang + ')' : '없음 → 브라우저 기본'; };
+    var scripts = Array.prototype.map.call(document.scripts, function(s){ return s.src.split('/').pop(); }).filter(Boolean);
+    return {
+      userAgent: navigator.userAgent,
+      speechSynthesis: !!synth,
+      SpeechSynthesisUtterance: 'SpeechSynthesisUtterance' in window,
+      voices: availableVoices.length,
+      voicesChangedEvents: diag.voicesChangedCount,
+      'en-US': pick('en-US'), 'ko-KR': pick('ko-KR'), 'zh-CN': pick('zh-CN'),
+      speakCalls: diag.speakCalls,
+      speaking: synth ? synth.speaking : false, paused: synth ? synth.paused : false,
+      scripts: scripts.join(', '),
+      events: diag.events.slice(-25)
+    };
+  }
+  var debugOn = /[?&]ttsdebug=1/.test(location.search), debugBox = null, debugMin = false;
+  function renderDebug(){
+    if (!debugOn || !document.body) return;
+    if (!debugBox) {
+      debugBox = document.createElement('div');
+      debugBox.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;max-height:34vh;overflow:auto;z-index:99;background:#0b1530;color:#e6edff;font:12px/1.45 monospace;padding:10px;border-radius:12px;box-shadow:0 8px 30px #0008';
+      document.body.appendChild(debugBox);
+      debugBox.addEventListener('click', function(e){
+        if (e.target.closest && e.target.closest('[data-tts-min]')) { debugMin = !debugMin; renderDebug(); return; }
+        var b = e.target.closest && e.target.closest('[data-tts-test]'); if (!b) return;
+        speak({ 'en-US': 'This is an English voice test.', 'ko-KR': '한국어 음성 테스트입니다.', 'zh-CN': '这是中文语音测试。' }[b.dataset.ttsTest], { lang: b.dataset.ttsTest });
+      });
+    }
+    var r = report(), esc = function(s){ return String(s).replace(/[&<>]/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); };
+    var last = r.events[r.events.length - 1] || '';
+    if (debugMin) { debugBox.innerHTML = '<button data-tts-min style="float:right;border:0;border-radius:8px;padding:4px 8px">펼치기</button><b>TTS</b> voices ' + r.voices + ' · ' + esc(last.slice(0, 60)); return; }
+    debugBox.innerHTML = '<button data-tts-min style="float:right;border:0;border-radius:8px;padding:4px 8px">접기</button><b>TTS 진단</b> ' + ['en-US', 'ko-KR', 'zh-CN'].map(function(l){ return '<button data-tts-test="' + l + '" style="margin:2px;padding:6px 8px;border-radius:8px;border:0">▶ ' + l + '</button>'; }).join('') +
+      '<pre style="white-space:pre-wrap;margin:6px 0 0">' + esc(Object.keys(r).filter(function(k){ return k !== 'events'; }).map(function(k){ return k + ': ' + r[k]; }).join('\n')) + '\n--- events ---\n' + esc(r.events.join('\n')) + '</pre>';
+  }
+  if (debugOn) { document.addEventListener('DOMContentLoaded', renderDebug); setTimeout(renderDebug, 500); setInterval(renderDebug, 2000); }
 
   window.TTS = {
     speak: speak,
     stop: stop,
-    clean: clean,
-    getBestVoice: getBestVoice,
-    voices: function(){ return voices.slice(); },
-    supported: !!synth,
-    onVoices: function(f){ voiceListeners.push(f); if (voices.length) f(voices); },
-    on: function(f){ eventListeners.push(f); }
+    supported: supported,
+    getBestVoice: findVoice,
+    speechText: speechText,
+    report: report,
+    voices: function(){ return loadVoices(); },
+    onVoices: function(callback){
+      if (typeof callback !== 'function') return;
+      var run = function(){ callback(loadVoices()); };
+      run();
+      if (synth && synth.addEventListener) synth.addEventListener('voiceschanged', run);
+    },
+    on: function(f){ if (typeof f === 'function') listeners.push(f); }
   };
 })();
