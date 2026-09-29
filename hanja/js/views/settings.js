@@ -30,9 +30,9 @@ export default async function (view, { ctx: c, go }) {
       <div class="card"><p class="small" style="margin-top:0">현재 모든 기능을 무료로 열어 두었어요(결제·잠금 미적용). 추후 요금제 구성 예정:</p>
         ${F.TIERS.map((t) => `<div class="list-row"><b style="min-width:84px">${t.name}</b><div class="grow small">${esc(t.desc)}</div></div>`).join('')}</div>
       <h3>데이터</h3>
-      <div class="btns"><button class="btn sm" data-export type="button">학습 기록 내보내기(JSON)</button><button class="btn sm bad" data-reset type="button">모든 기록 초기화</button></div>
+      <div class="btns"><button class="btn sm" data-export type="button">학습 기록 내보내기(JSON)</button><label class="btn sm">학습 기록 가져오기<input type="file" accept="application/json,.json" data-import hidden></label><button class="btn sm bad" data-reset type="button">모든 기록 초기화</button></div>
       <div class="reset-host"></div>
-      <p class="tiny" style="margin-top:14px">학습 기록은 이 브라우저(localStorage)에만 저장돼요. 로그인·서버 전송 없음 · 운영비 0원.</p>
+      <p class="tiny" style="margin-top:14px">학습 기록은 이 브라우저(localStorage)에만 저장돼요. 기기를 바꿀 때는 내보내기 → 새 기기에서 가져오기를 쓰세요. 로그인·서버 전송 없음 · 운영비 0원.</p>
       <p class="tiny"><a href="#/sources">데이터 출처와 라이선스</a></p>`;
     view.querySelectorAll('[data-m]').forEach((b) => (b.onclick = () => { st.minutes = +b.dataset.m; st.quest = null; S.save(true); toast(`하루 ${st.minutes}분으로 변경`); draw(); }));
     view.querySelectorAll('[data-switch]').forEach((b) => (b.onclick = () => { S.setCurrent(b.dataset.switch); go('#/home'); }));
@@ -67,6 +67,17 @@ export default async function (view, { ctx: c, go }) {
     view.querySelector('[data-export]').onclick = () => {
       const blob = new Blob([S.exportJSON()], { type: 'application/json' });
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `hanjapass-backup-${S.today()}.json`; a.click();
+    };
+    view.querySelector('[data-import]').onchange = async (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const h = view.querySelector('.reset-host');
+      const text = await f.text();
+      h.innerHTML = `<div class="notice">“${esc(f.name)}” 기록으로 바꿀까요? 지금 기록은 지우지 않고 이 기기에 따로 백업해 둬요.<div class="btns" style="margin-top:8px"><button class="btn sm primary" data-imp-yes type="button">가져오기</button><button class="btn sm" data-imp-no type="button">취소</button></div></div>`;
+      h.querySelector('[data-imp-no]').onclick = () => (h.innerHTML = '');
+      h.querySelector('[data-imp-yes]').onclick = () => {
+        try { const r = S.importJSON(text); toast(`가져왔어요 (기관 ${r.providers}곳)`); setTimeout(() => location.reload(), 600); }
+        catch (er) { h.innerHTML = `<div class="notice bad">${esc(er.message)}</div>`; }
+      };
     };
     view.querySelector('[data-reset]').onclick = () => {
       const h = view.querySelector('.reset-host');

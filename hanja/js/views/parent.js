@@ -86,6 +86,8 @@ export default async function (view, { params }) {
     <h3>자녀 프로필</h3>
     <div class="card"><p class="small" style="margin-top:0">자녀마다 학습 기록을 따로 저장해요. 실명·학교·연락처는 넣지 말고 별명만 쓰세요.</p>
       <form class="row" data-add onsubmit="return false"><input data-nick maxlength="12" placeholder="별명 (예: 첫째)" aria-label="자녀 별명" style="flex:1"><button class="btn" type="submit">프로필 추가</button></form>
+      <label class="btn sm" style="margin-top:8px">자녀 기기 기록 가져오기<input type="file" accept="application/json,.json" data-pimp hidden></label>
+      <p class="tiny">자녀 기기의 설정 → “학습 기록 내보내기”로 받은 파일을 넣으면 새 프로필로 추가돼요(이 기기의 기록은 그대로).</p>
       <div class="btns" style="margin-top:8px">${profs.filter((p) => p.id !== S.activeProfileId()).map((p) => `<button class="btn sm" data-sw="${p.id}" type="button">${esc(p.nick)}(으)로 전환</button>`).join('')}</div></div>
     <h3>보호자 PIN</h3>
     <form class="card row" data-setpin onsubmit="return false"><input type="password" inputmode="numeric" maxlength="6" placeholder="숫자 4~6자리 (비우면 해제)" aria-label="보호자 PIN 설정" style="flex:1" autocomplete="new-password"><button class="btn" type="submit">${pin ? 'PIN 변경' : 'PIN 설정'}</button></form>
@@ -93,6 +95,11 @@ export default async function (view, { params }) {
   view.querySelector('[data-copy]').onclick = async () => { try { await navigator.clipboard.writeText(txt); toast('리포트를 복사했어요'); } catch (e) { toast('복사가 지원되지 않아요. 길게 눌러 선택하세요'); } };
   view.querySelector('[data-print]').onclick = () => printArea(`<div class="ws"><pre class="report">${esc(txt)}</pre></div>`);
   view.querySelector('[data-add]').onsubmit = (ev) => { ev.preventDefault(); const n = view.querySelector('[data-nick]').value.trim(); if (!n) return; const id = S.addProfile(n); location.hash = `#/parent?id=${id}`; };
+  view.querySelector('[data-pimp]').onchange = async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    try { const id = S.importAsProfile(await f.text(), (view.querySelector('[data-nick]').value.trim() || '가져온 자녀').slice(0, 12)); toast('자녀 기록을 가져왔어요'); location.hash = `#/parent?id=${id}`; }
+    catch (er) { toast(er.message); }
+  };
   view.querySelectorAll('[data-sw]').forEach((b) => (b.onclick = () => S.switchProfile(b.dataset.sw)));
   view.querySelector('[data-setpin]').onsubmit = (e) => { e.preventDefault();
     const v = e.target.querySelector('input').value.trim();

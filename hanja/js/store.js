@@ -354,3 +354,24 @@ export function categoryOf(q) {
 }
 
 export function exportJSON() { return JSON.stringify(state); }
+// 부모 모드: 자녀 기기에서 내보낸 기록을 새 프로필로 추가(현재 사용자의 기록은 그대로)
+export function importAsProfile(text, nick) {
+  let o;
+  try { o = JSON.parse(text); } catch (e) { throw new Error('JSON 파일이 아니에요'); }
+  if (!o || typeof o !== 'object' || !o.byProvider) throw new Error('한자패스 학습 기록 파일이 아니에요');
+  const id = addProfile(nick);
+  const st = migrate(Object.assign(blank(), o, { version: o.version || 1 }), id);
+  if (!lsSet(keyOf(id), JSON.stringify(st))) throw new Error('저장 공간이 부족해요');
+  return id;
+}
+// 백업 가져오기(다른 기기에서 내보낸 JSON). 현재 기록은 지우지 않고 먼저 백업 키에 보관한 뒤 교체한다.
+export function importJSON(text) {
+  let o;
+  try { o = JSON.parse(text); } catch (e) { throw new Error('JSON 파일이 아니에요'); }
+  if (!o || typeof o !== 'object' || !o.byProvider || typeof o.byProvider !== 'object') throw new Error('한자패스 학습 기록 파일이 아니에요');
+  const bk = KEY + '.backup.import-' + Date.now();
+  lsSet(bk, JSON.stringify(state));
+  state = migrate(Object.assign(blank(), o, { version: o.version || 1 }));
+  save(true);
+  return { backupKey: bk, providers: Object.keys(state.byProvider).length };
+}

@@ -1,5 +1,5 @@
 {
- "v": "2026.09.29-1",
+ "v": "2026.09.29-2",
  "files": [
   "index.html",
   "css/app.css",
@@ -46,6 +46,6 @@
   "js/views/write.js",
   "js/views/wrong.js",
   "js/worksheet.js",
-  "js/app.js?v=2026.09.29-1"
+  "js/app.js?v=2026.09.29-2"
  ]
 }

@@ -288,6 +288,50 @@ async def main():
         rec('T17', '오프라인(PWA): 학습·플래시카드·퀴즈·쓰기', ok_off, offmsg + ' / ' + ', '.join(det))
         await ctx.close()
 
+        # T19~T23 백업·이동·영상·예문
+        ctx, pg, errs = await new_page(br, 390, state=V1_SAMPLE)
+        await go(pg, '#/settings', '[data-export]')
+        async with pg.expect_download() as dl:
+            await pg.click('[data-export]')
+        f = await dl.value; bpath = await f.path(); backup = open(bpath, encoding='utf-8').read()
+        # 기록을 바꾼 뒤 백업 파일로 복원
+        await pg.evaluate('() => { const s = window.__hanja.S; s.prov("daehan").cards["學"].n = 99; s.save(true); }')
+        await pg.set_input_files('[data-import]', bpath); await pg.click('[data-imp-yes]'); await pg.wait_for_timeout(1500); await pg.wait_for_selector('#view h1')
+        st = await pg.evaluate('JSON.parse(localStorage.getItem("hanjaPass.v1"))')
+        keys = await pg.evaluate('Object.keys(localStorage).filter(k => k.includes("backup.import"))')
+        rec('T19', '학습 기록 내보내기 → 가져오기(기존 기록은 백업 후 교체)', st['byProvider']['daehan']['cards']['學']['n'] == 3 and len(keys) == 1, f'복원 n={st["byProvider"]["daehan"]["cards"]["學"]["n"]}, 백업 {keys}')
+        # 부모: 자녀 기기 기록을 새 프로필로
+        await go(pg, '#/parent', '[data-pimp]', t=15000) if False else await pg.goto(BASE + '#/parent')
+        await pg.wait_for_selector('[data-pimp]', state='attached')
+        await pg.fill('[data-nick]', '첫째'); await pg.set_input_files('[data-pimp]', bpath); await pg.wait_for_selector('text=첫째', timeout=8000); await pg.wait_for_timeout(800)
+        rep = await pg.inner_text('[data-rep]')
+        rec('T20', '부모 모드: 자녀 기기 기록 가져와 프로필별 리포트', '첫째' in rep and '대한검정회 5급' in rep, rep.splitlines()[0])
+        # 선생님 자료 내보내기 → 새 기기에서 가져오기
+        await go(pg, '#/teacher', '[data-cname]')
+        await pg.fill('[data-cname]', '한자반'); await pg.press('[data-cname]', 'Enter'); await pg.wait_for_selector('[data-sname]')
+        await pg.fill('[data-sname]', '5번'); await pg.press('[data-sname]', 'Enter'); await pg.wait_for_timeout(400)
+        async with pg.expect_download() as dl:
+            await pg.click('[data-texp]')
+        tpath = await (await dl.value).path()
+        ctx3, pg3, errs3 = await new_page(br, 360)
+        await pg3.goto(BASE + '#/teacher'); await pg3.wait_for_selector('[data-timp]', state='attached')
+        await pg3.set_input_files('[data-timp]', tpath); await pg3.wait_for_timeout(1200)
+        tv = await pg3.inner_text('#view')
+        allerr += errs3; await ctx3.close()
+        rec('T21', '선생님 자료 내보내기 → 다른 기기에서 가져오기', '한자반' in tv and '5번' in tv, tv.replace('\n', ' ')[:100])
+        # 3초 퀴즈 영상(MediaRecorder)
+        await go(pg, '#/studio?k=quiz3', 'canvas')
+        async with pg.expect_download(timeout=30000) as dl:
+            await pg.click('[data-vid]')
+        vf = await dl.value; vsize = os.path.getsize(await vf.path())
+        rec('T22', 'SNS 3초 퀴즈 영상 생성(브라우저 녹화)', vsize > 20000 and vf.suggested_filename.startswith('hanja-quiz3.'), f'{vf.suggested_filename} {vsize}B')
+        # 예문 확대
+        await go(pg, '#/search?q=試驗', '.srow')
+        t = await pg.inner_text('[data-res]')
+        n_ex = await pg.evaluate('async () => Object.keys(await (await import("./js/data.js")).examples()).length')
+        rec('T23', '자체 작성 예문 확대', n_ex >= 250 and '예문:' in t, f'예문 {n_ex}개')
+        allerr += errs; await ctx.close()
+
         errs_f = [e for e in allerr if 'favicon' not in e and 'ERR_TUNNEL_CONNECTION_FAILED' not in e and 'ERR_INTERNET_DISCONNECTED' not in e]
         rec('T18', 'console error / page error 없음', not errs_f, '; '.join(errs_f[:5]))
         await br.close()

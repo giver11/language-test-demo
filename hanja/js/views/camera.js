@@ -4,7 +4,7 @@ import * as D from '../data.js';
 import { esc, isHanzi, toast } from '../ui.js';
 import { openHanjaDetail } from './hanja.js';
 
-const TESS = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+const TESS = ['https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js', 'https://unpkg.com/tesseract.js@5.1.1/dist/tesseract.min.js'];
 function loadScript(src) {
   return new Promise((res, rej) => {
     if (window.Tesseract) return res();
@@ -49,7 +49,9 @@ export default async function (view, { ctx }) {
       const cv = await downscale(file);
       cv.style.cssText = 'max-width:100%;border-radius:10px'; const pv = view.querySelector('[data-prev]'); pv.innerHTML = ''; pv.appendChild(cv);
       st.textContent = '인식 엔진 준비 중…';
-      await loadScript(TESS);
+      let loaded = false;
+      for (const u of TESS) { try { await loadScript(u); loaded = true; break; } catch (er) { /* 다음 CDN 시도 */ } }
+      if (!loaded) throw new Error('인식 엔진을 불러오지 못했어요(인터넷 연결 확인). 아래에 한자를 직접 입력해 찾을 수 있어요.');
       const worker = await window.Tesseract.createWorker('chi_tra', 1, { logger: (m) => { if (m.status) st.textContent = `${m.status} ${m.progress ? Math.round(m.progress * 100) + '%' : ''}`; } });
       const r = await worker.recognize(cv);
       await worker.terminate();

@@ -38,6 +38,7 @@ export default async function (view, { params }) {
   // ---------------- 반·학생
   if (tab === 'class') {
     view.innerHTML = head + `
+      <div class="btns" style="margin:6px 0"><button class="btn sm" data-texp type="button">선생님 자료 내보내기</button><label class="btn sm">가져오기(다른 기기)<input type="file" accept="application/json,.json" data-timp hidden></label></div>
       <div class="card"><h3 class="mt0">새 반 만들기</h3><form class="row" data-newc onsubmit="return false"><input data-cname maxlength="20" placeholder="예: 3학년 2반 한자반" aria-label="반 이름" style="flex:1"><button class="btn primary" type="submit">추가</button></form></div>
       ${cls ? `<div class="card"><div class="spread"><h3 class="mt0" style="margin:0">${esc(cls.name)} 학생 (${cls.students.length})</h3><button class="btn sm" data-delc type="button">반 삭제</button></div>
         <form class="row" data-news onsubmit="return false" style="margin-top:8px"><input data-sname maxlength="12" placeholder="번호 또는 별명 (예: 7번)" aria-label="학생 번호 또는 별명" style="flex:1"><button class="btn primary" type="submit">학생 추가</button></form>
@@ -46,6 +47,25 @@ export default async function (view, { params }) {
           return `<tr><td>${esc(s.nick)}</td><td>${rs.length} / ${cls.assigns.length}</td><td>${avg == null ? '-' : avg + '%'}</td><td><button class="btn sm" data-dels="${s.id}" type="button">삭제</button></td></tr>`; }).join('') || '<tr><td colspan="4" class="small">학생을 추가하세요</td></tr>'}
         </tbody></table></div></div>` : '<div class="empty">먼저 반을 만드세요.</div>'}`;
     wire();
+    view.querySelector('[data-texp]').onclick = () => {
+      const blob = new Blob([JSON.stringify({ kind: 'hanjaPass.teacher', v: 1, ...T })], { type: 'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `hanjapass-teacher-${new Date().toISOString().slice(0, 10)}.json`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    };
+    // 가져오기: 같은 반(id)은 학생·과제·결과를 합치고, 새 반은 추가 (기존 자료 삭제 없음)
+    view.querySelector('[data-timp]').onchange = async (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      let o; try { o = JSON.parse(await f.text()); } catch (er) { toast('JSON 파일이 아니에요'); return; }
+      if (!o || o.kind !== 'hanjaPass.teacher' || !Array.isArray(o.classes)) { toast('선생님 자료 파일이 아니에요'); return; }
+      let added = 0;
+      for (const c of o.classes) {
+        const cur = T.classes.find((x) => x.id === c.id);
+        if (!cur) { T.classes.push(c); added++; continue; }
+        for (const st of c.students || []) if (!cur.students.find((x) => x.id === st.id)) cur.students.push(st);
+        for (const a of c.assigns || []) if (!cur.assigns.find((x) => x.id === a.id)) cur.assigns.push(a);
+        for (const [sid, r] of Object.entries(c.results || {})) cur.results[sid] = { ...(r || {}), ...(cur.results[sid] || {}) };
+      }
+      save(T); toast(`가져왔어요 (새 반 ${added}개, 기존 반은 합침)`); nav(`#/teacher?tab=class&r=${uid()}`);
+    };
     view.querySelector('[data-newc]').onsubmit = (ev) => { ev.preventDefault();
       const n = view.querySelector('[data-cname]').value.trim(); if (!n) return;
       const c = { id: uid(), name: n, students: [], assigns: [], results: {} }; T.classes.push(c); save(T); nav(`#/teacher?tab=class&c=${c.id}&r=${uid()}`);
