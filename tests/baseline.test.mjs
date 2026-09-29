@@ -14,7 +14,7 @@ for (const app of ['topik', 'ielts', 'hsk']) {
 
 const ielts = read('v2/ielts/index.html');
 for (const track of ['academic-listening','academic-reading','academic-writing','academic-speaking','general-listening','general-reading','general-writing','general-speaking']) assert.ok(ielts.includes(`"${track}"`));
-assert.ok(ielts.includes('Academic과 General Training을 분리'));
+assert.ok(ielts.includes('separate Academic and General Training tracks'));
 
 const hsk = read('v2/hsk/index.html');
 assert.ok(hsk.includes('"lang":"zh-CN"'));
@@ -26,8 +26,8 @@ for (const app of ['topik','hsk']) assert.ok(schedule[app].events.length > 0);
 console.log('baseline tests passed');
 
 const shell = read('v2/shell.js');
-assert.ok(shell.includes('runtime-config.js?v=224'));
-assert.ok(shell.includes('patch-216.js?v=224'));
+assert.ok(shell.includes('runtime-config.js?v=225'));
+assert.ok(shell.includes('patch-216.js?v=225'));
 const patch = read('v2/patch-216.js');
 assert.ok(patch.includes('AI_GATEWAY_NOT_CONFIGURED'));
 assert.ok(patch.includes('conversation-records'));
@@ -56,3 +56,9 @@ assert.ok(tts.includes('getBestVoice') && tts.includes('voiceschanged'));
 assert.ok(shell.includes('tts.js?v='));
 for (const file of ['v2/core.js', 'v2/shell.js', 'v2/patch-216.js', 'v2/topik/index.html', 'v2/hsk/index.html', 'v2/ielts/index.html'])
   assert.doesNotMatch(read(file), /data-voice|word-gender|voiceHints|pickVoice\(|남성|여성/, file);
+
+// No on-screen TTS diagnostics; IELTS English UI layer is present and IELTS-only.
+assert.doesNotMatch(read('v2/tts.js'), /TTS 진단|펼치기|접기|ttsdebug|innerHTML/);
+const i18n = read('v2/i18n-ielts.js');
+new vm.Script(i18n);
+assert.ok(i18n.includes("CONFIG.id !== 'ielts'") && shell.includes("CONFIG.id==='ielts'"));

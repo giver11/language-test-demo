@@ -1,7 +1,7 @@
 /* ScoreStep V2 shared text-to-speech (browser Web Speech API only).
    IELTS en-US · TOPIK ko-KR · HSK zh-CN. One voice per language, chosen automatically.
    No external/unofficial TTS URLs, no paid TTS APIs, no silent autoplay.
-   Diagnostics: open any app with ?ttsdebug=1 to see engine/voice/event checks on the device. */
+   Developer diagnostics are console-only: run TTS.report() in DevTools. Nothing is shown on screen. */
 (function(){
   'use strict';
   var synth = ('speechSynthesis' in window) ? window.speechSynthesis : null;
@@ -14,8 +14,7 @@
   function log(kind, msg){
     var line = new Date().toISOString().slice(11, 23) + ' ' + kind + ' ' + msg;
     diag.events.push(line); if (diag.events.length > 60) diag.events.shift();
-    if (kind === 'ERROR') console.error('[TTS]', msg); else console.log('[TTS]', kind, msg);
-    renderDebug();
+    if (kind === 'ERROR') console.error('[TTS]', msg); else if (console.debug) console.debug('[TTS]', kind, msg);
   }
   function emit(type, detail){ listeners.forEach(function(f){ try { f(type, detail || {}); } catch(e) { console.error('[TTS] listener', e); } }); }
 
@@ -99,7 +98,7 @@
   }, { once: true, capture: true });
   window.addEventListener('pagehide', stop);
 
-  /* ---------- on-device diagnostics (?ttsdebug=1) ---------- */
+  /* ---------- developer diagnostics: console only (TTS.report()) ---------- */
   function report(){
     loadVoices();
     var pick = function(l){ var v = findVoice(l); return v ? v.name + ' (' + v.lang + ')' : '없음 → 브라우저 기본'; };
@@ -117,27 +116,6 @@
       events: diag.events.slice(-25)
     };
   }
-  var debugOn = /[?&]ttsdebug=1/.test(location.search), debugBox = null, debugMin = false;
-  function renderDebug(){
-    if (!debugOn || !document.body) return;
-    if (!debugBox) {
-      debugBox = document.createElement('div');
-      debugBox.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;max-height:34vh;overflow:auto;z-index:99;background:#0b1530;color:#e6edff;font:12px/1.45 monospace;padding:10px;border-radius:12px;box-shadow:0 8px 30px #0008';
-      document.body.appendChild(debugBox);
-      debugBox.addEventListener('click', function(e){
-        if (e.target.closest && e.target.closest('[data-tts-min]')) { debugMin = !debugMin; renderDebug(); return; }
-        var b = e.target.closest && e.target.closest('[data-tts-test]'); if (!b) return;
-        speak({ 'en-US': 'This is an English voice test.', 'ko-KR': '한국어 음성 테스트입니다.', 'zh-CN': '这是中文语音测试。' }[b.dataset.ttsTest], { lang: b.dataset.ttsTest });
-      });
-    }
-    var r = report(), esc = function(s){ return String(s).replace(/[&<>]/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); };
-    var last = r.events[r.events.length - 1] || '';
-    if (debugMin) { debugBox.innerHTML = '<button data-tts-min style="float:right;border:0;border-radius:8px;padding:4px 8px">펼치기</button><b>TTS</b> voices ' + r.voices + ' · ' + esc(last.slice(0, 60)); return; }
-    debugBox.innerHTML = '<button data-tts-min style="float:right;border:0;border-radius:8px;padding:4px 8px">접기</button><b>TTS 진단</b> ' + ['en-US', 'ko-KR', 'zh-CN'].map(function(l){ return '<button data-tts-test="' + l + '" style="margin:2px;padding:6px 8px;border-radius:8px;border:0">▶ ' + l + '</button>'; }).join('') +
-      '<pre style="white-space:pre-wrap;margin:6px 0 0">' + esc(Object.keys(r).filter(function(k){ return k !== 'events'; }).map(function(k){ return k + ': ' + r[k]; }).join('\n')) + '\n--- events ---\n' + esc(r.events.join('\n')) + '</pre>';
-  }
-  if (debugOn) { document.addEventListener('DOMContentLoaded', renderDebug); setTimeout(renderDebug, 500); setInterval(renderDebug, 2000); }
-
   window.TTS = {
     speak: speak,
     stop: stop,
