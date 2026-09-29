@@ -376,6 +376,11 @@
     }
     q('#aiCoachBtn').onclick = function () { askCoach(x, picked, cat); };
   }
+  /* 모델이 가끔 붙이는 Markdown 흔적(``` 코드 울타리 · **굵게** · # 제목)을 지워 화면·음성에 기호가 나오지 않게 한다 */
+  function cleanReply(t) {
+    return String(t || '').replace(/```[a-z]*\s*/gi, '').replace(/\*\*([^*]+)\*\*/g, '$1').replace(/^\s{0,3}#{1,6}\s+/gm, '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  }
+  window.ScoreStepCleanReply = cleanReply;
   function aiEndpoint() { return String((window.LANGUAGE_APP_RUNTIME || {}).aiEndpoint || C.aiEndpoint || '').replace(/\/$/, ''); }
   var LANG = APP === 'topik' ? 'ko' : APP === 'hsk' ? 'zh' : 'en', EXAM = APP === 'topik' ? 'TOPIK' : APP === 'hsk' ? 'HSK' : 'IELTS';
   var OFFLINE = T('인터넷 연결이 필요한 기능입니다.', 'This feature needs an internet connection.');
@@ -392,7 +397,7 @@
         .then(function (res) {
           if (res.status === 429) { var e = new Error('LIMIT'); e.noRetry = true; throw e; }
           if (!res.ok) throw new Error('HTTP_' + res.status);
-          return res.text().then(function (t) { var j; try { j = JSON.parse(t); } catch (e) { throw new Error('BAD_JSON'); } if (!j || typeof j.reply !== 'string' || !j.reply.trim()) throw new Error('EMPTY'); return j.reply; });
+          return res.text().then(function (t) { var j; try { j = JSON.parse(t); } catch (e) { throw new Error('BAD_JSON'); } if (!j || typeof j.reply !== 'string' || !cleanReply(j.reply)) throw new Error('EMPTY'); return cleanReply(j.reply); });
         })
         .catch(function (err) {
           var e = err && err.name === 'AbortError' ? new Error('TIMEOUT') : err && err.message === 'Failed to fetch' ? new Error('NETWORK_OR_CORS') : err;
@@ -712,8 +717,11 @@
       var m = String(err && err.message || err);
       if (/429|NOT_CONFIGURED/.test(m) || !navigator.onLine) throw err;
       return new Promise(function (r) { setTimeout(r, 900); }).then(function () { return baseReq(userText); });
-    });
+    }).then(function (data) { if (data && typeof data.reply === 'string') data.reply = cleanReply(data.reply); return data; });
   };
+  /* 저장된 대화(이전 응답 포함)도 화면에 표시할 때 Markdown 흔적을 지운다 */
+  var baseConvBody = convBody;
+  convBody = function (x) { return baseConvBody(x && x.role !== 'user' ? Object.assign({}, x, { text: cleanReply(x.text) }) : x); };
   startConversationMic = function () {
     if (convRecognizing) return;
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;

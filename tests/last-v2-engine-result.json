@@ -1,6 +1,6 @@
 {
  "base": "http://localhost:8765/v2/",
- "at": "2026-09-30T08:40:35.004625",
+ "at": "2026-09-30T08:54:46.244510",
  "results": [
   {
    "id": "topik-1",
@@ -18,7 +18,7 @@
    "id": "topik-B1",
    "name": "공통 학습 기록 {id,exam,level,category,skill,correct,wrong,lastReviewed,nextReview,mastery,responseTime}",
    "ok": true,
-   "detail": "{\"exam\": \"topik\", \"level\": \"1\", \"skill\": \"Vocabulary\", \"correct\": 1, \"wrong\": 0, \"mastery\": 64, \"responseTime\": 1818}"
+   "detail": "{\"exam\": \"topik\", \"level\": \"1\", \"skill\": \"Vocabulary\", \"correct\": 1, \"wrong\": 0, \"mastery\": 64, \"responseTime\": 1800}"
   },
   {
    "id": "topik-TTS",
@@ -30,7 +30,7 @@
    "id": "topik-B6a",
    "name": "오답 → 정답·왜 틀렸는지·핵심 개념·비슷한 예·새 연습문제 순서 피드백",
    "ok": true,
-   "detail": "✗ 오답 · 스마트 복습에 추가했어요  정답 학교 (내 답: 가족) 왜 틀렸는지 단어의 정확한 뜻이나 쓰임을 헷갈렸어요. 핵심 개념 어휘는 뜻만 외우지 말고 함께 쓰이는 말(연어)과 예문으로 익히세요. 비슷한 예 ["
+   "detail": "✗ 오답 · 스마트 복습에 추가했어요  정답 비싸다 (내 답: 작다) 왜 틀렸는지 단어의 정확한 뜻이나 쓰임을 헷갈렸어요. 핵심 개념 어휘는 뜻만 외우지 말고 함께 쓰이는 말(연어)과 예문으로 익히세요. 비슷한 예 "
   },
   {
    "id": "topik-B6b",
@@ -54,7 +54,7 @@
    "id": "topik-L",
    "name": "Listening: 문제 음성 재생",
    "ok": true,
-   "detail": "1. ‘school’에 해당하는 단어는?"
+   "detail": "1. [어휘] ‘싸다’의 반대말은?"
   },
   {
    "id": "topik-B9",
@@ -126,13 +126,13 @@
    "id": "ielts-B10",
    "name": "Academic / General Training 분리 (Reading/Writing 콘텐츠)",
    "ok": true,
-   "detail": "GT 샘플: 1. [Listening] You hear: “Your appointment is on t / AC 샘플: 1. You hear: “The seminar will now begin at half p"
+   "detail": "GT 샘플: 1. A notice says: “Refunds are available within 14 / AC 샘플: 1. You hear: “The seminar will now begin at half p"
   },
   {
    "id": "ielts-B1",
    "name": "공통 학습 기록 {id,exam,level,category,skill,correct,wrong,lastReviewed,nextReview,mastery,responseTime}",
    "ok": true,
-   "detail": "{\"exam\": \"ielts\", \"level\": \"academic-listening\", \"skill\": \"Vocabulary\", \"correct\": 1, \"wrong\": 0, \"mastery\": 64, \"responseTime\": 1783}"
+   "detail": "{\"exam\": \"ielts\", \"level\": \"academic-listening\", \"skill\": \"Vocabulary\", \"correct\": 1, \"wrong\": 0, \"mastery\": 64, \"responseTime\": 1799}"
   },
   {
    "id": "ielts-TTS",
@@ -144,7 +144,7 @@
    "id": "ielts-B6a",
    "name": "오답 → 정답·왜 틀렸는지·핵심 개념·비슷한 예·새 연습문제 순서 피드백",
    "ok": true,
-   "detail": "✗ Incorrect · added to Smart Review  Answer fell slightly (your answer: plummeted) Why it was wrong Re-check what this q"
+   "detail": "✗ Incorrect · added to Smart Review  Answer 9:30 (your answer: 9:00) Why it was wrong A key detail (number, time, place "
   },
   {
    "id": "ielts-B6b",
@@ -156,19 +156,19 @@
    "id": "ielts-B4",
    "name": "Mistake DNA: 오답 원인 자동 분류 저장",
    "ok": true,
-   "detail": "['Vocabulary', 'Question type']"
+   "detail": "['Vocabulary', 'Listening detail']"
   },
   {
    "id": "ielts-B5",
    "name": "Smart Review (1·3·7·14·30 · 정답률·응답시간 반영) → 복습 시작 시 복습 문제 출제",
    "ok": true,
-   "detail": "Writing\nDue for review\nInterval 1d"
+   "detail": "Listening\nDue for review\nInterval 1d"
   },
   {
    "id": "ielts-L",
    "name": "Listening: 문제 음성 재생",
    "ok": true,
-   "detail": "1. [Academic Writing Task 1] Which phrase best describes a s"
+   "detail": "1. You hear: “The seminar will now begin at half past nine r"
   },
   {
    "id": "ielts-B9",
@@ -240,7 +240,7 @@
    "id": "hsk-B1",
    "name": "공통 학습 기록 {id,exam,level,category,skill,correct,wrong,lastReviewed,nextReview,mastery,responseTime}",
    "ok": true,
-   "detail": "{\"exam\": \"hsk\", \"level\": \"1\", \"skill\": \"Vocabulary\", \"correct\": 1, \"wrong\": 0, \"mastery\": 64, \"responseTime\": 1916}"
+   "detail": "{\"exam\": \"hsk\", \"level\": \"1\", \"skill\": \"Vocabulary\", \"correct\": 1, \"wrong\": 0, \"mastery\": 64, \"responseTime\": 1933}"
   },
   {
    "id": "hsk-TTS",
@@ -252,7 +252,7 @@
    "id": "hsk-B6a",
    "name": "오답 → 정답·왜 틀렸는지·핵심 개념·비슷한 예·새 연습문제 순서 피드백",
    "ok": true,
-   "detail": "✗ 오답 · 스마트 복습에 추가했어요  정답 五块 (내 답: 十块) 왜 틀렸는지 들은 내용의 세부 정보(숫자·시간·장소·정정된 정보)를 놓쳤어요. 핵심 개념 듣기는 시간·숫자·장소와 “虽然…但是”, “因为…所以” 같"
+   "detail": "✗ 오답 · 스마트 복습에 추가했어요  정답 朋友 (내 답: 学校) 왜 틀렸는지 단어의 정확한 뜻이나 쓰임을 헷갈렸어요. 핵심 개념 단어는 한자·병음·뜻을 함께 기억하고 예문으로 쓰임을 확인하세요. 비슷한 예 [词汇"
   },
   {
    "id": "hsk-B6b",
@@ -264,19 +264,19 @@
    "id": "hsk-B4",
    "name": "Mistake DNA: 오답 원인 자동 분류 저장",
    "ok": true,
-   "detail": "['Vocabulary', 'Listening detail']"
+   "detail": "['Vocabulary', 'Vocabulary']"
   },
   {
    "id": "hsk-B5",
    "name": "Smart Review (1·3·7·14·30 · 정답률·응답시간 반영) → 복습 시작 시 복습 문제 출제",
    "ok": true,
-   "detail": "어휘 Vocabulary\n복습 시기\n복습 간격 1.2일"
+   "detail": "어휘 Vocabulary\n복습 시기\n복습 간격 1일"
   },
   {
    "id": "hsk-L",
    "name": "Listening: 문제 음성 재생",
    "ok": true,
-   "detail": "2. [词汇] ‘学生’의 뜻은?"
+   "detail": "3. [听力] 听到：“我明天去北京。” 他什么时候去北京？"
   },
   {
    "id": "hsk-B9",
@@ -312,7 +312,7 @@
    "id": "hsk-R",
    "name": "새로고침 후 학습 기록 유지 (engine · 기존 state)",
    "ok": true,
-   "detail": "items 6, mistakes 3, xp 41"
+   "detail": "items 6, mistakes 5, xp 31"
   },
   {
    "id": "hsk-M",

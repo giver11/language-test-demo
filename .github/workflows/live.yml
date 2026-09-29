@@ -48,7 +48,7 @@ jobs:
       - name: Live smoke test (실제 URL · CORS · 모바일 · AI)
         env:
           RUN_AI: ${{ steps.ai.outputs.run }}
-        run: python tests/live_smoke.py https://giver11.github.io/language-test-demo/
+        run: bash tests/run_annotated.sh python tests/live_smoke.py https://giver11.github.io/language-test-demo/
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4

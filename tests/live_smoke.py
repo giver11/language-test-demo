@@ -21,7 +21,9 @@ def rec(group, tid, name, ok, detail=''):
     print(('PASS' if ok else 'FAIL'), tid, name, '-', str(detail)[:300], flush=True)
 
 def http(url, method='GET', headers=None, data=None):
-    req = urllib.request.Request(url, method=method, headers=headers or {}, data=data)
+    h = {'User-Agent': 'Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Mobile Safari/537.36 ScoreStep-live-check', 'Accept': 'application/json, */*'}
+    h.update(headers or {})
+    req = urllib.request.Request(url, method=method, headers=h, data=data)
     try:
         with urllib.request.urlopen(req, timeout=40) as r: return r.status, dict(r.headers), r.read()
     except urllib.error.HTTPError as e: return e.code, dict(e.headers), e.read()
@@ -150,7 +152,7 @@ async def main():
                     items = await pg.locator('#conversationLog .review-item').all_inner_texts()
                     replies.append(items[-1] if len(items) >= n0 + 2 else '(응답 없음) ' + await pg.inner_text('#conversationStatus'))
                     await pg.wait_for_timeout(600)
-                ok_lang = all(r.startswith('AI') and has(r, SCRIPT[app]) for r in replies)
+                ok_lang = all(r.startswith('AI') and has(r, SCRIPT[app]) and '```' not in r and '**' not in r for r in replies)
                 rec(app, f'{app}-AI3', f'실제 Workers AI 대화 3턴 ({SCRIPT[app]} 응답 · HTTP {ai_status})', len(replies) == 3 and ok_lang and all(s == 200 for s in ai_status) and len(ai_status) >= 3, ' | '.join(r.replace('\n', ' ')[3:70] for r in replies))
                 fin_enabled = not await pg.is_disabled('#convFinish')
                 if fin_enabled:

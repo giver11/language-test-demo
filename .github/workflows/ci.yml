@@ -39,16 +39,16 @@ jobs:
           sleep 2
           curl -sf http://localhost:8765/hanja/ > /dev/null
       - name: Hanja E2E (모바일 · 기존 기능)
-        run: python hanja/tests/e2e.py http://localhost:8765/hanja/
+        run: bash tests/run_annotated.sh python hanja/tests/e2e.py http://localhost:8765/hanja/
       - name: Hanja v2 features E2E
         if: success() || failure()
-        run: python hanja/tests/v2.py http://localhost:8765/hanja/
+        run: bash tests/run_annotated.sh python hanja/tests/v2.py http://localhost:8765/hanja/
       - name: Hanja upgrade E2E (오늘의 학습 · DNA · 3초 한자 · migration)
         if: success() || failure()
-        run: python hanja/tests/upgrade.py http://localhost:8765/hanja/
+        run: bash tests/run_annotated.sh python hanja/tests/upgrade.py http://localhost:8765/hanja/
       - name: V2 engine E2E (TOPIK · IELTS · HSK)
         if: success() || failure()
-        run: python tests/v2_engine_e2e.py http://localhost:8765/v2/
+        run: bash tests/run_annotated.sh python tests/v2_engine_e2e.py http://localhost:8765/v2/
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
