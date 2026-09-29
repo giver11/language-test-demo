@@ -1,0 +1,253 @@
+{
+ "base": "http://localhost:8765/",
+ "at": "2026-09-30T08:39:07.748906",
+ "ai": false,
+ "results": [
+  {
+   "id": "D1",
+   "name": "한자 앱 배포 버전 = 저장소",
+   "ok": true,
+   "detail": "live 2026.09.30-1 / repo 2026.09.30-1"
+  },
+  {
+   "id": "D2",
+   "name": "배포 파일 내용 = 저장소 (v2 엔진·TTS·한자 저장소)",
+   "ok": true,
+   "detail": "6개 파일 일치"
+  },
+  {
+   "id": "C1",
+   "name": "CORS preflight (Origin https://giver11.github.io)",
+   "ok": false,
+   "detail": "0 ACAO=None"
+  },
+  {
+   "id": "C2",
+   "name": "다른 origin 은 허용되지 않음",
+   "ok": false,
+   "detail": "ACAO=None"
+  },
+  {
+   "id": "C3",
+   "name": "AI 게이트웨이 상태 (Workers AI 바인딩)",
+   "ok": false,
+   "detail": "0 None None"
+  },
+  {
+   "id": "C4",
+   "name": "잘못된 요청 → 400 JSON 오류",
+   "ok": false,
+   "detail": "0"
+  },
+  {
+   "id": "P:/",
+   "name": "/ 로드 · 404 없음 · JS 오류 없음 · 가로 넘침 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "P:hanja/",
+   "name": "/hanja/ 로드 · 404 없음 · JS 오류 없음 · 가로 넘침 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "P:v2/",
+   "name": "/v2/ 로드 · 404 없음 · JS 오류 없음 · 가로 넘침 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "P:v2/topik/",
+   "name": "/v2/topik/ 로드 · 404 없음 · JS 오류 없음 · 가로 넘침 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "P:v2/ielts/",
+   "name": "/v2/ielts/ 로드 · 404 없음 · JS 오류 없음 · 가로 넘침 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "P:v2/hsk/",
+   "name": "/v2/hsk/ 로드 · 404 없음 · JS 오류 없음 · 가로 넘침 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "P:v2/worldcook/",
+   "name": "/v2/worldcook/ 로드 · 404 없음 · JS 오류 없음 · 가로 넘침 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "P:v2/cookora-in/",
+   "name": "/v2/cookora-in/ 로드 · 404 없음 · JS 오류 없음 · 가로 넘침 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "P:v2/cookora-out/",
+   "name": "/v2/cookora-out/ 로드 · 404 없음 · JS 오류 없음 · 가로 넘침 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "P:blade-round/",
+   "name": "/blade-round/ 로드 · 404 없음 · JS 오류 없음 · 가로 넘침 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "P:topik/",
+   "name": "/topik/ 로드 · 404 없음 · JS 오류 없음 · 가로 넘침 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "P:ielts/",
+   "name": "/ielts/ 로드 · 404 없음 · JS 오류 없음 · 가로 넘침 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "P:hsk/",
+   "name": "/hsk/ 로드 · 404 없음 · JS 오류 없음 · 가로 넘침 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "H1",
+   "name": "기관·급수 선택 → 오늘의 한자 학습 카드 (한국어 출력)",
+   "ok": true,
+   "detail": "오늘의 한자 학습 0/15 오늘의 목표 8자 새 한자 · 0/8 0자 복습 5자 쓰기 · 0/5 2개 사자성어 · 0/2 0문제 오답 10분 학"
+  },
+  {
+   "id": "H2",
+   "name": "Android 뒤로가기(history.back) → 이전 화면",
+   "ok": true,
+   "detail": "/today?run=1"
+  },
+  {
+   "id": "H3",
+   "name": "새로고침 후 학습 기록 유지 (localStorage v3)",
+   "ok": true,
+   "detail": "感 기록 유지"
+  },
+  {
+   "id": "H4",
+   "name": "주요 화면(3초 한자·Mastery·주간·쓰기·사자성어·모의·카메라) JS 오류 없음 · 오프라인 SW 등록",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "topik-1",
+   "name": "TOPIK 진입 · 미션/준비도/약점 지도 · UI 언어(ko)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "topik-TTS",
+   "name": "TTS 초기화 · 단어 재생 버튼 (오류/디버그 텍스트 없음) · 학습 콘텐츠 언어",
+   "ok": true,
+   "detail": "{'ok': True, 'sup': True, 'lang': 'ko-KR'} 단어=학교 []"
+  },
+  {
+   "id": "topik-BACK",
+   "name": "Android 뒤로가기 → 이전 화면(단어)",
+   "ok": true,
+   "detail": "words"
+  },
+  {
+   "id": "topik-MIC",
+   "name": "마이크 권한 거부 → 안내 문구 (오류 화면 없음)",
+   "ok": true,
+   "detail": "마이크 권한이 차단되어 있습니다. 주소창의 자물쇠 → 마이크 → 허용으로 변경해 주세요."
+  },
+  {
+   "id": "topik-KB",
+   "name": "키보드가 올라왔을 때(화면 높이 축소) 입력창이 보임",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "topik-KEEP",
+   "name": "새로고침 후 기록 유지 · console error 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "ielts-1",
+   "name": "IELTS 진입 · 미션/준비도/약점 지도 · UI 언어(en)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "ielts-TTS",
+   "name": "TTS 초기화 · 단어 재생 버튼 (오류/디버그 텍스트 없음) · 학습 콘텐츠 언어",
+   "ok": true,
+   "detail": "{'ok': True, 'sup': True, 'lang': 'en-US'} 단어=reservation []"
+  },
+  {
+   "id": "ielts-BACK",
+   "name": "Android 뒤로가기 → 이전 화면(단어)",
+   "ok": true,
+   "detail": "words"
+  },
+  {
+   "id": "ielts-MIC",
+   "name": "마이크 권한 거부 → 안내 문구 (오류 화면 없음)",
+   "ok": true,
+   "detail": "Microphone access is blocked. Tap the lock in the address bar → Microp"
+  },
+  {
+   "id": "ielts-KB",
+   "name": "키보드가 올라왔을 때(화면 높이 축소) 입력창이 보임",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "ielts-KEEP",
+   "name": "새로고침 후 기록 유지 · console error 없음",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "hsk-1",
+   "name": "HSK 진입 · 미션/준비도/약점 지도 · UI 언어(ko)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "hsk-TTS",
+   "name": "TTS 초기화 · 단어 재생 버튼 (오류/디버그 텍스트 없음) · 학습 콘텐츠 언어",
+   "ok": true,
+   "detail": "{'ok': True, 'sup': True, 'lang': 'zh-CN'} 단어=你好\nnǐhǎo []"
+  },
+  {
+   "id": "hsk-BACK",
+   "name": "Android 뒤로가기 → 이전 화면(단어)",
+   "ok": true,
+   "detail": "words"
+  },
+  {
+   "id": "hsk-MIC",
+   "name": "마이크 권한 거부 → 안내 문구 (오류 화면 없음)",
+   "ok": true,
+   "detail": "마이크 권한이 차단되어 있습니다. 주소창의 자물쇠 → 마이크 → 허용으로 변경해 주세요."
+  },
+  {
+   "id": "hsk-KB",
+   "name": "키보드가 올라왔을 때(화면 높이 축소) 입력창이 보임",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "id": "hsk-KEEP",
+   "name": "새로고침 후 기록 유지 · console error 없음",
+   "ok": true,
+   "detail": ""
+  }
+ ]
+}

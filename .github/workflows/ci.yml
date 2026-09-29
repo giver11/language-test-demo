@@ -1,0 +1,60 @@
+# 자동 테스트 (push · PR · 수동 실행). 배포는 기존 GitHub Pages "Deploy from branch(main)" 방식을 그대로 쓴다
+# (이 저장소는 빌드 도구가 없는 정적 사이트 — 별도 build 단계 없음, 중복 배포 workflow 만들지 않음).
+name: CI tests
+on:
+  push:
+    branches: [main, 'work/**']
+  pull_request:
+  workflow_dispatch:
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Playwright (Chromium)
+        run: |
+          pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Static check (누락 파일 · import · asset 경로 · Pages base path · 문법 · API/CORS 설정 · API KEY)
+        run: node tests/static_check.mjs
+      - name: Unit tests (baseline · 필기 판정)
+        run: |
+          node tests/baseline.test.mjs
+          node hanja/tests/judge.test.mjs
+      - name: Start local static server
+        run: |
+          python -m http.server 8765 > /tmp/server.log 2>&1 &
+          sleep 2
+          curl -sf http://localhost:8765/hanja/ > /dev/null
+      - name: Hanja E2E (모바일 · 기존 기능)
+        run: python hanja/tests/e2e.py http://localhost:8765/hanja/
+      - name: Hanja v2 features E2E
+        if: success() || failure()
+        run: python hanja/tests/v2.py http://localhost:8765/hanja/
+      - name: Hanja upgrade E2E (오늘의 학습 · DNA · 3초 한자 · migration)
+        if: success() || failure()
+        run: python hanja/tests/upgrade.py http://localhost:8765/hanja/
+      - name: V2 engine E2E (TOPIK · IELTS · HSK)
+        if: success() || failure()
+        run: python tests/v2_engine_e2e.py http://localhost:8765/v2/
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            hanja/tests/last-*.json
+            tests/last-*.json
+          if-no-files-found: ignore

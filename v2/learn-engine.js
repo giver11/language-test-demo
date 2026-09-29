@@ -789,9 +789,31 @@
   window.addEventListener('offline', netNotice);
   window.addEventListener('online', function () { var s = q('#conversationStatus'); if (s && s.textContent === OFFLINE) s.textContent = ''; });
 
+  /* ================= Android: 뒤로가기 · 키보드 ================= */
+  /* V2 화면 전환은 기록(history)을 남기지 않아 Android 뒤로가기 버튼이 앱을 바로 닫았다 →
+     메뉴 이동마다 #화면 을 기록하고, 뒤로가기(popstate) 시 이전 화면으로 돌아간다. */
+  var fromPop = false;
+  document.addEventListener('click', function (e) {
+    var nb = e.target.closest && e.target.closest('.nav[data-page]'); if (!nb || fromPop) return;
+    var pg = nb.dataset.page;
+    if (location.hash !== '#' + pg) history.pushState({ ssPage: pg }, '', '#' + pg);
+  });
+  window.addEventListener('popstate', function () {
+    var pg = (location.hash || '#home').slice(1) || 'home', nb = q('.nav[data-page="' + pg + '"]');
+    if (!nb || nb.classList.contains('active')) return;
+    fromPop = true; try { nb.click(); } finally { fromPop = false; }
+  });
+  /* 모바일 키보드가 올라오면(visualViewport 축소) 입력 중인 칸이 가려지지 않게 화면 안으로 스크롤 */
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', function () {
+    var a = document.activeElement;
+    if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) setTimeout(function () { try { a.scrollIntoView({ block: 'center' }); } catch (e) {} }, 60);
+  });
+
   /* ================= 시작 ================= */
   function boot() {
     try { labelLevels(); installShadowing(); engineHome(); engineProgress(); } catch (e) { console.error('[engine] boot', e); }
+    var h = (location.hash || '').slice(1), hb = h && q('.nav[data-page="' + h + '"]');
+    if (hb && !hb.classList.contains('active')) { fromPop = true; try { hb.click(); } finally { fromPop = false; } }
     var cur = q('.nav.active'); if (cur && cur.dataset.page === 'test') showQuestion();
   }
   if (q('#app') && !q('#app').classList.contains('hide')) setTimeout(boot, 0);

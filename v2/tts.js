@@ -14,7 +14,7 @@
   function log(kind, msg){
     var line = new Date().toISOString().slice(11, 23) + ' ' + kind + ' ' + msg;
     diag.events.push(line); if (diag.events.length > 60) diag.events.shift();
-    if (kind === 'ERROR') console.error('[TTS]', msg); else if (console.debug) console.debug('[TTS]', kind, msg);
+    if (kind === 'ERROR') console.error('[TTS]', msg); else if (kind === 'WARN') console.warn('[TTS]', msg); else if (console.debug) console.debug('[TTS]', kind, msg);
   }
   function emit(type, detail){ listeners.forEach(function(f){ try { f(type, detail || {}); } catch(e) { console.error('[TTS] listener', e); } }); }
 
@@ -106,7 +106,7 @@
       document.body && document.body.classList.remove('tts-speaking');
       if (currentUtterance === utterance) currentUtterance = null;
       if (err === 'interrupted' || err === 'canceled') { log('EVENT', 'utterance ' + err + ' (replaced by a newer one)'); return; }
-      log('ERROR', 'onerror ' + err + ' · ' + lang);
+      log('WARN', 'onerror ' + err + ' · ' + lang);   /* 기기 음성 엔진 문제(코드 오류 아님) → 화면에는 안내 문구 */
       emit('error', { error: err, lang: lang });
     };
     /* Android Chrome can ignore speak() issued in the same tick as cancel(). */

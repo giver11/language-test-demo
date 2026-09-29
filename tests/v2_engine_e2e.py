@@ -89,6 +89,7 @@ async def enter(pg, app, goal, date):
     if await pg.is_visible('#profile'):
         await pg.fill('#goal', goal); await pg.fill('#date', date); await pg.fill('#minutes', '10'); await pg.click('#profileForm button')
     await pg.wait_for_selector('#engineHome .mission', timeout=8000)
+    await pg.wait_for_function('g => (document.querySelector("#engineHome") || {}).textContent.includes(g)', arg=goal, timeout=8000)
 
 async def nav(pg, page):
     await pg.click(f'.nav[data-page="{page}"]'); await pg.wait_for_timeout(250)
