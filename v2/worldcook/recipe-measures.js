@@ -1,5 +1,6 @@
 /* Exact one-serving measures used by all WorldCook recipes. */
 window.WC_MEASURE={
+"beer":[150,"ml"],"cassava":[150,"g"],"cuttlefish":[130,"g"],"herring":[80,"g"],"mayonnaise":[1,"tbsp"],"mustard":[1,"tbsp"],"prunes":[40,"g"],"red onion":[60,"g"],"rye bread":[60,"g"],"tuna":[130,"g"],"yeast":[1,"tsp"],
 "celery":[50,"g"],"cocoa":[1,"tbsp"],"coconut":[20,"g"],"cucumber":[80,"g"],"kale":[100,"g"],"kefir":[180,"ml"],"split peas":[80,"g"],
 "apple":[100,"g"],"bok choy":[80,"g"],"breadcrumbs":[30,"g"],"butter":[1,"tbsp"],"horseradish":[1,"tbsp"],"pork":[120,"g"],"puff pastry":[100,"g"],"rabbit":[150,"g"],"red wine":[80,"ml"],"ricotta":[100,"g"],"veal":[150,"g"],"wheat noodles":[90,"g"],
 "avocado":[70,"g"],"bacon":[50,"g"],"barley":[60,"g"],"barley flour":[25,"g"],"berries":[60,"g"],"black pepper":[0.5,"tsp"],"beef broth":[250,"ml"],"capers":[1,"tbsp"],"cilantro":[15,"g"],"corn":[100,"g"],"cream":[60,"ml"],"dill":[5,"g"],"dried lime":[1,"piece"],"fenugreek":[5,"g"],"fish stock":[250,"ml"],"kidney beans":[90,"g"],"leek":[50,"g"],"oat flour":[25,"g"],"parsley":[15,"g"],"pea flour":[25,"g"],"plantain":[100,"g"],"pomegranate molasses":[1.5,"tbsp"],"rye flour":[25,"g"],"salmon":[80,"g"],"sour cream":[30,"g"],"walnut":[35,"g"],
