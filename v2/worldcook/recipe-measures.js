@@ -1,5 +1,6 @@
 /* Exact one-serving measures used by all WorldCook recipes. */
 window.WC_MEASURE={
+"sauerkraut":[120,"g"],"tofu":[100,"g"],"peanuts":[30,"g"],"turmeric":[1,"tsp"],"dried peas":[80,"g"],
 "beer":[150,"ml"],"cassava":[150,"g"],"cuttlefish":[130,"g"],"herring":[80,"g"],"mayonnaise":[1,"tbsp"],"mustard":[1,"tbsp"],"prunes":[40,"g"],"red onion":[60,"g"],"rye bread":[60,"g"],"tuna":[130,"g"],"yeast":[1,"tsp"],
 "celery":[50,"g"],"cocoa":[1,"tbsp"],"coconut":[20,"g"],"cucumber":[80,"g"],"kale":[100,"g"],"kefir":[180,"ml"],"split peas":[80,"g"],
 "apple":[100,"g"],"bok choy":[80,"g"],"breadcrumbs":[30,"g"],"butter":[1,"tbsp"],"horseradish":[1,"tbsp"],"pork":[120,"g"],"puff pastry":[100,"g"],"rabbit":[150,"g"],"red wine":[80,"ml"],"ricotta":[100,"g"],"veal":[150,"g"],"wheat noodles":[90,"g"],
