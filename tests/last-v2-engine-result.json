@@ -1,12 +1,12 @@
 {
  "base": "http://localhost:8765/v2/",
- "at": "2026-09-30T08:54:46.244510",
+ "at": "2026-10-02T15:05:53.817442",
  "results": [
   {
    "id": "topik-1",
    "name": "TOPIK 앱 진입 · D-Day/목표/준비도/오늘 학습량",
    "ok": true,
-   "detail": "['', 'D-20', '목표: TOPIK II 4급 · 2026-10-20']"
+   "detail": "['', 'D-20', '목표: TOPIK II 4급 · 2026-10-22']"
   },
   {
    "id": "topik-B2",
@@ -18,7 +18,7 @@
    "id": "topik-B1",
    "name": "공통 학습 기록 {id,exam,level,category,skill,correct,wrong,lastReviewed,nextReview,mastery,responseTime}",
    "ok": true,
-   "detail": "{\"exam\": \"topik\", \"level\": \"1\", \"skill\": \"Vocabulary\", \"correct\": 1, \"wrong\": 0, \"mastery\": 64, \"responseTime\": 1800}"
+   "detail": "{\"exam\": \"topik\", \"level\": \"1\", \"skill\": \"Vocabulary\", \"correct\": 1, \"wrong\": 0, \"mastery\": 64, \"responseTime\": 1852}"
   },
   {
    "id": "topik-TTS",
@@ -30,7 +30,7 @@
    "id": "topik-B6a",
    "name": "오답 → 정답·왜 틀렸는지·핵심 개념·비슷한 예·새 연습문제 순서 피드백",
    "ok": true,
-   "detail": "✗ 오답 · 스마트 복습에 추가했어요  정답 비싸다 (내 답: 작다) 왜 틀렸는지 단어의 정확한 뜻이나 쓰임을 헷갈렸어요. 핵심 개념 어휘는 뜻만 외우지 말고 함께 쓰이는 말(연어)과 예문으로 익히세요. 비슷한 예 "
+   "detail": "✗ 오답 · 스마트 복습에 추가했어요  정답 못 먹었어요 (내 답: 먹고 있어요) 왜 틀렸는지 문장 구조나 문법 표현의 기능을 헷갈렸어요. 핵심 개념 문법 표현은 앞뒤 문장의 관계(이유·대조·조건·목적)를 먼저 보고"
   },
   {
    "id": "topik-B6b",
@@ -42,19 +42,19 @@
    "id": "topik-B4",
    "name": "Mistake DNA: 오답 원인 자동 분류 저장",
    "ok": true,
-   "detail": "['Vocabulary', 'Vocabulary']"
+   "detail": "['Vocabulary', 'Grammar']"
   },
   {
    "id": "topik-B5",
    "name": "Smart Review (1·3·7·14·30 · 정답률·응답시간 반영) → 복습 시작 시 복습 문제 출제",
    "ok": true,
-   "detail": "어휘 Vocabulary\n복습 시기\n복습 간격 1일"
+   "detail": "어휘 Vocabulary\n복습 시기\n복습 간격 1.2일"
   },
   {
    "id": "topik-L",
    "name": "Listening: 문제 음성 재생",
    "ok": true,
-   "detail": "1. [어휘] ‘싸다’의 반대말은?"
+   "detail": "3. [어휘] ‘싸다’의 반대말은?"
   },
   {
    "id": "topik-B9",
@@ -96,7 +96,7 @@
    "id": "topik-R",
    "name": "새로고침 후 학습 기록 유지 (engine · 기존 state)",
    "ok": true,
-   "detail": "items 5, mistakes 3, xp 31"
+   "detail": "items 7, mistakes 3, xp 51"
   },
   {
    "id": "topik-M",
@@ -114,25 +114,25 @@
    "id": "ielts-1",
    "name": "IELTS 앱 진입 · D-Day/목표/준비도/오늘 학습량",
    "ok": true,
-   "detail": "['', 'D-20', 'Goal: IELTS 6.5 · 2026-10-20']"
+   "detail": "['', 'D-20', 'Goal: IELTS 6.5 · 2026-10-22']"
   },
   {
    "id": "ielts-B2",
    "name": "Daily Mission (시험·시험일·약점 기반)",
    "ok": true,
-   "detail": "[\"Current readiness 0% · Today's load 10 min · 24 items\", \"Today's 10-minute mission 0/24\", 'Vocabulary 2 min · 0/6 words', 'Listening 3 min · 0/6 questions', 'Speaking 2 min · 0/4 sentences', 'Weak Point Review · Listening 4 min · 0/8 questions']"
+   "detail": "[\"Current readiness 0% · Today's load 10 min · 24 items\", \"Today's 10-minute mission 0/24\", 'Vocabulary 2 min · 0/6 words', 'Listening 3 min · 0/6 questions', 'Speaking 2 min · 0/4 sentences', 'Weak Point Review · Writing 4 min · 0/8 questions']"
   },
   {
    "id": "ielts-B10",
    "name": "Academic / General Training 분리 (Reading/Writing 콘텐츠)",
    "ok": true,
-   "detail": "GT 샘플: 1. A notice says: “Refunds are available within 14 / AC 샘플: 1. You hear: “The seminar will now begin at half p"
+   "detail": "GT 샘플: 1. [General Reading] What does ‘Staff only beyond  / AC 샘플: 1. You hear: “The seminar will now begin at half p"
   },
   {
    "id": "ielts-B1",
    "name": "공통 학습 기록 {id,exam,level,category,skill,correct,wrong,lastReviewed,nextReview,mastery,responseTime}",
    "ok": true,
-   "detail": "{\"exam\": \"ielts\", \"level\": \"academic-listening\", \"skill\": \"Vocabulary\", \"correct\": 1, \"wrong\": 0, \"mastery\": 64, \"responseTime\": 1799}"
+   "detail": "{\"exam\": \"ielts\", \"level\": \"academic-listening\", \"skill\": \"Vocabulary\", \"correct\": 1, \"wrong\": 0, \"mastery\": 64, \"responseTime\": 1818}"
   },
   {
    "id": "ielts-TTS",
@@ -144,7 +144,7 @@
    "id": "ielts-B6a",
    "name": "오답 → 정답·왜 틀렸는지·핵심 개념·비슷한 예·새 연습문제 순서 피드백",
    "ok": true,
-   "detail": "✗ Incorrect · added to Smart Review  Answer 9:30 (your answer: 9:00) Why it was wrong A key detail (number, time, place "
+   "detail": "✗ Incorrect · added to Smart Review  Answer large in amount (your answer: very small) Why it was wrong The exact meaning"
   },
   {
    "id": "ielts-B6b",
@@ -156,19 +156,19 @@
    "id": "ielts-B4",
    "name": "Mistake DNA: 오답 원인 자동 분류 저장",
    "ok": true,
-   "detail": "['Vocabulary', 'Listening detail']"
+   "detail": "['Vocabulary', 'Vocabulary']"
   },
   {
    "id": "ielts-B5",
    "name": "Smart Review (1·3·7·14·30 · 정답률·응답시간 반영) → 복습 시작 시 복습 문제 출제",
    "ok": true,
-   "detail": "Listening\nDue for review\nInterval 1d"
+   "detail": "Vocabulary\nDue for review\nInterval 1d"
   },
   {
    "id": "ielts-L",
    "name": "Listening: 문제 음성 재생",
    "ok": true,
-   "detail": "1. You hear: “The seminar will now begin at half past nine r"
+   "detail": "1. [Vocabulary] Which is closest in meaning to ‘substantial’"
   },
   {
    "id": "ielts-B9",
@@ -222,7 +222,7 @@
    "id": "hsk-1",
    "name": "HSK 앱 진입 · D-Day/목표/준비도/오늘 학습량",
    "ok": true,
-   "detail": "['', 'D-20', '목표: HSK 4급 · 2026-10-20']"
+   "detail": "['', 'D-20', '목표: HSK 4급 · 2026-10-22']"
   },
   {
    "id": "hsk-B2",
@@ -240,7 +240,7 @@
    "id": "hsk-B1",
    "name": "공통 학습 기록 {id,exam,level,category,skill,correct,wrong,lastReviewed,nextReview,mastery,responseTime}",
    "ok": true,
-   "detail": "{\"exam\": \"hsk\", \"level\": \"1\", \"skill\": \"Vocabulary\", \"correct\": 1, \"wrong\": 0, \"mastery\": 64, \"responseTime\": 1933}"
+   "detail": "{\"exam\": \"hsk\", \"level\": \"1\", \"skill\": \"Vocabulary\", \"correct\": 1, \"wrong\": 0, \"mastery\": 64, \"responseTime\": 1997}"
   },
   {
    "id": "hsk-TTS",
@@ -252,7 +252,7 @@
    "id": "hsk-B6a",
    "name": "오답 → 정답·왜 틀렸는지·핵심 개념·비슷한 예·새 연습문제 순서 피드백",
    "ok": true,
-   "detail": "✗ 오답 · 스마트 복습에 추가했어요  정답 朋友 (내 답: 学校) 왜 틀렸는지 단어의 정확한 뜻이나 쓰임을 헷갈렸어요. 핵심 개념 단어는 한자·병음·뜻을 함께 기억하고 예문으로 쓰임을 확인하세요. 비슷한 예 [词汇"
+   "detail": "✗ 오답 · 스마트 복습에 추가했어요  정답 去 (내 답: 吃) 왜 틀렸는지 단어의 정확한 뜻이나 쓰임을 헷갈렸어요. 핵심 개념 단어는 한자·병음·뜻을 함께 기억하고 예문으로 쓰임을 확인하세요. 비슷한 예 ‘친구’에"
   },
   {
    "id": "hsk-B6b",
@@ -270,13 +270,13 @@
    "id": "hsk-B5",
    "name": "Smart Review (1·3·7·14·30 · 정답률·응답시간 반영) → 복습 시작 시 복습 문제 출제",
    "ok": true,
-   "detail": "어휘 Vocabulary\n복습 시기\n복습 간격 1일"
+   "detail": "어휘 Vocabulary\n복습 시기\n복습 간격 1.2일"
   },
   {
    "id": "hsk-L",
    "name": "Listening: 문제 음성 재생",
    "ok": true,
-   "detail": "3. [听力] 听到：“我明天去北京。” 他什么时候去北京？"
+   "detail": "2. [词汇] ‘学生’의 뜻은?"
   },
   {
    "id": "hsk-B9",
@@ -312,7 +312,7 @@
    "id": "hsk-R",
    "name": "새로고침 후 학습 기록 유지 (engine · 기존 state)",
    "ok": true,
-   "detail": "items 6, mistakes 5, xp 31"
+   "detail": "items 6, mistakes 3, xp 41"
   },
   {
    "id": "hsk-M",
@@ -352,15 +352,15 @@
   },
   {
    "id": "B9-unsupported",
-   "name": "음성 인식 미지원 → 안내문 표시 · 버튼 비활성",
+   "name": "음성 인식 미지원 → 녹음 후 서버 STT 폴백으로 발음 진단 계속 진행",
    "ok": true,
-   "detail": "이 브라우저는 음성 인식을 지원하지 않아요. 듣기와 따라 말하기 연습은 그대로 할 수 있고, 발음 비교는 Android Chrome 또는 PC "
+   "detail": "0% 일치 · 문장을 천천히 끊어 다시 말해 보세요.\n\n원문\n我学习汉语\n인식된 문장\nstt 폴백 인식 결과\n일치한 부분\n—\n다시 연습할 부분\n我学习汉语\n▶ 원문 다시 듣기\n🔊 틀린 부분 듣기\n● 다시 말하기"
   },
   {
    "id": "B13",
    "name": "D-7 이내 → 새 내용 ↓ 취약·실전 ↑ (집중 복습 단계)",
    "ok": true,
-   "detail": "['현재 시험 준비도 0% · 오늘 학습량 10분 · 27개', '단어 1분 · 0/3 단어', '듣기 2분 · 0/4 문제', '문장 2분 · 0/4 문제', '발음 2분 · 0/4 문장']"
+   "detail": "['현재 시험 준비도 0% · 오늘 학습량 10분 · 27개', '단어 1분 · 0/3 단어', '듣기 2분 · 0/4 문제', '문장 2분 · 0/4 문제', '발음 2분 · 1/4 문장']"
   },
   {
    "id": "F-offline",

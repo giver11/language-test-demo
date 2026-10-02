@@ -41,7 +41,18 @@ INSTRUMENT = r"""
       stop() {} abort() {}
     }
     window.SpeechRecognition = FakeSR; window.webkitSpeechRecognition = FakeSR;
-  } else { delete window.SpeechRecognition; delete window.webkitSpeechRecognition; }
+  } else {
+    delete window.SpeechRecognition; delete window.webkitSpeechRecognition;
+    /* Fake MediaRecorder so the server-side STT fallback path (used only when SpeechRecognition is
+       missing, e.g. iOS Safari/WKWebView) can be exercised end-to-end against a mocked /stt endpoint. */
+    class FakeMediaRecorder {
+      constructor() { this.state = 'inactive'; }
+      start() { this.state = 'recording'; setTimeout(() => { this.ondataavailable && this.ondataavailable({ data: new Blob([new Uint8Array(2000)], { type: 'audio/webm' }) }); }, 20); }
+      stop() { this.state = 'inactive'; setTimeout(() => this.onstop && this.onstop(), 10); }
+    }
+    FakeMediaRecorder.isTypeSupported = () => true;
+    window.MediaRecorder = FakeMediaRecorder;
+  }
   if (navigator.mediaDevices) navigator.mediaDevices.getUserMedia = async () => ({ getTracks: () => [{ stop() {} }] });
 })();
 """
@@ -66,6 +77,9 @@ async def setup(br, app, w=390, old_state=None, no_sr=False, route_mode='ok'):
     async def handle(route):
         req = route.request
         if req.method == 'OPTIONS': return await route.fulfill(status=204, headers={'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Allow-Methods': 'POST'})
+        if req.url.endswith('/stt'):
+            # Server-side STT fallback (used only when SpeechRecognition is unavailable, e.g. iOS/WKWebView).
+            return await route.fulfill(status=200, content_type='application/json', headers={'Access-Control-Allow-Origin': '*'}, body=json.dumps({'text': 'stt 폴백 인식 결과'}))
         body = json.loads(req.post_data or '{}'); calls.append(body)
         mode = route_mode if isinstance(route_mode, str) else route_mode(body)
         if mode == 'ok':
@@ -286,12 +300,17 @@ async def main():
             coach_calls = [c for c in calls2 if c.get('scenario') == 'coach']
             rec(f'J-AI-{mode}', f'AI 오류 {mode}: retry {expect_calls - 1}회 · fallback 문구 · 로딩 종료', len(coach_calls) == expect_calls and any(t in out for t in text), f'요청 {len(coach_calls)}회, 표시: {out[:50]}')
             await ctx2.close()
-        # 음성 인식 미지원 브라우저 → 오류 화면 대신 안내문
+        # 음성 인식 미지원 브라우저 (iOS Safari/WKWebView 등) → 녹음 기반 서버 STT 폴백으로 계속 진행
         ctx3, pg3, errs3, _ = await setup(br, 'hsk', no_sr=True)
         await enter(pg3, 'hsk', 'HSK 3급', (datetime.date.today() + datetime.timedelta(days=5)).isoformat())
         await nav(pg3, 'speaking')
         note = await pg3.inner_text('#speaking')
-        rec('B9-unsupported', '음성 인식 미지원 → 안내문 표시 · 버튼 비활성', '지원하지 않아요' in note and await pg3.is_disabled('#record') and not errs3, note.split('\n')[-1][:80])
+        await pg3.click('#record')
+        await pg3.wait_for_function("document.querySelector('#record').textContent.includes('정지')", timeout=3000)
+        await pg3.click('#record')  # 정지 → 서버 STT 인식 요청
+        await pg3.wait_for_function("document.querySelector('#speechFeedback').textContent.includes('일치') || document.querySelector('#speechFeedback').textContent.includes('들리지 않았')", timeout=5000)
+        fb = await pg3.inner_text('#speechFeedback')
+        rec('B9-unsupported', '음성 인식 미지원 → 녹음 후 서버 STT 폴백으로 발음 진단 계속 진행', '서버에서 인식' in note and not await pg3.is_disabled('#record') and 'stt 폴백 인식 결과' in fb and not errs3, fb[:120])
         home3 = await (await pg3.query_selector('#engineHome')).inner_text() if await pg3.query_selector('#engineHome') else ''
         await nav(pg3, 'home'); home3 = await pg3.inner_text('#engineHome')
         rec('B13', 'D-7 이내 → 새 내용 ↓ 취약·실전 ↑ (집중 복습 단계)', 'D-5' in home3 and '집중 복습' in home3, [l for l in home3.split('\n') if '분 ·' in l][:5])

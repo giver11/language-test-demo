@@ -22,6 +22,50 @@
   function hash(s) { var h = 5381; s = String(s); for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0; return h.toString(36); }
   function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
 
+  /* ================= Server-side speech-to-text fallback (Cloudflare Workers AI Whisper) =================
+     window.SpeechRecognition / webkitSpeechRecognition is never available on iOS (any browser engine) and is
+     inconsistent on Android WebView builds used by native-app wrappers. Where it exists it is used unchanged
+     (nothing below runs on Chrome/desktop, which is why this does not touch any currently-passing test path).
+     Where it is missing, record a short clip with MediaRecorder and transcribe it with the same free-tier
+     Cloudflare Workers AI gateway already used for AI Conversation (no new paid dependency). */
+  function sttEndpoint() { var g = (window.LANGUAGE_APP_RUNTIME || {}).aiEndpoint || C.aiEndpoint || ''; return g ? g.replace(/\/$/, '') + '/stt' : ''; }
+  function pickRecorderMime() {
+    var cands = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
+    for (var i = 0; i < cands.length; i++) if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(cands[i])) return cands[i];
+    return '';
+  }
+  function canFallbackRecord() { return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder && sttEndpoint()); }
+  /* Resolves to a recognised text string, or null if nothing usable was heard. Rejects only if the
+     microphone itself could not be started (permission denied, no device, in use elsewhere).
+     opts.onReady(stopFn) is called once recording has actually started, so the caller can let the
+     learner tap the button again to stop early instead of always waiting for maxMs. */
+  function recordAndTranscribe(opts) {
+    opts = opts || {}; var maxMs = opts.maxMs || 15000, onStatus = opts.onStatus || function () {}, onReady = opts.onReady || function () {};
+    return navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }).then(function (stream) {
+      return new Promise(function (resolve) {
+        var mime = pickRecorderMime(), rec, chunks = [], stopped = false, timer;
+        try { rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined); } catch (e) { stream.getTracks().forEach(function (t) { t.stop(); }); resolve(null); return; }
+        rec.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+        function finish() {
+          if (stopped) return; stopped = true; clearTimeout(timer);
+          stream.getTracks().forEach(function (t) { t.stop(); });
+          var blob = new Blob(chunks, { type: mime || 'audio/webm' });
+          if (blob.size < 500) { resolve(null); return; }
+          onStatus('transcribing');
+          fetch(sttEndpoint(), { method: 'POST', headers: { 'Content-Type': blob.type || 'application/octet-stream' }, body: blob })
+            .then(function (res) { if (!res.ok) throw new Error('STT_' + res.status); return res.json(); })
+            .then(function (data) { resolve(data && typeof data.text === 'string' && data.text.trim() ? data.text.trim() : null); })
+            .catch(function () { resolve(null); });
+        }
+        function stopNow() { try { rec.stop(); } catch (e) { finish(); } }
+        rec.onstop = finish;
+        try { rec.start(); onStatus('recording'); } catch (e) { stream.getTracks().forEach(function (t) { t.stop(); }); resolve(null); return; }
+        timer = setTimeout(stopNow, maxMs);
+        onReady(stopNow);
+      });
+    });
+  }
+
   /* ================= 저장소 + migration ================= */
   function blankEng() { return { v: 1, items: {}, log: [], days: {}, mistakes: [], conv: [], createdAt: Date.now() }; }
   var E = loadEngine();
@@ -513,10 +557,41 @@
     card.insertBefore(steps, card.firstChild);
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
-      var rec = q('#record'); if (rec) { rec.disabled = true; rec.textContent = T('● 음성 인식 미지원', '● Speech recognition unavailable'); }
-      var note = document.createElement('p'); note.className = 'notice-s'; note.setAttribute('role', 'note');
-      note.textContent = T('이 브라우저는 음성 인식을 지원하지 않아요. 듣기와 따라 말하기 연습은 그대로 할 수 있고, 발음 비교는 Android Chrome 또는 PC Chrome에서 이용해 주세요.', 'This browser does not support speech recognition. You can still listen and repeat; use Chrome on Android or desktop for pronunciation comparison.');
-      card.appendChild(note);
+      var rec = q('#record'), fbBusy = false, fbStop = null, fbIdleLabel = T('● 발음 진단 (서버 음성 인식)', '● Pronunciation check (server speech)');
+      if (canFallbackRecord() && rec) {
+        rec.disabled = false;
+        rec.textContent = fbIdleLabel;
+        rec.onclick = function () {
+          if (fbStop) { fbStop(); return; }
+          if (fbBusy) return; fbBusy = true;
+          try { speechSynthesis.cancel(); } catch (e) {}
+          setStep(2);
+          q('#speechFeedback').textContent = T('마이크를 켜는 중…', 'Starting microphone…');
+          recordAndTranscribe({
+            maxMs: 15000,
+            onReady: function (stop) { fbStop = stop; rec.textContent = T('■ 정지하고 인식', '■ Stop & recognise'); },
+            onStatus: function (s) {
+              if (s === 'recording') q('#speechFeedback').textContent = T('지금 문장을 또렷하게 말해 주세요. 다 말하면 버튼을 다시 눌러 멈추세요. (최대 15초)', 'Speak the sentence now. Tap again to stop. (up to 15s)');
+              if (s === 'transcribing') { fbStop = null; rec.textContent = fbIdleLabel; rec.disabled = true; q('#speechFeedback').textContent = T('인식 중입니다…', 'Recognising…'); }
+            }
+          }).then(function (heard) {
+            fbBusy = false; fbStop = null; rec.disabled = false; rec.textContent = fbIdleLabel;
+            if (!heard) { q('#speechFeedback').textContent = T('음성이 들리지 않았습니다. 조용한 곳에서 마이크 권한을 허용하고 다시 시도해 주세요.', 'No speech detected. Allow microphone access in a quiet place and try again.'); return; }
+            setStep(3); gradeSpeech(heard);
+          }).catch(function (err) {
+            fbBusy = false; fbStop = null; rec.disabled = false; rec.textContent = fbIdleLabel;
+            q('#speechFeedback').textContent = err && err.name === 'NotAllowedError' ? T('마이크 권한이 차단되어 있습니다. 주소창의 자물쇠 → 마이크 → 허용으로 변경해 주세요.', 'Microphone permission is blocked. Allow it from the address bar.') : T('마이크를 시작할 수 없습니다. 다른 녹음 앱을 닫고 다시 시도해 주세요.', 'Could not start the microphone. Close other recording apps and try again.');
+          });
+        };
+        var fbNote = document.createElement('p'); fbNote.className = 'notice-s'; fbNote.setAttribute('role', 'note');
+        fbNote.textContent = T('이 브라우저는 실시간 음성 인식을 지원하지 않아, 녹음 후 서버에서 인식합니다. 버튼을 다시 누르면 녹음을 멈춥니다(최대 15초).', 'Live speech recognition is unavailable here, so audio is recorded and recognised on the server. Tap the button again to stop recording (up to 15s).');
+        card.appendChild(fbNote);
+      } else {
+        if (rec) { rec.disabled = true; rec.textContent = T('● 음성 인식 미지원', '● Speech recognition unavailable'); }
+        var note = document.createElement('p'); note.className = 'notice-s'; note.setAttribute('role', 'note');
+        note.textContent = T('이 브라우저는 음성 인식을 지원하지 않아요. 듣기와 따라 말하기 연습은 그대로 할 수 있고, 발음 비교는 Android Chrome 또는 PC Chrome에서 이용해 주세요.', 'This browser does not support speech recognition. You can still listen and repeat; use Chrome on Android or desktop for pronunciation comparison.');
+        card.appendChild(note);
+      }
     }
     var listen = q('#listen'); if (listen) listen.addEventListener('click', function () { setStep(1); });
     var recb = q('#record'); if (recb) recb.addEventListener('click', function () { setStep(2); });
@@ -722,10 +797,33 @@
   /* 저장된 대화(이전 응답 포함)도 화면에 표시할 때 Markdown 흔적을 지운다 */
   var baseConvBody = convBody;
   convBody = function (x) { return baseConvBody(x && x.role !== 'user' ? Object.assign({}, x, { text: cleanReply(x.text) }) : x); };
+  var convFbStop = null;
   startConversationMic = function () {
+    if (convFbStop) { convFbStop(); return; }
     if (convRecognizing) return;
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) { q('#conversationStatus').textContent = T('이 브라우저에서는 음성 인식이 지원되지 않아요. 텍스트로 입력해 주세요.', 'Speech recognition is not supported here. Please type your answer.'); return; }
+    if (!SR) {
+      if (!canFallbackRecord()) { q('#conversationStatus').textContent = T('이 브라우저에서는 음성 인식이 지원되지 않아요. 텍스트로 입력해 주세요.', 'Speech recognition is not supported here. Please type your answer.'); return; }
+      if (!navigator.onLine) { q('#conversationStatus').textContent = OFFLINE; return; }
+      try { if (window.TTS) TTS.stop(); } catch (e) {}
+      convRecognizing = true; q('#conversationStatus').textContent = T('마이크를 켜는 중…', 'Starting microphone…');
+      recordAndTranscribe({
+        maxMs: 15000,
+        onReady: function (stop) { convFbStop = stop; q('#conversationMic').textContent = T('■ 정지하고 인식', '■ Stop & recognise'); },
+        onStatus: function (s) {
+          if (s === 'recording') q('#conversationStatus').textContent = T('말씀하세요… 다시 누르면 멈춥니다. (최대 15초)', 'Speak now… tap again to stop. (up to 15s)');
+          if (s === 'transcribing') { convFbStop = null; q('#conversationMic').textContent = T('● 말하기', '● Speak'); q('#conversationMic').disabled = true; q('#conversationStatus').textContent = T('인식 중…', 'Recognising…'); }
+        }
+      }).then(function (heard) {
+        convRecognizing = false; convFbStop = null; q('#conversationMic').disabled = false; q('#conversationMic').textContent = T('● 말하기', '● Speak');
+        if (heard) submitConversation(heard);
+        else q('#conversationStatus').textContent = T('음성이 들리지 않았어요. 다시 시도하거나 텍스트로 입력해 주세요.', 'No speech detected. Try again or type your answer.');
+      }).catch(function () {
+        convRecognizing = false; convFbStop = null; q('#conversationMic').disabled = false; q('#conversationMic').textContent = T('● 말하기', '● Speak');
+        q('#conversationStatus').textContent = T('마이크를 시작하지 못했어요. 마이크 권한을 확인해 주세요.', 'Could not start the microphone. Check microphone permission.');
+      });
+      return;
+    }
     if (!navigator.onLine) { q('#conversationStatus').textContent = OFFLINE; return; }
     try { if (window.TTS) TTS.stop(); } catch (e) {}
     var r = new SR(); r.lang = C.lang; r.interimResults = true; r.continuous = false; r.maxAlternatives = 1;
