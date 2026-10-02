@@ -11,3 +11,6 @@ binding = "AI"
 ALLOWED_ORIGINS = "https://giver11.github.io"
 AI_MODEL = "@cf/openai/gpt-oss-120b"
 AI_MAX_TOKENS = "800"
+# Server-side speech-to-text fallback for browsers with no native SpeechRecognition
+# (iOS Safari/WKWebView, inconsistent Android WebView) — same free Workers AI allocation, no paid API.
+STT_MODEL = "@cf/openai/whisper-large-v3-turbo"

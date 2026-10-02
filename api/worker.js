@@ -2,6 +2,8 @@ export default {
  async fetch(request,env){
   const origin=request.headers.get('Origin')||'',allowed=(env.ALLOWED_ORIGINS||'https://giver11.github.io').split(',').map(x=>x.trim()),cors={'Access-Control-Allow-Origin':allowed.includes(origin)?origin:allowed[0],'Vary':'Origin','Access-Control-Allow-Headers':'Content-Type','Access-Control-Allow-Methods':'GET,POST,OPTIONS'};
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
+  const {pathname}=new URL(request.url);
+  if(pathname==='/stt')return handleSTT(request,env,cors);
   if(request.method==='GET')return json({ok:!!env.AI,service:'scorestep-ai-gateway',provider:'cloudflare-workers-ai',model:modelOf(env)},env.AI?200:503,cors);
   if(request.method!=='POST')return json({error:'method_not_allowed'},405,cors);
   if(!env.AI||typeof env.AI.run!=='function')return json({error:'server_not_configured'},503,cors);
@@ -15,6 +17,27 @@ export default {
   const reply=extractReply(data);if(!reply)return json({error:'empty_ai_response'},502,cors);return json({reply},200,cors)
  }
 };
+/* Server-side speech-to-text fallback (Cloudflare Workers AI Whisper, same free daily allocation as
+   AI Conversation). Used by the frontend only when the browser has no native SpeechRecognition
+   (iOS Safari/WKWebView never supports it; Android WebView support is inconsistent) — never replaces
+   the browser-native path, which remains unchanged. Body: raw audio bytes (any format Whisper accepts,
+   e.g. webm/opus from MediaRecorder). Response: {text}. */
+const DEFAULT_STT_MODEL='@cf/openai/whisper-large-v3-turbo';
+function sttModelOf(env){return String(env.STT_MODEL||DEFAULT_STT_MODEL)}
+async function handleSTT(request,env,cors){
+ if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
+ if(request.method!=='POST')return json({error:'method_not_allowed'},405,cors);
+ if(!env.AI||typeof env.AI.run!=='function')return json({error:'server_not_configured'},503,cors);
+ let buf;try{buf=await request.arrayBuffer()}catch{return json({error:'invalid_audio'},400,cors)}
+ if(!buf||buf.byteLength<500)return json({error:'invalid_audio'},400,cors);
+ if(buf.byteLength>8*1024*1024)return json({error:'audio_too_large'},413,cors);
+ let data;
+ try{data=await env.AI.run(sttModelOf(env),{audio:[...new Uint8Array(buf)]})}
+ catch(err){const detail=String(err&&err.message||err);console.error('Workers AI STT',detail);const daily=/neuron|daily|allocation|quota|4006/i.test(detail);return json({error:daily?'ai_daily_limit':'stt_upstream_failed'},daily?429:502,cors)}
+ const text=String(data?.text||data?.result?.text||'').trim();
+ if(!text)return json({error:'empty_transcription'},502,cors);
+ return json({text},200,cors)
+}
 /* Cloudflare Workers AI (free daily allocation). No paid external AI API is called. */
 const DEFAULT_MODEL='@cf/openai/gpt-oss-120b';
 function modelOf(env){return String(env.AI_MODEL||DEFAULT_MODEL)}
