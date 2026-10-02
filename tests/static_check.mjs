@@ -34,17 +34,40 @@ function exists(fromFile, ref) {
   return fs.existsSync(p);
 }
 const isLocal = (u) => u && !/^(https?:|data:|blob:|mailto:|tel:|javascript:|#|\$\{|about:)/i.test(u) && !u.includes('${');
+const PAGES_BASE = '/language-test-demo/';
+// GitHub Pages 는 /language-test-demo/ 아래에서 제공된다. 그 prefix 를 이미 포함한 절대경로(예: Next.js
+// basePath 빌드 산출물)는 실제로 올바른 주소이므로, prefix 없이 "/"로 시작하는 진짜 루트-절대경로만 오류로 본다.
+function absolutePathExists(clean) {
+  const stripped = clean.slice(PAGES_BASE.length);
+  const clean2 = stripped.split('#')[0].split('?')[0];
+  if (!clean2) return true;
+  let p = path.join(ROOT, decodeURI(clean2));
+  if (clean2.endsWith('/') || (fs.existsSync(p) && fs.statSync(p).isDirectory())) p = path.join(p, 'index.html');
+  return fs.existsSync(p);
+}
 
 // 1) HTML 참조 파일 · base path
 let refs = 0;
+const moduleScripts = new Set(); // <script type="module" src="..."> 로 실제 로드되는 파일 (ESM 문법 허용 대상)
 for (const f of html) {
   const s = fs.readFileSync(f, 'utf8');
+  for (const m of s.matchAll(/<script\b[^>]*\btype=["']module["'][^>]*\bsrc=["']([^"']+)["']|<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*\btype=["']module["']/gi)) {
+    const u = m[1] || m[2];
+    if (!isLocal(u)) continue;
+    const clean = u.split('#')[0].split('?')[0];
+    const abs = clean.startsWith(PAGES_BASE) ? path.join(ROOT, decodeURI(clean.slice(PAGES_BASE.length))) : path.resolve(path.dirname(f), decodeURI(clean));
+    moduleScripts.add(abs);
+  }
   for (const m of s.matchAll(/\b(?:src|href)\s*=\s*["']([^"']+)["']/g)) {
     const u = m[1];
     if (/^http:\/\//i.test(u) && !/localhost|127\.0\.0\.1/.test(u)) err(`${rel(f)}: 보안 연결이 아닌 http:// 참조 (Android Chrome 혼합 콘텐츠 차단) → ${u}`);
     if (!isLocal(u)) continue;
     refs++;
-    if (u.startsWith('/')) { err(`${rel(f)}: 루트 절대경로 "${u}" — GitHub Pages 는 /language-test-demo/ 아래에서 제공되므로 404`); continue; }
+    if (u.startsWith('/')) {
+      if (!u.startsWith(PAGES_BASE)) err(`${rel(f)}: 루트 절대경로 "${u}" — GitHub Pages 는 ${PAGES_BASE} 아래에서 제공되므로 404 (올바른 prefix 없음)`);
+      else if (!absolutePathExists(u.split('#')[0].split('?')[0])) err(`${rel(f)}: 절대경로 대상 누락 → ${u}`);
+      continue;
+    }
     if (!exists(f, u)) err(`${rel(f)}: 누락 파일 → ${u}`);
   }
   // <input type=file> 는 accept 로 파일 종류를 제한해야 Android 파일 선택기가 알맞게 열림
@@ -59,13 +82,19 @@ for (const f of html) {
 
 // 2) JS: 문법 · 정적/동적 import · 동적 script 로더 · 코드 안의 경로
 const MODULE_DIRS = [path.join(ROOT, 'hanja', 'js')];
-const isModule = (f) => MODULE_DIRS.some((d) => f.startsWith(d));
+const isModule = (f) => MODULE_DIRS.some((d) => f.startsWith(d)) || moduleScripts.has(f);
 for (const f of js) {
   const s = fs.readFileSync(f, 'utf8');
   try {
     if (isModule(f)) execFileSync(process.execPath, ['--experimental-default-type=module', '--check', f], { stdio: 'pipe' });
     else new vm.Script(s, { filename: f });
-  } catch (e) { err(`${rel(f)}: JS 문법 오류 ${String(e.stderr || e.message).split('\n').slice(0, 4).join(' ')}`); }
+  } catch (e) {
+    // 고전 스크립트로 파싱했지만 실제로는 동적 import 로만 쓰이는 ES 모듈 청크일 수 있음(예: Next.js 코드-스플릿 chunk) → 모듈 문법으로 재시도
+    if (!isModule(f) && /Cannot use import statement outside a module|Unexpected token ['"]?export['"]?/.test(String(e.message))) {
+      try { execFileSync(process.execPath, ['--experimental-default-type=module', '--check', f], { stdio: 'pipe' }); continue; } catch (e2) { e = e2; }
+    }
+    err(`${rel(f)}: JS 문법 오류 ${String(e.stderr || e.message).split('\n').slice(0, 4).join(' ')}`);
+  }
   if (isModule(f)) {
     for (const m of s.matchAll(/(?:import\s[^'"]*?from\s*|import\s*\(\s*|import\s+)['"](\.{1,2}\/[^'"]+)['"]/g)) { refs++; if (!exists(f, m[1])) err(`${rel(f)}: import 대상 누락 → ${m[1]}`); }
   }
