@@ -4,9 +4,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import vm from 'node:vm';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const PAGES_BASE = '/language-test-demo/';
 const SKIP = new Set(['.git', 'node_modules', 'tests', 'scripts', '__pycache__', '.wrangler']);
 const errors = [], warnings = [];
 const err = (m) => errors.push(m), warn = (m) => warnings.push(m);
@@ -33,6 +33,16 @@ function exists(fromFile, ref) {
   if (fs.existsSync(p) && fs.statSync(p).isDirectory()) p = path.join(p, 'index.html');
   return fs.existsSync(p);
 }
+function existsPagesRef(ref) {
+  const clean = ref.split('#')[0].split('?')[0];
+  if (!clean.startsWith(PAGES_BASE)) return false;
+  let p = path.resolve(ROOT, decodeURI(clean.slice(PAGES_BASE.length)));
+  const rootPrefix = ROOT.endsWith(path.sep) ? ROOT : ROOT + path.sep;
+  if (p !== ROOT && !p.startsWith(rootPrefix)) return false;
+  if (clean.endsWith('/')) p = path.join(p, 'index.html');
+  if (fs.existsSync(p) && fs.statSync(p).isDirectory()) p = path.join(p, 'index.html');
+  return fs.existsSync(p);
+}
 const isLocal = (u) => u && !/^(https?:|data:|blob:|mailto:|tel:|javascript:|#|\$\{|about:)/i.test(u) && !u.includes('${');
 
 // 1) HTML 참조 파일 · base path
@@ -44,7 +54,10 @@ for (const f of html) {
     if (/^http:\/\//i.test(u) && !/localhost|127\.0\.0\.1/.test(u)) err(`${rel(f)}: 보안 연결이 아닌 http:// 참조 (Android Chrome 혼합 콘텐츠 차단) → ${u}`);
     if (!isLocal(u)) continue;
     refs++;
-    if (u.startsWith('/')) { err(`${rel(f)}: 루트 절대경로 "${u}" — GitHub Pages 는 /language-test-demo/ 아래에서 제공되므로 404`); continue; }
+    if (u.startsWith('/')) {
+      if (!u.startsWith(PAGES_BASE) || !existsPagesRef(u)) err(`${rel(f)}: GitHub Pages 경로가 저장소 base path 밖이거나 대상 파일이 없음 → ${u}`);
+      continue;
+    }
     if (!exists(f, u)) err(`${rel(f)}: 누락 파일 → ${u}`);
   }
   // <input type=file> 는 accept 로 파일 종류를 제한해야 Android 파일 선택기가 알맞게 열림
@@ -63,8 +76,9 @@ const isModule = (f) => MODULE_DIRS.some((d) => f.startsWith(d));
 for (const f of js) {
   const s = fs.readFileSync(f, 'utf8');
   try {
-    if (isModule(f)) execFileSync(process.execPath, ['--experimental-default-type=module', '--check', f], { stdio: 'pipe' });
-    else new vm.Script(s, { filename: f });
+    // 모든 .js 를 브라우저 로딩 문맥과 맞춰 ES module 문법으로 파싱한다.
+    // stdin 사용으로 Node 버전에 따라 지원이 달라지는 default-type 실험 플래그를 피한다.
+    execFileSync(process.execPath, ['--check', '--input-type=module'], { input: s, encoding: 'utf8', stdio: 'pipe' });
   } catch (e) { err(`${rel(f)}: JS 문법 오류 ${String(e.stderr || e.message).split('\n').slice(0, 4).join(' ')}`); }
   if (isModule(f)) {
     for (const m of s.matchAll(/(?:import\s[^'"]*?from\s*|import\s*\(\s*|import\s+)['"](\.{1,2}\/[^'"]+)['"]/g)) { refs++; if (!exists(f, m[1])) err(`${rel(f)}: import 대상 누락 → ${m[1]}`); }
