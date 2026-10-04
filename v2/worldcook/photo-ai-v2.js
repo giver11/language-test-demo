@@ -1,4 +1,4 @@
-/* Cookora Vision v9 — saved-photo, video-frame and live-camera recognition with selectable localized candidates. */
+/* Cookora Vision v11 — server multimodal vision first, fast on-device compatibility scan second. */
 (function(){
 const legacyAnalyze=window.analyzePhoto;
 let objectDetectorPromise=null,classifierPromise=null,activeDetector="";
@@ -9,11 +9,11 @@ const PACKAGES=[
 ["egg","an egg carton"],["milk","a milk carton"],["milk","a milk bottle"],["yogurt","a yogurt cup"],["cheese","a cheese package"],["chicken","a chicken package"],["beef","a beef package"],["fish","a fish package"],["rice","a bag of rice"],["pasta","a pasta package"],["tofu","a tofu package"]
 ];
 const TEXT={
-en:{load:"Loading the ingredient detector… First use may take a moment.",detect:"Finding ingredients in the photo…",fallback:"High-accuracy scan unavailable. Running compatibility scan…",retake:"📸 Retake photo",source:"fast on-device scan",low:"No result was reliable enough. Retake a close, bright photo or add ingredients manually."},
-ko:{load:"재료 탐지 모델을 불러오는 중입니다. 최초 1회만 잠시 걸릴 수 있습니다.",detect:"사진 속 재료를 찾는 중입니다…",fallback:"고정밀 분석을 사용할 수 없어 호환 분석을 실행합니다…",retake:"📸 사진 다시 찍기",source:"기기 내 빠른 분석",low:"신뢰할 만한 결과가 없습니다. 재료를 가까이에서 밝게 다시 찍거나 직접 추가하세요."},
-es:{load:"Cargando el detector de ingredientes… La primera vez puede tardar un momento.",detect:"Buscando ingredientes en la foto…",fallback:"El análisis de alta precisión no está disponible. Ejecutando el modo compatible…",retake:"📸 Repetir foto",source:"análisis rápido local",low:"No hubo resultados suficientemente fiables. Toma otra foto cercana y luminosa o añade los ingredientes manualmente."},
-ja:{load:"食材検出モデルを読み込み中です。初回のみ少し時間がかかる場合があります。",detect:"写真の食材を検出中です…",fallback:"高精度分析を利用できないため互換スキャンを実行します…",retake:"📸 写真を撮り直す",source:"端末内高速分析",low:"信頼できる結果がありません。食材を明るい場所で近くから撮り直すか、手動で追加してください。"},
-zh:{load:"正在加载食材检测模型，首次使用可能需要一点时间。",detect:"正在识别照片中的食材…",fallback:"高精度分析不可用，正在运行兼容扫描…",retake:"📸 重新拍摄",source:"设备端快速分析",low:"没有足够可靠的结果。请在明亮环境中近距离重拍，或手动添加食材。"}
+en:{load:"Preparing the photo…",detect:"AI is checking visible ingredients and package labels…",fallback:"High-accuracy scan is unavailable. Running the on-device compatibility scan…",retake:"📸 Retake photo",source:"high-accuracy cloud scan",low:"No result was reliable enough. Retake a close, bright photo or add ingredients manually."},
+ko:{load:"사진을 분석하기 좋게 준비하는 중입니다…",detect:"AI가 보이는 재료와 포장지 글자를 확인하고 있습니다…",fallback:"고정밀 분석을 사용할 수 없어 기기 내 호환 분석을 실행합니다…",retake:"📸 사진 다시 찍기",source:"고정밀 클라우드 분석",low:"신뢰할 만한 결과가 없습니다. 재료를 가까이에서 밝게 다시 찍거나 직접 추가하세요."},
+es:{load:"Preparando la foto…",detect:"La IA está revisando ingredientes visibles y etiquetas…",fallback:"El análisis de alta precisión no está disponible. Ejecutando el modo local…",retake:"📸 Repetir foto",source:"análisis de alta precisión",low:"No hubo resultados suficientemente fiables. Toma otra foto cercana y luminosa o añade los ingredientes manualmente."},
+ja:{load:"写真を解析用に準備しています…",detect:"AIが見える食材とパッケージ表示を確認しています…",fallback:"高精度解析を利用できないため端末内スキャンを実行します…",retake:"📸 写真を撮り直す",source:"高精度クラウド解析",low:"信頼できる結果がありません。食材を明るい場所で近くから撮り直すか、手動で追加してください。"},
+zh:{load:"正在准备照片…",detect:"AI正在检查可见食材和包装文字…",fallback:"高精度分析不可用，正在运行设备端扫描…",retake:"📸 重新拍摄",source:"高精度云端分析",low:"没有足够可靠的结果。请在明亮环境中近距离重拍，或手动添加食材。"}
 };
 const SCAN_I18N={
 ko:{cucumber:"오이",pineapple:"파인애플",strawberry:"딸기",blueberry:"블루베리",grape:"포도",watermelon:"수박",pork:"돼지고기","sweet potato":"고구마",corn:"옥수수",cauliflower:"콜리플라워",lettuce:"상추",avocado:"아보카도",banana:"바나나",apple:"사과",broccoli:"브로콜리",tofu:"두부",kimchi:"김치",coffee:"커피",tea:"차",pomegranate:"석류",pumpkin:"호박",artichoke:"아티초크",burger:"버거",pizza:"피자",burrito:"부리토",soup:"수프",pie:"파이","ice cream":"아이스크림",dessert:"디저트","prepared food":"조리된 음식","mixed ingredients":"혼합 재료"},
@@ -110,6 +110,33 @@ function waitForImage(img){
  ]);
 }
 function withTimeout(p,ms){return Promise.race([p,new Promise((_,no)=>setTimeout(()=>no(new Error("Analysis timeout")),ms))])}
+function gatewayUrl(){return String((window.LANGUAGE_APP_RUNTIME||{}).aiEndpoint||"").replace(/\/$/,"")}
+async function imageDataForVision(frame){
+ const src=frame,sw=src.naturalWidth||src.videoWidth||src.width,sh=src.naturalHeight||src.videoHeight||src.height;
+ if(!sw||!sh)throw new Error("Image dimensions unavailable");
+ const max=1024,scale=Math.min(1,max/Math.max(sw,sh)),c=document.createElement("canvas");
+ c.width=Math.max(1,Math.round(sw*scale));c.height=Math.max(1,Math.round(sh*scale));
+ c.getContext("2d",{alpha:false}).drawImage(src,0,0,c.width,c.height);
+ return c.toDataURL("image/jpeg",.76);
+}
+async function hashText(value){
+ if(!crypto?.subtle)return String(value.length)+":"+value.slice(-64);
+ const bytes=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value));
+ return [...new Uint8Array(bytes)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+async function serverVision(frame){
+ const endpoint=gatewayUrl();if(!endpoint)throw new Error("VISION_GATEWAY_NOT_CONFIGURED");
+ const image=await imageDataForVision(frame),key="wc-vision-"+(await hashText(image)),cached=sessionStorage.getItem(key);
+ if(cached)return JSON.parse(cached);
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),28000);
+ try{
+  const res=await fetch(endpoint+"/vision",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image,locale:lang()}),signal:controller.signal});
+  if(!res.ok)throw new Error("VISION_GATEWAY_"+res.status);
+  const data=await res.json();if(!Array.isArray(data.items))throw new Error("VISION_INVALID_RESPONSE");
+  try{sessionStorage.setItem(key,JSON.stringify(data))}catch{}
+  return data;
+ }finally{clearTimeout(timer)}
+}
 async function loadObjectDetector(){
  if(!objectDetectorPromise){
   objectDetectorPromise=(async()=>{
@@ -136,22 +163,28 @@ window.renderCandidates=function(){
   const display=x.n?ingredientName(x.n):"";
   const reliable=x.n&&x.score>=.32;
   const evidence=x.evidence||activeDetector||"on-device classifier";
-  return '<div class="candidate '+(reliable?'':'low-confidence')+'"><input type="checkbox" '+(reliable?"checked":"")+' aria-label="Include candidate"><input type="text" value="'+esc(display)+'" placeholder="'+esc(p.candidate)+'" oninput="detected['+i+'].n=window.wcReverseIngredient(this.value)"><span class="small">'+(x.score?Math.round(x.score*100)+"%":p.edit)+'</span><span class="evidence">'+esc(evidence)+'</span><button class="trash" onclick="removeCandidate('+i+')">✕</button></div>';
+ return '<div class="candidate '+(reliable?'':'low-confidence')+'"><input type="checkbox" '+(reliable?"checked":"")+' aria-label="Include candidate"><input type="text" value="'+esc(display)+'" placeholder="'+esc(p.candidate)+'" oninput="detected['+i+'].n=window.wcReverseIngredient(this.value)"><span class="small">'+(x.score?Math.round(x.score*100)+"%":p.edit)+'</span><span class="evidence">'+esc(evidence)+'</span><button class="trash" onclick="removeCandidate('+i+')">✕</button></div>';
  }).join("");
  $("#candidateTools").classList.toggle("hidden",!detected.length);
 };
 window.wcReverseIngredient=reverseIngredient;
 window.confirmCandidates=function(){
  const rows=$$("#candidates .candidate"),names=[];
- rows.forEach((r,i)=>{if(r.querySelector('input[type="checkbox"]').checked){const n=detected[i]&&detected[i].n;if(n)names.push(n)}});
- [...new Set(names)].forEach(n=>{pantry=pantry.filter(x=>x.n!==n);pantry.unshift({n,q:1,u:"piece"})});
+ rows.forEach((r,i)=>{if(r.querySelector('input[type="checkbox"]').checked){const x=detected[i],n=x&&x.n;if(n)names.push({n,q:Number(x.q)||1,u:x.u||"piece"})}});
+ [...new Map(names.map(x=>[x.n,x])).values()].forEach(x=>{pantry=pantry.filter(i=>i.n!==x.n);pantry.unshift({n:x.n,q:x.q,u:x.u})});
  save();render();$("#scanStatus").textContent=names.length+" "+PUI[lang()].confirmed;detected=[];renderCandidates();setTimeout(()=>setView("explore"),700);
 };
 window.analyzePhoto=async function(){
  if(!photoFile)return;
  const btn=$("#scanButton"),p=PUI[lang()],t=ui();btn.disabled=true;setStatus(t.load);
  try{
-  const model=await withTimeout(loadModels(),22000),frames=await mediaFrames(),best={};setStatus(t.detect);
+  const frames=await mediaFrames();setStatus(t.detect);
+  try{
+   const data=await serverVision(frames[0]);
+   detected=data.items.map(x=>({n:mapLabel(x.name)||String(x.name||"").toLowerCase(),score:+x.confidence||0,evidence:x.evidence||"AI visual evidence",q:+x.quantity||1,u:x.unit||"piece"})).filter(x=>x.n).slice(0,15);
+   if(detected.length){activeDetector="Cloudflare multimodal vision";renderCandidates();setStatus(detected.length+" "+p.found+" · "+t.source);return}
+  }catch(serverError){console.warn("Cookora high-accuracy vision unavailable",serverError);setStatus(t.fallback)}
+  const model=await withTimeout(loadModels(),22000),best={};
   for(const frame of frames){
    await new Promise(ok=>requestAnimationFrame(ok));
    const predictions=await withTimeout(model.classify(frame,30),12000);
@@ -168,7 +201,7 @@ window.analyzePhoto=async function(){
   detected=Object.entries(best).map(([n,score])=>({n,score,evidence:isVideo()?"3 video frames · on-device":"photo · on-device"})).sort((a,b)=>b.score-a.score).slice(0,12);
   if(!detected.length){detected=[{n:"",score:0}];renderCandidates();setStatus(t.low)}
   else{renderCandidates();setStatus(detected.length+" "+p.found+" · "+t.source+" ("+activeDetector+(isVideo()?", 3 frames":"")+")")}
- }catch(err){console.warn("Cookora Vision v9",err);classifierPromise=null;detected=[{n:"",score:0}];renderCandidates();setStatus(t.low)}
+ }catch(err){console.warn("Cookora Vision v11",err);classifierPromise=null;detected=[{n:"",score:0}];renderCandidates();setStatus(t.low)}
  finally{btn.disabled=false}
 };
 function syncCameraLabels(){
