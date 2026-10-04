@@ -14,3 +14,5 @@ AI_MAX_TOKENS = "800"
 # Server-side speech-to-text fallback for browsers with no native SpeechRecognition
 # (iOS Safari/WKWebView, inconsistent Android WebView) — same free Workers AI allocation, no paid API.
 STT_MODEL = "@cf/openai/whisper-large-v3-turbo"
+# Multimodal ingredient recognition for Cookora In. Images are resized client-side and not stored.
+VISION_MODEL = "@cf/meta/llama-3.2-11b-vision-instruct"
