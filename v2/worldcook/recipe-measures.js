@@ -22,4 +22,6 @@ function formatMeasure(v,count,l){
  const amount=wcRound(v[0]*count),unit=ui[v[1]]||v[1];
  return amount+" "+unit;
 }
-R.forEach(r=>{r.q=r.x.map(x=>window.WC_MEASURE[x]||[50,"g"])});
+R.forEach(r=>{
+ if(!Array.isArray(r.q)||r.q.length!==r.x.length){r.q=r.x.map(x=>window.WC_MEASURE[x]||[50,"g"])}
+});
