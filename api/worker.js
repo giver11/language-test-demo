@@ -4,6 +4,7 @@ export default {
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
   const {pathname}=new URL(request.url);
   if(pathname==='/stt')return handleSTT(request,env,cors);
+  if(pathname==='/vision')return handleVision(request,env,cors);
   if(request.method==='GET')return json({ok:!!env.AI,service:'scorestep-ai-gateway',provider:'cloudflare-workers-ai',model:modelOf(env)},env.AI?200:503,cors);
   if(request.method!=='POST')return json({error:'method_not_allowed'},405,cors);
   if(!env.AI||typeof env.AI.run!=='function')return json({error:'server_not_configured'},503,cors);
@@ -17,6 +18,38 @@ export default {
   const reply=extractReply(data);if(!reply)return json({error:'empty_ai_response'},502,cors);return json({reply},200,cors)
  }
 };
+/* Cookora In ingredient vision. Images are processed in memory and are never persisted by this
+   Worker. The browser resizes them before upload; the hard limit prevents accidental large bills. */
+const DEFAULT_VISION_MODEL='@cf/meta/llama-3.2-11b-vision-instruct';
+function visionModelOf(env){return String(env.VISION_MODEL||DEFAULT_VISION_MODEL)}
+async function handleVision(request,env,cors){
+ if(request.method!=='POST')return json({error:'method_not_allowed'},405,cors);
+ if(!env.AI||typeof env.AI.run!=='function')return json({error:'server_not_configured'},503,cors);
+ let body;try{body=await request.json()}catch{return json({error:'invalid_json'},400,cors)}
+ const image=String(body?.image||''),locale=['en','ko','es','ja','zh'].includes(body?.locale)?body.locale:'en';
+ if(!/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/i.test(image))return json({error:'invalid_image'},400,cors);
+ if(image.length>2_200_000)return json({error:'image_too_large'},413,cors);
+ const prompt=`Inspect this refrigerator, pantry, grocery or meal photo. Identify only edible ingredients or clearly identifiable prepared foods that are visibly present. Read package labels when useful. Do not guess hidden contents and do not list plates, bowls, cutlery, tables or appliances. Return JSON only with this exact shape: {"items":[{"name":"canonical English singular ingredient name","confidence":0.0,"quantity":1,"unit":"piece","evidence":"short visible evidence"}]}. Use confidence 0.85+ only for visually unmistakable items, 0.55-0.84 for probable items, and below 0.55 for uncertain items. Maximum 15 unique items. The UI locale is ${locale}, but name must remain canonical English because the client localizes it.`;
+ let data;
+ try{data=await env.AI.run(visionModelOf(env),{messages:[{role:'system',content:'You are a careful food-ingredient visual inspector. Output strict JSON only.'},{role:'user',content:prompt}],image,max_tokens:700,temperature:0.1})}
+ catch(err){const detail=String(err&&err.message||err);console.error('Workers AI Vision',detail);const daily=/neuron|daily|allocation|quota|4006/i.test(detail);return json({error:daily?'ai_daily_limit':'vision_upstream_failed'},daily?429:502,cors)}
+ const raw=extractReply(data),parsed=parseVision(raw);
+ if(!parsed.length)return json({error:'empty_vision_response'},502,cors);
+ return json({items:parsed,model:visionModelOf(env),requires_confirmation:true},200,cors)
+}
+function parseVision(raw){
+ let value;try{value=JSON.parse(String(raw).replace(/^```(?:json)?\s*|\s*```$/gi,''))}catch{return []}
+ const source=Array.isArray(value)?value:value?.items;
+ if(!Array.isArray(source))return [];
+ const seen=new Set(),out=[];
+ for(const x of source){
+  const name=String(x?.name||'').trim().toLowerCase().replace(/[^a-z0-9 '\-]/g,'').slice(0,80);
+  if(!name||seen.has(name))continue;seen.add(name);
+  out.push({name,confidence:Math.max(0,Math.min(0.99,Number(x?.confidence)||0)),quantity:Math.max(.1,Math.min(99,Number(x?.quantity)||1)),unit:['piece','g','kg','ml','cup','bottle','package','bunch'].includes(x?.unit)?x.unit:'piece',evidence:String(x?.evidence||'visible in image').slice(0,160)});
+  if(out.length===15)break;
+ }
+ return out;
+}
 /* Server-side speech-to-text fallback (Cloudflare Workers AI Whisper, same free daily allocation as
    AI Conversation). Used by the frontend only when the browser has no native SpeechRecognition
    (iOS Safari/WKWebView never supports it; Android WebView support is inconsistent) — never replaces
